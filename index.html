@@ -41,6 +41,8 @@
     .footer-note{margin-top:12px;font-size:12px;opacity:.7;line-height:1.7;}
     .win-notice{background:rgba(255,213,74,.15);border:1px solid rgba(255,213,74,.4);border-radius:16px;padding:12px;margin:10px 0 14px;font-size:14px;line-height:1.8;color:var(--accent);}
     .win-send-btn{font-size:16px;padding:15px;}
+    .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(30,20,50,.97);border:1px solid rgba(255,213,74,.5);color:#fff;padding:12px 20px;border-radius:16px;font-size:14px;text-align:center;line-height:1.7;z-index:9999;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;white-space:nowrap;}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
     .hidden{display:none}
     .tap-zone{position:absolute;inset:0;z-index:2;}
     .brand-mini{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:11px;opacity:.6;z-index:4;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.1);padding:6px 12px;border-radius:14px;backdrop-filter:blur(8px);pointer-events:none;white-space:nowrap;}
@@ -127,11 +129,12 @@
     </div>
   </div>
   <div class="brand-mini">أبو جنة × فوريو VIP 🔥</div>
+  <div class="toast" id="toast"></div>
 </div>
 <script>
 (function(){
   const TELEGRAM_LINK = "https://t.me/YOUR_CHANNEL";
-  const WIN_TARGET = 4;
+  const WIN_TARGET = 3;
 
   const wrapper = document.getElementById("w");
   const canvas  = document.getElementById("gameCanvas");
@@ -559,7 +562,7 @@
 
   document.getElementById("shareWinBtn").addEventListener("click",async()=>{
     const t="🏆 فزت بلعبة أبو جنة × فوريو وجبت "+game.score+" نقطة 🔥";
-    try{ await navigator.clipboard.writeText(t); alert("تم نسخ رسالة الفوز"); }catch(e){ alert(t); }
+    try{ await navigator.clipboard.writeText(t); }catch(e){}
   });
 
 
