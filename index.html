@@ -12,8 +12,8 @@
       --stroke:rgba(255,255,255,.18);--shadow:0 20px 40px rgba(0,0,0,.35);
     }
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
-    html,body{width:100%;height:100%;background:#12051f;display:flex;align-items:center;justify-content:center;font-family:"Tahoma","Arial",sans-serif;overflow:hidden;}
-    #w{position:relative;width:100vw;height:100vh;max-width:900px;overflow:hidden;background:radial-gradient(circle at top right,rgba(255,75,125,.22),transparent 25%),radial-gradient(circle at top left,rgba(255,213,74,.18),transparent 25%),linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--white);touch-action:manipulation;}
+    html,body{width:100%;height:100%;background:#12051f;display:flex;align-items:center;justify-content:center;font-family:"Tahoma","Arial",sans-serif;overflow:hidden;position:fixed;top:0;left:0;}
+    #w{position:relative;width:100vw;height:100vh;max-width:900px;overflow:hidden;background:radial-gradient(circle at top right,rgba(255,75,125,.22),transparent 25%),radial-gradient(circle at top left,rgba(255,213,74,.18),transparent 25%),linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--white);touch-action:none;user-select:none;-webkit-user-select:none;}
     #w canvas{display:block;width:100%;height:100%;}
     .hud{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;z-index:5;pointer-events:none;flex-wrap:wrap;}
     .hud-left,.hud-right{display:flex;gap:10px;flex-wrap:wrap;}
@@ -375,76 +375,72 @@
   }
 
   function drawPlayer(){
-    const x=player.x,y=player.y,w=player.w,h=player.h;
-    const t = Date.now()/120;
-    const legSwing = Math.sin(t)*0.32;
-    const armSwing = Math.sin(t+Math.PI)*0.28;
-    const bobY = player.onGround ? Math.abs(Math.sin(t))*2 : 0;
+    const x=player.x, y=player.y, w=player.w, h=player.h;
+    // حركة الركض مرتبطة بسرعة اللعبة وليس بالوقت
+    const t = game.bgOffset * 0.18;
+    const ls = player.onGround ? Math.sin(t)*0.38 : 0;   // تأرجح الأرجل
+    const as = player.onGround ? Math.sin(t+Math.PI)*0.3 : 0; // تأرجح الأيدي
 
-    // ظل
+    // ظل تحت الشخصية
     ctx.beginPath(); ctx.fillStyle="rgba(0,0,0,.25)";
-    ctx.ellipse(x+w/2,H-groundH()+8,w*0.32,10,0,0,Math.PI*2); ctx.fill();
+    ctx.ellipse(x+w/2, H-groundH()+7, w*0.3, 8, 0, 0, Math.PI*2); ctx.fill();
 
     // --- الرجل الخلفية ---
     ctx.save();
-    ctx.translate(x+w*0.55, y+h*0.55+bobY);
-    ctx.rotate(-legSwing);
+    ctx.translate(x+w*0.54, y+h*0.54);
+    ctx.rotate(-ls);
     ctx.fillStyle="#0a1020";
-    roundRect(-w*0.1,-h*0.01,w*0.2,h*0.24,w*0.06,true);
-    ctx.fillStyle="#222";
-    roundRect(-w*0.13,h*0.23,w*0.26,h*0.1,w*0.04,true);
+    roundRect(-w*0.09, 0, w*0.18, h*0.26, w*0.05, true);
+    ctx.fillStyle="#1a1a2e";
+    roundRect(-w*0.12, h*0.25, w*0.24, h*0.1, w*0.04, true);
     ctx.restore();
 
     // --- الذراع الخلفية ---
     ctx.save();
-    ctx.translate(x+w*0.62, y+h*0.28+bobY);
-    ctx.rotate(armSwing+0.4);
-    ctx.fillStyle="#d4a873";
-    roundRect(-w*0.07,0,w*0.14,h*0.25,w*0.05,true);
+    ctx.translate(x+w*0.68, y+h*0.3);
+    ctx.rotate(as+0.35);
+    ctx.fillStyle="#c8905a";
+    roundRect(-w*0.07, 0, w*0.14, h*0.24, w*0.05, true);
     ctx.restore();
 
     // --- الجسم ---
     ctx.fillStyle="#101827";
-    roundRect(x+w*0.22,y+h*0.26+bobY,w*0.56,h*0.32,w*0.08,true);
+    roundRect(x+w*0.2, y+h*0.27, w*0.6, h*0.3, w*0.08, true);
     ctx.fillStyle="#ffb703";
-    roundRect(x+w*0.26,y+h*0.29+bobY,w*0.48,h*0.26,w*0.07,true);
-
-    // شعار على القميص
+    roundRect(x+w*0.24, y+h*0.3, w*0.52, h*0.24, w*0.07, true);
     ctx.fillStyle="#231200"; ctx.font=`bold ${Math.max(9,w*0.1)}px Tahoma`;
-    ctx.textAlign="center"; ctx.fillText("AJ",x+w*0.5,y+h*0.47+bobY);
+    ctx.textAlign="center";
+    ctx.fillText("AJ", x+w*0.5, y+h*0.47);
 
     // --- الرجل الأمامية ---
     ctx.save();
-    ctx.translate(x+w*0.42, y+h*0.55+bobY);
-    ctx.rotate(legSwing);
+    ctx.translate(x+w*0.42, y+h*0.54);
+    ctx.rotate(ls);
     ctx.fillStyle="#101827";
-    roundRect(-w*0.1,-h*0.01,w*0.2,h*0.24,w*0.06,true);
+    roundRect(-w*0.09, 0, w*0.18, h*0.26, w*0.05, true);
     ctx.fillStyle="#333";
-    roundRect(-w*0.13,h*0.23,w*0.26,h*0.1,w*0.04,true);
+    roundRect(-w*0.12, h*0.25, w*0.24, h*0.1, w*0.04, true);
     ctx.restore();
 
     // --- الذراع الأمامية ---
     ctx.save();
-    ctx.translate(x+w*0.25, y+h*0.28+bobY);
-    ctx.rotate(-armSwing-0.4);
+    ctx.translate(x+w*0.28, y+h*0.3);
+    ctx.rotate(-as-0.35);
     ctx.fillStyle="#f3c89d";
-    roundRect(-w*0.07,0,w*0.14,h*0.25,w*0.05,true);
+    roundRect(-w*0.07, 0, w*0.14, h*0.24, w*0.05, true);
     ctx.restore();
 
     // --- الرأس ---
     ctx.fillStyle="#f3c89d";
-    ctx.beginPath(); ctx.arc(x+w*0.5,y+h*0.17+bobY,w*0.19,0,Math.PI*2); ctx.fill();
-    // شعر
+    ctx.beginPath(); ctx.arc(x+w*0.5, y+h*0.18, w*0.19, 0, Math.PI*2); ctx.fill();
     ctx.fillStyle="#2a1b12";
-    ctx.beginPath(); ctx.arc(x+w*0.5,y+h*0.14+bobY,w*0.2,Math.PI,0); ctx.fill();
-    // عيون
+    ctx.beginPath(); ctx.arc(x+w*0.5, y+h*0.15, w*0.2, Math.PI, 0); ctx.fill();
     ctx.fillStyle="#111";
-    ctx.beginPath(); ctx.arc(x+w*0.45,y+h*0.18+bobY,2,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(x+w*0.56,y+h*0.18+bobY,2,0,Math.PI*2); ctx.fill();
-    // فم
+    ctx.beginPath(); ctx.arc(x+w*0.45, y+h*0.19, 2, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+w*0.56, y+h*0.19, 2, 0, Math.PI*2); ctx.fill();
     ctx.strokeStyle="#2a1b12"; ctx.lineWidth=1.5;
     ctx.beginPath();
-    ctx.arc(x+w*0.5,y+h*0.21+bobY,w*0.06,0.15,Math.PI-0.15); ctx.stroke();
+    ctx.arc(x+w*0.5, y+h*0.22, w*0.06, 0.1, Math.PI-0.1); ctx.stroke();
   }
 
   function drawPickup(p){
@@ -519,12 +515,30 @@
     drawHint();
   }
 
-  function loop(){ update(); render(); requestAnimationFrame(loop); }
+  let lastTime = 0;
+  const TARGET_FPS = 60;
+  const FRAME_TIME = 1000 / TARGET_FPS;
+
+  function loop(ts){
+    requestAnimationFrame(loop);
+    const dt = Math.min(ts - lastTime, 50); // max 50ms لتجنب القفزات الكبيرة
+    if(dt < FRAME_TIME * 0.8) return;       // تخطي فريمات زيادة على 60fps
+    lastTime = ts;
+    update();
+    render();
+  }
   requestAnimationFrame(loop);
 
   function handleTap(){ if(!game.started) return; if(game.running) jump(); }
 
-  tapZone.addEventListener("touchstart",(e)=>{ e.preventDefault(); handleTap(); },{passive:false});
+  let lastTapTime = 0;
+  tapZone.addEventListener("touchstart",(e)=>{
+    e.preventDefault();
+    const now = Date.now();
+    if(now - lastTapTime < 120) return; // منع double-fire
+    lastTapTime = now;
+    handleTap();
+  },{passive:false});
   tapZone.addEventListener("mousedown",(e)=>{ e.preventDefault(); handleTap(); });
   window.addEventListener("keydown",(e)=>{ if((e.code==="Space"||e.code==="ArrowUp")&&game.running){ e.preventDefault(); handleTap(); } });
 
