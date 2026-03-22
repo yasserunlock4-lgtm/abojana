@@ -39,6 +39,8 @@
     .leaderboard{margin-top:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:12px;text-align:right;}
     .leader-item{display:flex;justify-content:space-between;gap:12px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.04);margin-bottom:8px;font-size:14px;}
     .footer-note{margin-top:12px;font-size:12px;opacity:.7;line-height:1.7;}
+    .win-notice{background:rgba(255,213,74,.15);border:1px solid rgba(255,213,74,.4);border-radius:16px;padding:12px;margin:10px 0 14px;font-size:14px;line-height:1.8;color:var(--accent);}
+    .win-send-btn{font-size:16px;padding:15px;}
     .hidden{display:none}
     .tap-zone{position:absolute;inset:0;z-index:2;}
     .brand-mini{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:11px;opacity:.6;z-index:4;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.1);padding:6px 12px;border-radius:14px;backdrop-filter:blur(8px);pointer-events:none;white-space:nowrap;}
@@ -101,19 +103,20 @@
   </div>
   <div class="center-ui hidden" id="winScreen">
     <div class="panel">
-      <h2 class="title">🎉 فزت بالتحدي</h2>
+      <h2 class="title">🎉 فزت بالتحدي!</h2>
       <p class="sub" id="winText">وصلت للهدف</p>
+      <div class="win-notice">
+        🏆 أثبت فوزك! أرسل لي على تلقرام رسالة الفوز للحصول على جائزتك
+      </div>
       <div class="buttons">
+        <button class="telegram win-send-btn" id="sendWinTelegramBtn">📲 أرسل فوزك على تلقرام</button>
         <button class="primary" id="playAgainBtn">العب مرة ثانية</button>
         <div class="button-row">
-          <button class="ghost" id="shareWinBtn">نسخ رسالة الفوز</button>
-          
-        </div>
-        <div class="button-row">
-          <button class="telegram" id="openChannelWinBtn">فتح القناة</button>
-          <button class="ghost" id="homeWinBtn">الصفحة الرئيسية</button>
+          <button class="ghost" id="shareWinBtn">نسخ الرسالة</button>
+          <button class="ghost" id="homeWinBtn">الرئيسية</button>
         </div>
       </div>
+      <div class="footer-note">⚠️ يجب إرسال رسالة الفوز على تلقرام لتسجيل اسمك</div>
     </div>
   </div>
   <div class="center-ui hidden" id="boardScreen">
@@ -128,7 +131,7 @@
 <script>
 (function(){
   const TELEGRAM_LINK = "https://t.me/YOUR_CHANNEL";
-  const WIN_TARGET = 3;
+  const WIN_TARGET = 4;
 
   const wrapper = document.getElementById("w");
   const canvas  = document.getElementById("gameCanvas");
@@ -560,7 +563,11 @@
   });
 
 
-  ["openChannelBtn","openChannelLoseBtn","openChannelWinBtn"].forEach(id=>document.getElementById(id).addEventListener("click",()=>window.open(TELEGRAM_LINK,"_blank")));
+  ["openChannelBtn","openChannelLoseBtn"].forEach(id=>document.getElementById(id).addEventListener("click",()=>window.open(TELEGRAM_LINK,"_blank")));
+  document.getElementById("sendWinTelegramBtn").addEventListener("click",()=>{
+    const t=`🏆 فزت بلعبة أبو جنة × فوريو وجبت ${game.score} نقطة! 🔥`;
+    window.open(`https://t.me/SS34SS4?text=${encodeURIComponent(t)}`,"_blank");
+  });
   ["homeBtn","homeWinBtn"].forEach(id=>document.getElementById(id).addEventListener("click",goHome));
 
   document.getElementById("showBoardBtn").addEventListener("click",()=>{ renderLeaderboard(); hideAllMenus(); boardScreen.classList.remove("hidden"); });
