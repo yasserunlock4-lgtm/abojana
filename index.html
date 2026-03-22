@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>لعبة أبو جنة × فوريو VIP</title>
+  <style>
+    :root{
+      --bg1:#12051f;
+      --bg2:#24113f;
+      --accent:#ffd54a;
+      --accent2:#ff4b7d;
+      --good:#34d399;
+      --bad:#ff5b5b;
+      --white:#ffffff;
+      --glass:rgba(255,255,255,.12);
+      --glass2:rgba(255,255,255,.08);
+      --stroke:rgba(255,255,255,.18);
+      --shadow:0 20px 40px rgba(0,0,0,.35);
+      --cyan:#22d3ee;
+    }
+
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+
+    html,body{
+      width:100%;height:100%;
+      background:#12051f;
+      display:flex;align-items:center;justify-content:center;
+      font-family:"Tahoma","Arial",sans-serif;
+      overflow:hidden;
+    }
+
+    #abuJannaGameWrapper {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      max-width: 900px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(255,75,125,.22), transparent 25%),
+        radial-gradient(circle at top left, rgba(255,213,74,.18), transparent 25%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      color:var(--white);
+      touch-action:manipulation;
+    }
+
+    #abuJannaGameWrapper canvas{
+      display:block;
+      width:100%;
+      height:100%;
+      background:
+        linear-gradient(to bottom, rgba(255,255,255,.04), rgba(255,255,255,0)),
+        linear-gradient(180deg, #1b0b2d 0%, #281447 45%, #1b1230 100%);
+    }
+
+    #abuJannaGameWrapper .hud{
+      position:absolute;
+      top:12px;
+      left:12px;
+      right:12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      z-index:5;
+      pointer-events:none;
+      flex-wrap:wrap;
+    }
+
+    #abuJannaGameWrapper .hud-left,
+    #abuJannaGameWrapper .hud-right{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    #abuJannaGameWrapper .badge{
+      background:var(--glass);
+      border:1px solid var(--stroke);
+      backdrop-filter:blur(10px);
+      padding:10px 14px;
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      min-width:100px;
+      text-align:center;
+    }
+
+    #abuJannaGameWrapper .badge .label{
+      font-size:11px;
+      opacity:.8;
+      margin-bottom:4px;
+    }
+
+    #abuJannaGameWrapper .badge .value{
+      font-size:18px;
+      font-weight:700;
+      color:var(--accent);
+    }
+
+    #abuJannaGameWrapper .goal-badge .value{
+      color:var(--good);
+    }
+
+    #abuJannaGameWrapper .center-ui{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:10;
+      padding:18px;
+    }
+
+    #abuJannaGameWrapper .panel{
+      width:min(92%, 420px);
+      background:linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.07));
+      border:1px solid var(--stroke);
+      backdrop-filter:blur(16px);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:20px;
+      text-align:center;
+      max-height:570px;
+      overflow:auto;
+    }
+
+    #abuJannaGameWrapper .title{
+      font-size:24px;
+      font-weight:800;
+      margin:0 0 10px;
+      line-height:1.2;
+      color:var(--accent);
+      text-shadow:0 4px 18px rgba(255,213,74,.15);
+    }
+
+    #abuJannaGameWrapper .sub{
+      margin:0 0 12px;
+      opacity:.9;
+      line-height:1.8;
+      font-size:14px;
+    }
+
+    #abuJannaGameWrapper .tips{
+      background:var(--glass2);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      padding:12px;
+      margin:10px 0 14px;
+      font-size:13px;
+      line-height:1.9;
+    }
+
+    #abuJannaGameWrapper .buttons{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    #abuJannaGameWrapper .button-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    #abuJannaGameWrapper button{
+      border:none;
+      border-radius:18px;
+      padding:13px 16px;
+      font-size:15px;
+      font-weight:800;
+      cursor:pointer;
+      transition:.18s transform ease, .18s opacity ease;
+      font-family:"Tahoma","Arial",sans-serif;
+    }
+    #abuJannaGameWrapper button:active{transform:scale(.98)}
+
+    #abuJannaGameWrapper .primary{
+      background:linear-gradient(135deg, var(--accent), #ffb300);
+      color:#221400;
+      box-shadow:0 10px 25px rgba(255,213,74,.28);
+    }
+
+    #abuJannaGameWrapper .secondary{
+      background:linear-gradient(135deg, #ff4b7d, #ff7a47);
+      color:#fff;
+      box-shadow:0 10px 25px rgba(255,75,125,.25);
+    }
+
+    #abuJannaGameWrapper .ghost{
+      background:rgba(255,255,255,.08);
+      color:#fff;
+      border:1px solid rgba(255,255,255,.16);
+    }
+
+    #abuJannaGameWrapper .telegram{
+      background:linear-gradient(135deg, #22c1f1, #0b8fd8);
+      color:#fff;
+      box-shadow:0 10px 25px rgba(34,193,241,.22);
+    }
+
+    #abuJannaGameWrapper .reward{
+      background:linear-gradient(135deg, #16a34a, #22c55e);
+      color:#fff;
+      box-shadow:0 10px 25px rgba(34,197,94,.22);
+    }
+
+    #abuJannaGameWrapper .leaderboard{
+      margin-top:14px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      padding:12px;
+      text-align:right;
+    }
+
+    #abuJannaGameWrapper .leader-item{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:9px 10px;
+      border-radius:12px;
+      background:rgba(255,255,255,.04);
+      margin-bottom:8px;
+      font-size:14px;
+    }
+    #abuJannaGameWrapper .leader-item:last-child{margin-bottom:0}
+
+    #abuJannaGameWrapper .footer-note{
+      margin-top:12px;
+      font-size:12px;
+      opacity:.7;
+      line-height:1.7;
+    }
+
+    #abuJannaGameWrapper .hidden{display:none}
+
+    #abuJannaGameWrapper .tap-zone{
+      position:absolute;
+      inset:0;
+      z-index:2;
+    }
+
+    #abuJannaGameWrapper .brand-mini{
+      position:absolute;
+      bottom:10px;
+      left:50%;
+      transform:translateX(-50%);
+      font-size:11px;
+      opacity:.6;
+      z-index:4;
+      background:rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.1);
+      padding:6px 12px;
+      border-radius:14px;
+      backdrop-filter:blur(8px);
+      pointer-events:none;
+      white-space:nowrap;
+    }
+
+    #abuJannaGameWrapper .goal-wrap{
+      margin-top:10px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      padding:10px;
+    }
+
+    #abuJannaGameWrapper .goal-top{
+      display:flex;
+      justify-content:space-between;
+      font-size:12px;
+      opacity:.85;
+      margin-bottom:8px;
+    }
+
+    #abuJannaGameWrapper .goal-bar{
+      height:10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      overflow:hidden;
+    }
+
+    #abuJannaGameWrapper .goal-fill{
+      height:100%;
+      width:0%;
+      border-radius:999px;
+      background:linear-gradient(90deg, var(--good), var(--accent), var(--accent2));
+      box-shadow:0 0 16px rgba(255,213,74,.22);
+      transition:width .2s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="abuJannaGameWrapper">
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="hud">
+      <div class="hud-left">
+        <div class="badge">
+          <div class="label">النتيجة</div>
+          <div class="value" id="scoreValue">0</div>
+        </div>
+        <div class="badge">
+          <div class="label">أفضل رقم</div>
+          <div class="value" id="bestValue">0</div>
+        </div>
+      </div>
+      <div class="hud-right">
+        <div class="badge">
+          <div class="label">المحاولات</div>
+          <div class="value" id="livesValue">3</div>
+        </div>
+        <div class="badge goal-badge">
+          <div class="label">هدف الفوز</div>
+          <div class="value" id="goalValue">20</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tap-zone" id="tapZone"></div>
+
+    <!-- شاشة البداية -->
+    <div class="center-ui" id="startScreen">
+      <div class="panel">
+        <h1 class="title">لعبة أبو جنة × فوريو VIP</h1>
+        <p class="sub">اجمع علب <strong>فوريو</strong>، وخذ بوست طاقة، وابتعد عن العوائق، ووصل لهدف الفوز.</p>
+        <div class="tips">
+          • اضغط أو المس الشاشة حتى يقفز اللاعب<br>
+          • كل علبة فوريو = +1 نقطة<br>
+          • إذا اصطدمت بالعائق تنتهي الجولة<br>
+          • عند الوصول إلى الهدف تظهر شاشة فوز<br>
+          • لديك 3 محاولات يومية تتجدد تلقائيًا
+        </div>
+        <div class="goal-wrap">
+          <div class="goal-top">
+            <span>التقدم نحو الفوز</span>
+            <span><span id="startGoalNow">0</span> / <span id="startGoalTarget">20</span></span>
+          </div>
+          <div class="goal-bar"><div class="goal-fill" id="startGoalFill"></div></div>
+        </div>
+        <div class="buttons" style="margin-top:14px">
+          <button class="primary" id="startBtn">ابدأ اللعب</button>
+          <div class="button-row">
+            <button class="telegram" id="openChannelBtn">فتح القناة</button>
+            <button class="ghost" id="showBoardBtn">أفضل اللاعبين</button>
+          </div>
+          <button class="ghost" id="howBtn">طريقة اللعب</button>
+        </div>
+        <div class="footer-note">نسخة مطورة مع محاولات يومية، شاشة فوز، شاشة خسارة، وقناة تيليجرام.</div>
+      </div>
+    </div>
+
+    <!-- شاشة الخسارة -->
+    <div class="center-ui hidden" id="gameOverScreen">
+      <div class="panel">
+        <h2 class="title">انتهت الجولة</h2>
+        <p class="sub" id="finalText">جبت 0 نقطة</p>
+        <div class="buttons">
+          <button class="secondary" id="restartBtn">إعادة اللعب</button>
+          <div class="button-row">
+            <button class="ghost" id="shareBtn">نسخ النتيجة</button>
+            <button class="reward" id="shareRewardBtn">مشاركة = محاولة</button>
+          </div>
+          <div class="button-row">
+            <button class="telegram" id="openChannelLoseBtn">فتح القناة</button>
+            <button class="ghost" id="homeBtn">الصفحة الرئيسية</button>
+          </div>
+        </div>
+        <div class="footer-note">كلما جمعت فوريو أكثر، تصير السرعة أعلى.</div>
+      </div>
+    </div>
+
+    <!-- شاشة الفوز -->
+    <div class="center-ui hidden" id="winScreen">
+      <div class="panel">
+        <h2 class="title">🎉 فزت بالتحدي</h2>
+        <p class="sub" id="winText">وصلت للهدف</p>
+        <div class="buttons">
+          <button class="primary" id="playAgainBtn">العب مرة ثانية</button>
+          <div class="button-row">
+            <button class="ghost" id="shareWinBtn">نسخ رسالة الفوز</button>
+            <button class="reward" id="shareRewardWinBtn">مشاركة = محاولة</button>
+          </div>
+          <div class="button-row">
+            <button class="telegram" id="openChannelWinBtn">فتح القناة</button>
+            <button class="ghost" id="homeWinBtn">الصفحة الرئيسية</button>
+          </div>
+        </div>
+        <div class="footer-note">تقدر تكسر رقمك القياسي أو تشارك النتيجة مع أصدقائك.</div>
+      </div>
+    </div>
+
+    <!-- شاشة الليدر بورد -->
+    <div class="center-ui hidden" id="boardScreen">
+      <div class="panel">
+        <h2 class="title">🏆 أفضل اللاعبين</h2>
+        <p class="sub">ليدر بورد محلي محفوظ على الجهاز</p>
+        <div class="leaderboard" id="leaderboardList"></div>
+        <div class="buttons" style="margin-top:14px">
+          <button class="ghost" id="closeBoardBtn">رجوع</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-mini">أبو جنة × فوريو VIP</div>
+  </div>
+
+  <script>
+    (function(){
+      const TELEGRAM_LINK = "https://t.me/YOUR_CHANNEL"; // ← غيّر هنا
+      const WIN_TARGET = 20;
+
+      const wrapper   = document.getElementById("abuJannaGameWrapper");
+      const canvas    = document.getElementById("gameCanvas");
+      const ctx       = canvas.getContext("2d");
+
+      const scoreValue    = document.getElementById("scoreValue");
+      const bestValue     = document.getElementById("bestValue");
+      const livesValue    = document.getElementById("livesValue");
+      const goalValue     = document.getElementById("goalValue");
+
+      const startScreen    = document.getElementById("startScreen");
+      const gameOverScreen = document.getElementById("gameOverScreen");
+      const winScreen      = document.getElementById("winScreen");
+      const boardScreen    = document.getElementById("boardScreen");
+
+      const finalText  = document.getElementById("finalText");
+      const winText    = document.getElementById("winText");
+
+      const startBtn      = document.getElementById("startBtn");
+      const restartBtn    = document.getElementById("restartBtn");
+      const playAgainBtn  = document.getElementById("playAgainBtn");
+
+      const shareBtn           = document.getElementById("shareBtn");
+      const shareWinBtn        = document.getElementById("shareWinBtn");
+      const shareRewardBtn     = document.getElementById("shareRewardBtn");
+      const shareRewardWinBtn  = document.getElementById("shareRewardWinBtn");
+
+      const howBtn     = document.getElementById("howBtn");
+      const tapZone    = document.getElementById("tapZone");
+
+      const openChannelBtn     = document.getElementById("openChannelBtn");
+      const openChannelLoseBtn = document.getElementById("openChannelLoseBtn");
+      const openChannelWinBtn  = document.getElementById("openChannelWinBtn");
+
+      const homeBtn    = document.getElementById("homeBtn");
+      const homeWinBtn = document.getElementById("homeWinBtn");
+
+      const showBoardBtn   = document.getElementById("showBoardBtn");
+      const closeBoardBtn  = document.getElementById("closeBoardBtn");
+      const leaderboardList= document.getElementById("leaderboardList");
+
+      const startGoalNow   = document.getElementById("startGoalNow");
+      const startGoalTarget= document.getElementById("startGoalTarget");
+      const startGoalFill  = document.getElementById("startGoalFill");
+
+      let W = 0, H = 0;
+      const DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+
+      function resizeCanvas(){
+        W = wrapper.clientWidth;
+        H = wrapper.clientHeight;
+        canvas.width  = Math.floor(W * DPR);
+        canvas.height = Math.floor(H * DPR);
+        canvas.style.width  = W + "px";
+        canvas.style.height = H + "px";
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      }
+      resizeCanvas();
+      window.addEventListener("resize", resizeCanvas);
+
+      const groundH = () => Math.max(70, H * 0.14);
+
+      goalValue.textContent = WIN_TARGET;
+      startGoalTarget.textContent = WIN_TARGET;
+
+      let best = +localStorage.getItem("abuJannaFourioBest") || 0;
+      bestValue.textContent = best;
+
+      function getTodayKey(){
+        const d = new Date();
+        return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+      }
+
+      function getLivesData(){
+        let data = JSON.parse(localStorage.getItem("abuJannaLives") || "{}");
+        const today = getTodayKey();
+        if(data.date !== today){
+          data = { date: today, lives: 3 };
+          localStorage.setItem("abuJannaLives", JSON.stringify(data));
+        }
+        return data;
+      }
+
+      function updateLivesUI(){ livesValue.textContent = getLivesData().lives; }
+      function canPlay(){ return getLivesData().lives > 0; }
+
+      function useLife(){
+        const data = getLivesData();
+        data.lives = Math.max(0, data.lives - 1);
+        localStorage.setItem("abuJannaLives", JSON.stringify(data));
+        updateLivesUI();
+      }
+
+      function addLife(count = 1){
+        const data = getLivesData();
+        data.lives += count;
+        localStorage.setItem("abuJannaLives", JSON.stringify(data));
+        updateLivesUI();
+      }
+
+      function saveLeaderboard(score){
+        let board = JSON.parse(localStorage.getItem("abuJannaLeaderboard") || "[]");
+        board.push({ name:"لاعب", score, time: new Date().toLocaleDateString("ar") });
+        board.sort((a,b)=>b.score-a.score);
+        board = board.slice(0, 10);
+        localStorage.setItem("abuJannaLeaderboard", JSON.stringify(board));
+      }
+
+      function renderLeaderboard(){
+        const board = JSON.parse(localStorage.getItem("abuJannaLeaderboard") || "[]");
+        if(!board.length){
+          leaderboardList.innerHTML = `<div class="leader-item"><span>لا توجد نتائج بعد</span><span>—</span></div>`;
+          return;
+        }
+        leaderboardList.innerHTML = board.map((item, i)=>`
+          <div class="leader-item">
+            <span>#${i+1} - ${item.name}</span>
+            <span>${item.score} نقطة</span>
+          </div>
+        `).join("");
+      }
+
+      function hideAllMenus(){
+        startScreen.classList.add("hidden");
+        gameOverScreen.classList.add("hidden");
+        winScreen.classList.add("hidden");
+        boardScreen.classList.add("hidden");
+      }
+
+      function goHome(){
+        game.running = false; game.over = false;
+        hideAllMenus();
+        startScreen.classList.remove("hidden");
+        updateLivesUI();
+        updateGoalUI(0);
+        render();
+      }
+
+      function openTelegram(){ window.open(TELEGRAM_LINK, "_blank"); }
+
+      async function shareReward(){
+        try{
+          await navigator.clipboard.writeText("🔥 جرّب لعبة أبو جنة × فوريو");
+          addLife(1);
+          alert("تم نسخ رسالة المشاركة وإضافة محاولة 🎉");
+        }catch(e){
+          addLife(1);
+          alert("تمت إضافة محاولة 🎉");
+        }
+      }
+
+      function updateGoalUI(score){
+        startGoalNow.textContent = score;
+        startGoalFill.style.width = `${Math.min(100,(score/WIN_TARGET)*100)}%`;
+      }
+
+      const game = {
+        running:false, over:false, started:false, won:false,
+        score:0, speed:5.8, gravity:0.8,
+        spawnTimer:0, pickupTimer:0, bgOffset:0,
+        particles:[], obstacles:[], pickups:[], flashes:[]
+      };
+
+      const player = {
+        x:80, y:0, w:70, h:92,
+        vy:0, jumpPower:-14.5,
+        onGround:true, blink:0
+      };
+
+      function resetGame(){
+        game.running=true; game.over=false; game.started=true;
+        game.won=false; game.score=0; game.speed=5.8;
+        game.spawnTimer=0; game.pickupTimer=0; game.bgOffset=0;
+        game.particles=[]; game.obstacles=[]; game.pickups=[]; game.flashes=[];
+        player.x=80;
+        player.w = Math.min(74, W*0.17);
+        player.h = player.w*1.28;
+        player.y = H - groundH() - player.h;
+        player.vy=0; player.onGround=true; player.blink=0;
+        scoreValue.textContent="0";
+        updateGoalUI(0);
+        hideAllMenus();
+      }
+
+      function startGameFlow(){
+        updateLivesUI();
+        if(!canPlay()){ alert("❌ انتهت محاولاتك اليوم"); return; }
+        useLife();
+        resetGame();
+        jump();
+      }
+
+      function jump(){
+        if(!game.running) return;
+        if(player.onGround){
+          player.vy = player.jumpPower;
+          player.onGround = false;
+          makeDust(player.x+player.w*0.3, player.y+player.h, 8, "#ffffff");
+          beep(220,0.05,"square");
+        } else {
+          player.vy -= 1.6;
+        }
+      }
+
+      function endGame(){
+        if(game.over) return;
+        game.running=false; game.over=true; game.won=false;
+        finalText.textContent=`جبت ${game.score} نقطة`;
+        if(game.score>best){
+          best=game.score;
+          localStorage.setItem("abuJannaFourioBest",best);
+          bestValue.textContent=best;
+        }
+        saveLeaderboard(game.score);
+        gameOverScreen.classList.remove("hidden");
+        beep(120,0.12,"sawtooth");
+        setTimeout(()=>beep(80,0.14,"triangle"),80);
+      }
+
+      function winGame(){
+        if(game.over) return;
+        game.running=false; game.over=true; game.won=true;
+        winText.textContent=`وصلت إلى ${game.score} نقطة وفزت 🔥`;
+        if(game.score>best){
+          best=game.score;
+          localStorage.setItem("abuJannaFourioBest",best);
+          bestValue.textContent=best;
+        }
+        saveLeaderboard(game.score);
+        winScreen.classList.remove("hidden");
+        beep(620,0.08,"triangle");
+        setTimeout(()=>beep(760,0.08,"triangle"),90);
+        setTimeout(()=>beep(920,0.10,"triangle"),180);
+      }
+
+      function rand(min,max){ return Math.random()*(max-min)+min; }
+
+      function rectsCollide(a,b){
+        return a.x<b.x+b.w && a.x+a.w>b.x && a.y<b.y+b.h && a.y+a.h>b.y;
+      }
+
+      function spawnObstacle(){
+        const type = Math.random()<0.5?"bag":"barrier";
+        const scale = rand(0.9,1.15);
+        let o = {
+          type, x:W+30,
+          w:type==="bag"?58*scale:74*scale,
+          h:type==="bag"?66*scale:54*scale
+        };
+        o.y = H - groundH() - o.h + (type==="barrier"?8:0);
+        game.obstacles.push(o);
+      }
+
+      function spawnPickup(){
+        const size = rand(30,38);
+        const minY = H - groundH() - player.h - 80;
+        const maxY = H - groundH() - 40;
+        game.pickups.push({
+          x:W+20, y:rand(minY,maxY),
+          w:size, h:size*1.55,
+          rot:rand(-0.2,0.2), bob:rand(0,Math.PI*2)
+        });
+      }
+
+      function makeDust(x,y,count=10,color="#ffd54a"){
+        for(let i=0;i<count;i++){
+          game.particles.push({
+            x,y,
+            vx:rand(-2.5,2.5), vy:rand(-3.5,-0.4),
+            r:rand(2,5), a:1, color
+          });
+        }
+      }
+
+      function flashText(text,x,y,color="#ffd54a"){
+        game.flashes.push({text,x,y,a:1,vy:-0.5,color});
+      }
+
+      let audioCtx;
+      function beep(freq=440,time=0.06,type="sine"){
+        try{
+          audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+          const osc=audioCtx.createOscillator();
+          const gain=audioCtx.createGain();
+          osc.type=type; osc.frequency.value=freq; gain.gain.value=0.03;
+          osc.connect(gain); gain.connect(audioCtx.destination);
+          osc.start();
+          gain.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+time);
+          osc.stop(audioCtx.currentTime+time);
+        }catch(e){}
+      }
+
+      function update(){
+        if(!game.running) return;
+        game.bgOffset += game.speed*0.6;
+        game.speed += 0.0015;
+        player.vy += game.gravity;
+        player.y += player.vy;
+
+        const floorY = H - groundH() - player.h;
+        if(player.y>=floorY){
+          if(!player.onGround && player.vy>4)
+            makeDust(player.x+player.w*0.5, H-groundH(), 8, "#ffd54a");
+          player.y=floorY; player.vy=0; player.onGround=true;
+        }
+
+        game.spawnTimer++;
+        game.pickupTimer++;
+        const obstacleRate = Math.max(52, 90-Math.floor(game.score*0.7));
+
+        if(game.spawnTimer>=obstacleRate){ spawnObstacle(); game.spawnTimer=0; }
+        if(game.pickupTimer>=65){ spawnPickup(); game.pickupTimer=0; }
+
+        for(let i=game.obstacles.length-1;i>=0;i--){
+          const o=game.obstacles[i];
+          o.x -= game.speed;
+          const hp={x:player.x+10,y:player.y+8,w:player.w-20,h:player.h-10};
+          const ho={x:o.x+6,y:o.y+6,w:o.w-12,h:o.h-10};
+          if(rectsCollide(hp,ho)){
+            makeDust(player.x+player.w*0.5,player.y+player.h*0.5,16,"#ff5b5b");
+            endGame();
+          }
+          if(o.x+o.w<-40) game.obstacles.splice(i,1);
+        }
+
+        for(let i=game.pickups.length-1;i>=0;i--){
+          const p=game.pickups[i];
+          p.x -= game.speed*1.02;
+          p.bob += 0.08;
+          const hp={x:player.x+10,y:player.y+8,w:player.w-20,h:player.h-10};
+          const hpu={x:p.x+4,y:p.y+4,w:p.w-8,h:p.h-8};
+          if(rectsCollide(hp,hpu)){
+            game.score++;
+            scoreValue.textContent=game.score;
+            updateGoalUI(game.score);
+            makeDust(p.x+p.w/2,p.y+p.h/2,12,"#34d399");
+            flashText("+1 فوريو",p.x,p.y,"#34d399");
+            beep(520,0.05,"triangle");
+            game.pickups.splice(i,1);
+            if(game.score>=WIN_TARGET) winGame();
+            continue;
+          }
+          if(p.x+p.w<-40) game.pickups.splice(i,1);
+        }
+
+        for(let i=game.particles.length-1;i>=0;i--){
+          const p=game.particles[i];
+          p.x+=p.vx; p.y+=p.vy; p.vy+=0.12; p.a-=0.03;
+          if(p.a<=0) game.particles.splice(i,1);
+        }
+
+        for(let i=game.flashes.length-1;i>=0;i--){
+          const f=game.flashes[i];
+          f.y+=f.vy; f.a-=0.02;
+          if(f.a<=0) game.flashes.splice(i,1);
+        }
+      }
+
+      function roundRect(x,y,w,h,r,fill=false,stroke=false){
+        if(w<2*r)r=w/2; if(h<2*r)r=h/2;
+        ctx.beginPath();
+        ctx.moveTo(x+r,y);
+        ctx.arcTo(x+w,y,x+w,y+h,r);
+        ctx.arcTo(x+w,y+h,x,y+h,r);
+        ctx.arcTo(x,y+h,x,y,r);
+        ctx.arcTo(x,y,x+w,y,r);
+        ctx.closePath();
+        if(fill)ctx.fill();
+        if(stroke)ctx.stroke();
+      }
+
+      function drawBackground(){
+        for(let i=0;i<16;i++){
+          const x=((i*170)-(game.bgOffset*(0.15+i*0.005)))%(W+200);
+          const y=40+(i*37)%(H*0.55);
+          ctx.beginPath(); ctx.fillStyle="rgba(255,255,255,.08)";
+          ctx.arc(x,y,(i%3)+1.5,0,Math.PI*2); ctx.fill();
+        }
+        for(let i=0;i<8;i++){
+          const baseX=((i*220)-game.bgOffset*0.35)%(W+260)-120;
+          const bw=70+(i%3)*26, bh=100+(i*23%160);
+          const by=H-groundH()-bh;
+          const g=ctx.createLinearGradient(baseX,by,baseX,by+bh);
+          g.addColorStop(0,"rgba(255,255,255,.06)");
+          g.addColorStop(1,"rgba(255,255,255,.02)");
+          ctx.fillStyle=g;
+          roundRect(baseX,by,bw,bh,8,true);
+        }
+        const gy=H-groundH();
+        const grd=ctx.createLinearGradient(0,gy,0,H);
+        grd.addColorStop(0,"#4b2a18"); grd.addColorStop(1,"#25160e");
+        ctx.fillStyle=grd; ctx.fillRect(0,gy,W,groundH());
+        for(let i=0;i<Math.ceil(W/45)+3;i++){
+          const x=(i*45-(game.bgOffset*1.2)%45)-10;
+          ctx.fillStyle="rgba(255,255,255,.06)";
+          ctx.fillRect(x,gy+groundH()*0.66,24,4);
+        }
+      }
+
+      function drawPlayer(){
+        const x=player.x,y=player.y,w=player.w,h=player.h;
+        ctx.beginPath(); ctx.fillStyle="rgba(0,0,0,.25)";
+        ctx.ellipse(x+w/2,H-groundH()+8,w*0.32,10,0,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle="#1d1323"; ctx.lineWidth=5; ctx.lineCap="round";
+        ctx.beginPath();
+        ctx.moveTo(x+w*0.40,y+h*0.78); ctx.lineTo(x+w*0.35,y+h*0.98);
+        ctx.moveTo(x+w*0.62,y+h*0.78); ctx.lineTo(x+w*0.68,y+h*0.98);
+        ctx.stroke();
+        ctx.fillStyle="#101827"; roundRect(x+w*0.25,y+h*0.28,w*0.5,h*0.42,12,true);
+        ctx.fillStyle="#ffb703"; roundRect(x+w*0.29,y+h*0.32,w*0.42,h*0.32,10,true);
+        ctx.fillStyle="#f3c89d"; ctx.beginPath();
+        ctx.arc(x+w*0.5,y+h*0.20,w*0.18,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle="#2a1b12"; ctx.beginPath();
+        ctx.arc(x+w*0.5,y+h*0.17,w*0.19,Math.PI,0); ctx.fill();
+        ctx.fillStyle="#111"; ctx.beginPath();
+        ctx.arc(x+w*0.455,y+h*0.20,2.1,0,Math.PI*2);
+        ctx.arc(x+w*0.545,y+h*0.20,2.1,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle="#2a1b12"; ctx.lineWidth=2; ctx.beginPath();
+        ctx.moveTo(x+w*0.46,y+h*0.24); ctx.lineTo(x+w*0.54,y+h*0.24); ctx.stroke();
+        ctx.strokeStyle="#f3c89d"; ctx.lineWidth=5; ctx.beginPath();
+        ctx.moveTo(x+w*0.72,y+h*0.40); ctx.lineTo(x+w*0.87,y+h*0.48); ctx.stroke();
+        ctx.fillStyle="#231200"; ctx.font=`bold ${Math.max(10,w*0.11)}px Tahoma`;
+        ctx.textAlign="center"; ctx.fillText("AJ",x+w*0.5,y+h*0.52);
+      }
+
+      function drawPickup(p){
+        const x=p.x,y=p.y+Math.sin(p.bob)*4,w=p.w,h=p.h;
+        ctx.save(); ctx.translate(x+w/2,y+h/2); ctx.rotate(p.rot+Math.sin(p.bob)*0.06);
+        const glow=ctx.createRadialGradient(0,0,2,0,0,w);
+        glow.addColorStop(0,"rgba(52,211,153,.28)"); glow.addColorStop(1,"rgba(52,211,153,0)");
+        ctx.fillStyle=glow; ctx.beginPath(); ctx.arc(0,0,w*1.2,0,Math.PI*2); ctx.fill();
+        const g=ctx.createLinearGradient(-w/2,0,w/2,0);
+        g.addColorStop(0,"#13d38f"); g.addColorStop(0.5,"#8cffcc"); g.addColorStop(1,"#0ea56d");
+        ctx.fillStyle=g; roundRect(-w/2,-h/2,w,h,w*0.22,true);
+        ctx.fillStyle="#d7dee5"; roundRect(-w/2+2,-h/2-2,w-4,8,4,true);
+        ctx.fillStyle="#083f2a"; ctx.font=`bold ${Math.max(10,w*0.24)}px Tahoma`;
+        ctx.textAlign="center"; ctx.fillText("4U",0,4); ctx.restore();
+      }
+
+      function drawObstacle(o){
+        const x=o.x,y=o.y,w=o.w,h=o.h;
+        ctx.beginPath(); ctx.fillStyle="rgba(0,0,0,.22)";
+        ctx.ellipse(x+w/2,H-groundH()+7,w*0.34,8,0,0,Math.PI*2); ctx.fill();
+        if(o.type==="bag"){
+          const g=ctx.createLinearGradient(x,y,x,y+h);
+          g.addColorStop(0,"#f5f1e6"); g.addColorStop(1,"#d8cdb8");
+          ctx.fillStyle=g; roundRect(x,y,w,h,10,true);
+          ctx.fillStyle="#7d5d2f"; ctx.font=`bold ${Math.max(10,w*0.17)}px Tahoma`;
+          ctx.textAlign="center";
+          ctx.fillText("جبس",x+w/2,y+h*0.42); ctx.fillText("AJ",x+w/2,y+h*0.65);
+          ctx.strokeStyle="rgba(90,60,20,.25)"; ctx.lineWidth=2;
+          ctx.strokeRect(x+6,y+6,w-12,h-12);
+        } else {
+          ctx.fillStyle="#ff4b7d"; roundRect(x,y+h*0.2,w,h*0.8,10,true);
+          ctx.fillStyle="#ffd54a";
+          for(let i=0;i<4;i++){
+            ctx.save(); ctx.translate(x+10+i*(w/4),y+h*0.62); ctx.rotate(-0.55);
+            ctx.fillRect(0,0,10,h*0.55); ctx.restore();
+          }
+        }
+      }
+
+      function drawParticles(){
+        for(const p of game.particles){
+          ctx.globalAlpha=p.a; ctx.beginPath();
+          ctx.fillStyle=p.color; ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+        }
+        ctx.globalAlpha=1;
+      }
+
+      function drawFlashes(){
+        for(const f of game.flashes){
+          ctx.globalAlpha=f.a; ctx.fillStyle=f.color;
+          ctx.font="bold 18px Tahoma"; ctx.textAlign="center";
+          ctx.fillText(f.text,f.x,f.y);
+        }
+        ctx.globalAlpha=1;
+      }
+
+      function drawTopHint(){
+        if(!game.started||!game.running) return;
+        ctx.save(); ctx.globalAlpha=.18; ctx.fillStyle="#fff";
+        ctx.font="bold 14px Tahoma"; ctx.textAlign="center";
+        ctx.fillText("اضغط للقفز",W/2,34); ctx.restore();
+      }
+
+      function render(){
+        ctx.clearRect(0,0,W,H);
+        drawBackground();
+        for(const p of game.pickups) drawPickup(p);
+        for(const o of game.obstacles) drawObstacle(o);
+        drawPlayer();
+        drawParticles();
+        drawFlashes();
+        drawTopHint();
+      }
+
+      function loop(){ update(); render(); requestAnimationFrame(loop); }
+      requestAnimationFrame(loop);
+
+      function handleTap(){
+        if(!game.started) return;
+        if(game.running) jump();
+      }
+
+      tapZone.addEventListener("touchstart",(e)=>{
+        e.preventDefault();
+        handleTap();
+      },{passive:false});
+
+      tapZone.addEventListener("mousedown",(e)=>{
+        e.preventDefault();
+        handleTap();
+      });
+
+      window.addEventListener("keydown",(e)=>{
+        if((e.code==="Space"||e.code==="ArrowUp") && game.running){
+          e.preventDefault();
+          handleTap();
+        }
+      });
+
+      startBtn.addEventListener("click", startGameFlow);
+      restartBtn.addEventListener("click", startGameFlow);
+      playAgainBtn.addEventListener("click", startGameFlow);
+
+      howBtn.addEventListener("click",()=>{
+        alert("اضغط على الشاشة حتى تقفز الشخصية وتجمع علب فوريو وتتجنب العوائق. عند الوصول إلى 20 نقطة تفوز.");
+      });
+
+      shareBtn.addEventListener("click",async()=>{
+        const text=`أنا جبت ${game.score} نقطة بلعبة أبو جنة × فوريو 🔥`;
+        try{ await navigator.clipboard.writeText(text); alert("تم نسخ النتيجة"); }
+        catch(e){ alert(text); }
+      });
+
+      shareWinBtn.addEventListener("click",async()=>{
+        const text=`🏆 فزت بلعبة أبو جنة × فوريو وجبت ${game.score} نقطة 🔥`;
+        try{ await navigator.clipboard.writeText(text); alert("تم نسخ رسالة الفوز"); }
+        catch(e){ alert(text); }
+      });
+
+      shareRewardBtn.addEventListener("click", shareReward);
+      shareRewardWinBtn.addEventListener("click", shareReward);
+      openChannelBtn.addEventListener("click", openTelegram);
+      openChannelLoseBtn.addEventListener("click", openTelegram);
+      openChannelWinBtn.addEventListener("click", openTelegram);
+      homeBtn.addEventListener("click", goHome);
+      homeWinBtn.addEventListener("click", goHome);
+
+      showBoardBtn.addEventListener("click",()=>{
+        renderLeaderboard(); hideAllMenus();
+        boardScreen.classList.remove("hidden");
+      });
+
+      closeBoardBtn.addEventListener("click", goHome);
+
+      updateLivesUI();
+      updateGoalUI(0);
+      render();
+
+    })();
+  </script>
+
+</body>
+</html>
