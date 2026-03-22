@@ -11,9 +11,10 @@
       --glass:rgba(255,255,255,.12);--glass2:rgba(255,255,255,.08);
       --stroke:rgba(255,255,255,.18);--shadow:0 20px 40px rgba(0,0,0,.35);
     }
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
-    html,body{width:100%;height:100%;background:#12051f;display:flex;align-items:center;justify-content:center;font-family:"Tahoma","Arial",sans-serif;overflow:hidden;position:fixed;top:0;left:0;}
-    #w{position:relative;width:100vw;height:100vh;max-width:900px;overflow:hidden;background:radial-gradient(circle at top right,rgba(255,75,125,.22),transparent 25%),radial-gradient(circle at top left,rgba(255,213,74,.18),transparent 25%),linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--white);touch-action:none;user-select:none;-webkit-user-select:none;}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;-webkit-overflow-scrolling:touch;}
+    html{height:100%;overflow:hidden;overscroll-behavior:none;}
+    body{width:100%;height:100%;background:#12051f;display:flex;align-items:center;justify-content:center;font-family:"Tahoma","Arial",sans-serif;overflow:hidden;position:fixed;top:0;left:0;right:0;bottom:0;overscroll-behavior:none;}
+    #w{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;max-width:900px;margin:0 auto;overflow:hidden;background:radial-gradient(circle at top right,rgba(255,75,125,.22),transparent 25%),radial-gradient(circle at top left,rgba(255,213,74,.18),transparent 25%),linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--white);touch-action:none;user-select:none;-webkit-user-select:none;}
     #w canvas{display:block;width:100%;height:100%;}
     .hud{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;z-index:5;pointer-events:none;flex-wrap:wrap;}
     .hud-left,.hud-right{display:flex;gap:10px;flex-wrap:wrap;}
@@ -22,7 +23,7 @@
     .badge .value{font-size:18px;font-weight:700;color:var(--accent);}
     .goal-badge .value{color:var(--good);}
     .center-ui{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:10;padding:18px;}
-    .panel{width:min(92%,420px);background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.07));border:1px solid var(--stroke);backdrop-filter:blur(16px);border-radius:28px;box-shadow:var(--shadow);padding:20px;text-align:center;max-height:570px;overflow:auto;}
+    .panel{width:min(92%,420px);background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.07));border:1px solid var(--stroke);backdrop-filter:blur(16px);border-radius:28px;box-shadow:var(--shadow);padding:20px;text-align:center;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
     .title{font-size:24px;font-weight:800;margin:0 0 10px;line-height:1.2;color:var(--accent);}
     .sub{margin:0 0 12px;opacity:.9;line-height:1.8;font-size:14px;}
     .tips{background:var(--glass2);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:12px;margin:10px 0 14px;font-size:13px;line-height:1.9;}
