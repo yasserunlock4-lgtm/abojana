@@ -1,138 +1,26 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>لعبة أبو جنة × فوريو VIP</title>
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abu Janna Runner PRO</title>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-<div id="w">
-  <canvas id="gameCanvas"></canvas>
 
-  <!-- HUD -->
-  <div class="hud">
-    <div class="hud-left">
-      <div class="badge">
-        <div class="label">النتيجة</div>
-        <div class="value" id="scoreValue">0</div>
-      </div>
-      <div class="badge">
-        <div class="label">أفضل رقم</div>
-        <div class="value" id="bestValue">0</div>
-      </div>
-    </div>
+<canvas id="game"></canvas>
 
-    <div class="hud-right">
-      <div class="badge lives-badge">
-        <div class="label">الأرواح</div>
-        <div class="value" id="livesHUD">❤️❤️❤️</div>
-      </div>
-      <div class="badge goal-badge">
-        <div class="label">هدف الفوز</div>
-        <div class="value" id="goalValue">20</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Multiplier -->
-  <div class="multiplier-badge hidden" id="multiplierBadge">⚡ x2 نقاط!</div>
-
-  <div class="tap-zone" id="tapZone"></div>
-
-  <!-- START SCREEN -->
-  <div class="center-ui" id="startScreen">
-    <div class="panel">
-      <h1 class="title">لعبة أبو جنة × فوريو VIP 🔥</h1>
-      <p class="sub">اجمع فوريو واهرب من العوائق</p>
-
-      <div class="buttons">
-        <button class="primary" id="startBtn">▶ ابدأ اللعب</button>
-
-        <div class="button-row">
-          <button class="missions-btn" id="missionsBtn">🎯 المهمات</button>
-          <button class="ghost" id="showBoardBtn">🏆 أفضل اللاعبين</button>
-        </div>
-
-        <div class="button-row">
-          <button class="telegram" id="openChannelBtn">📲 تلقرام</button>
-          <button class="ghost" id="howBtn">❓ طريقة اللعب</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- GAME OVER -->
-  <div class="center-ui hidden" id="gameOverScreen">
-    <div class="panel">
-      <h2 class="title">💀 انتهت الجولة</h2>
-      <p class="sub" id="finalText">0</p>
-
-      <div class="buttons">
-        <button class="secondary" id="restartBtn">🔄 إعادة اللعب</button>
-
-        <div class="button-row">
-          <button class="ghost" id="shareBtn">📋 نسخ</button>
-          <button class="missions-btn" id="missionsLoseBtn">🎯 المهمات</button>
-        </div>
-
-        <div class="button-row">
-          <button class="telegram" id="openChannelLoseBtn">📲 تلقرام</button>
-          <button class="ghost" id="homeBtn">🏠 الرئيسية</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- WIN -->
-  <div class="center-ui hidden" id="winScreen">
-    <div class="panel">
-      <h2 class="title">🎉 فزت!</h2>
-      <p class="sub" id="winText">مبروك</p>
-
-      <div class="buttons">
-        <button class="primary" id="playAgainBtn">🎮 العب مرة ثانية</button>
-
-        <div class="button-row">
-          <button class="ghost" id="shareWinBtn">📋 نسخ</button>
-          <button class="ghost" id="homeWinBtn">🏠 الرئيسية</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- LEADERBOARD -->
-  <div class="center-ui hidden" id="boardScreen">
-    <div class="panel">
-      <h2 class="title">🏆 أفضل اللاعبين</h2>
-      <div id="leaderboardList"></div>
-
-      <button class="ghost" id="closeBoardBtn">🔙 رجوع</button>
-    </div>
-  </div>
-
-  <!-- MISSIONS -->
-  <div class="center-ui hidden" id="missionsScreen">
-    <div class="panel">
-      <h2 class="title">🎯 المهمات</h2>
-
-      <div id="missionsList"></div>
-
-      <div class="buttons">
-        <button class="primary" id="playFromMissionsBtn">▶ العب</button>
-        <button class="ghost" id="closeMissionsBtn">🔙 رجوع</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="toast" id="toast"></div>
+<div class="ui">
+  <div>🏆 <span id="score">0</span></div>
+  <div>❤️ <span id="lives">3</span></div>
 </div>
 
-<!-- JS -->
-<script src="app.js"></script>
+<div class="menu" id="menu">
+  <h1>🔥 Abu Janna Runner PRO</h1>
+  <button onclick="startGame()">ابدأ اللعب</button>
+</div>
 
+<script src="app.js"></script>
 </body>
 </html>
