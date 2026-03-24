@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap' );
 
 body {
-    background: linear-gradient(to bottom, #1e1b2e, #2c2541, #4a3768);
+    background: #1a1629;
     color: white;
     font-family: 'Cairo', sans-serif;
     display: flex;
@@ -17,7 +17,7 @@ body {
 .game-container {
     width: 375px;
     height: 812px; /* طول مناسب للهواتف الحديثة */
-    background-color: #1a1629;
+    background: linear-gradient(to bottom, #1e1b2e, #2c2541, #4a3768);
     border-radius: 30px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     position: relative;
@@ -35,6 +35,7 @@ body {
     background-color: rgba(0,0,0,0.2);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     z-index: 10;
+    flex-shrink: 0;
 }
 
 .score-box {
@@ -42,12 +43,12 @@ body {
     padding: 8px 18px;
     border-radius: 10px;
     text-align: center;
-    width: 80px;
+    width: 90px;
 }
 
 .score-box span {
     display: block;
-    font-size: 1em;
+    font-size: 1.2em;
     font-weight: bold;
 }
 
@@ -61,20 +62,19 @@ body {
 #game-board {
     flex-grow: 1;
     position: relative;
-    /* خلفية النجوم المتلألئة */
     background-image: 
-        radial-gradient(circle at 20% 30%, white 1px, transparent 1px),
-        radial-gradient(circle at 80% 10%, white 1px, transparent 1px),
-        radial-gradient(circle at 50% 70%, white 1px, transparent 1px),
-        radial-gradient(circle at 35% 90%, white 1px, transparent 1px),
-        radial-gradient(circle at 90% 50%, white 1px, transparent 1px);
+        radial-gradient(circle at 20% 30%, white 0.5px, transparent 0.5px),
+        radial-gradient(circle at 80% 10%, white 0.5px, transparent 0.5px),
+        radial-gradient(circle at 50% 70%, white 0.5px, transparent 0.5px),
+        radial-gradient(circle at 15% 90%, white 0.5px, transparent 0.5px),
+        radial-gradient(circle at 85% 60%, white 0.5px, transparent 0.5px);
     background-size: 100% 100%;
 }
 
 /* --- تصميم اللاعب --- */
 #player {
     width: 35px;
-    height: 50px;
+    height: 45px;
     position: absolute;
     bottom: 70px; /* رفعه قليلاً فوق الطريق */
     left: 50%;
@@ -94,27 +94,16 @@ body {
     border-radius: 50%;
     top: -15px;
     left: 5px;
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2);
 }
-/* عيون اللاعب */
-#player::after {
-    content: '..';
-    position: absolute;
-    color: black;
-    font-weight: bold;
-    font-size: 20px;
-    top: -25px;
-    left: 10px;
-    letter-spacing: 5px;
-}
-
 
 /* --- تصميم العقبات --- */
 .obstacle {
     width: 60px;
     height: 30px;
-    background: linear-gradient(to right, #ec407a, #f48fb1);
+    background: linear-gradient(145deg, #f06292, #e91e63);
     position: absolute;
-    bottom: 100%; /* تبدأ من خارج الشاشة */
+    bottom: 100%;
     border-radius: 5px;
     box-shadow: 0 5px 10px rgba(236, 64, 122, 0.4);
     z-index: 5;
@@ -130,7 +119,7 @@ body {
     height: 70px;
     background-color: #3e2723;
     border-top: 5px solid #4e342e;
-    z-index: 1;
+    z-index: 4;
 }
 
 /* --- شاشات القوائم (محسّنة) --- */
@@ -152,7 +141,6 @@ body {
     padding: 20px;
     box-sizing: border-box;
     z-index: 100;
-    backdrop-filter: blur(5px); /* تأثير ضبابي للخلفية */
 }
 
 .menu-content {
@@ -160,12 +148,12 @@ body {
     padding: 30px;
     border-radius: 20px;
     text-align: center;
-    width: 90%;
+    width: 95%;
     display: flex;
     flex-direction: column;
     gap: 15px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 5px 25px rgba(0,0,0,0.4);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
 }
 
 .menu-content h2 {
@@ -176,9 +164,9 @@ body {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    border-bottom: 2px solid #ffc107;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
+    border-bottom: 2px solid rgba(255, 193, 7, 0.3);
+    padding-bottom: 15px;
+    margin-bottom: 5px;
 }
 
 .menu-content h2::before { /* أيقونة الجمجمة */
@@ -188,7 +176,7 @@ body {
 
 .menu-content p {
     font-size: 1.1em;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .menu-content button {
@@ -204,17 +192,19 @@ body {
     justify-content: center;
     align-items: center;
     gap: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
 }
 
 .menu-content button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
 #restart-button { background: linear-gradient(to right, #ff5722, #ff9800); }
 #missions-button { background: linear-gradient(to right, #9c27b0, #673ab7); }
-#close-missions-button { background: linear-gradient(to right, #607d8b, #78909c); }
+.social-button.youtube { background: linear-gradient(to right, #ff0000, #c4302b); }
+.social-button.instagram { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+#close-missions-button { background-color: #607d8b; }
 
 /* تصميم قائمة المهمات */
 #missions-list {
@@ -232,10 +222,11 @@ body {
     margin-bottom: 8px;
     border-radius: 8px;
     border-right: 4px solid #9c27b0;
-    transition: background-color 0.3s;
 }
 
 #missions-list li.completed {
     text-decoration: line-through;
     color: #888;
-    background-color
+    background-color: rgba(76, 175, 80, 0.15);
+    border-right-color: #4caf50;
+}
