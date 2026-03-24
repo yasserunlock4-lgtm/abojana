@@ -1,227 +1,57 @@
 :root{
-  --bg1:#12051f;
-  --bg2:#24113f;
-  --accent:#ffd54a;
-  --accent2:#ff4b7d;
-  --good:#34d399;
-  --bad:#ff5b5b;
-  --white:#ffffff;
-  --glass:rgba(255,255,255,.12);
-  --glass2:rgba(255,255,255,.08);
-  --stroke:rgba(255,255,255,.18);
-  --shadow:0 20px 40px rgba(0,0,0,.35);
+  --bg1:#12051f;--bg2:#24113f;--accent:#ffd54a;--accent2:#ff4b7d;
+  --good:#34d399;--bad:#ff5b5b;--white:#ffffff;
+  --glass:rgba(255,255,255,.12);--glass2:rgba(255,255,255,.08);
+  --stroke:rgba(255,255,255,.18);--shadow:0 20px 40px rgba(0,0,0,.35);
 }
 
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-  font-family:"Tahoma","Arial",sans-serif;
-  -webkit-tap-highlight-color:transparent;
-}
-
-html, body{
-  width:100%;
-  height:100%;
-  overflow:hidden;
-}
+*{box-sizing:border-box;margin:0;padding:0;}
 
 body{
-  background:linear-gradient(180deg,var(--bg1),var(--bg2));
+  background:#12051f;
   display:flex;
-  align-items:center;
   justify-content:center;
-  color:var(--white);
+  align-items:center;
+  height:100vh;
+  color:#fff;
+  font-family:Arial;
 }
 
-/* ===== Wrapper ===== */
 #w{
-  position:relative;
   width:100%;
-  height:100%;
   max-width:900px;
-  overflow:hidden;
-  background:radial-gradient(circle at top right,rgba(255,75,125,.22),transparent 25%),
-             radial-gradient(circle at top left,rgba(255,213,74,.18),transparent 25%),
-             linear-gradient(180deg,var(--bg1),var(--bg2));
+  height:100vh;
+  position:relative;
 }
 
-/* ===== Canvas ===== */
-#w canvas{
+canvas{
   width:100%;
   height:100%;
-  display:block;
 }
 
-/* ===== HUD ===== */
-.hud{
-  position:absolute;
-  top:10px;
-  left:10px;
-  right:10px;
-  display:flex;
-  justify-content:space-between;
-  z-index:10;
-}
-
-.hud-left, .hud-right{
-  display:flex;
-  gap:10px;
-}
-
-/* ===== Badge ===== */
-.badge{
-  background:var(--glass);
-  border:1px solid var(--stroke);
-  padding:10px;
-  border-radius:14px;
-  backdrop-filter:blur(10px);
-  min-width:90px;
-  text-align:center;
-}
-
-.label{
-  font-size:11px;
-  opacity:.8;
-}
-
-.value{
-  font-size:18px;
-  font-weight:bold;
-  color:var(--accent);
-}
-
-.goal-badge .value{
-  color:var(--good);
-}
-
-/* ===== Tap Zone ===== */
-.tap-zone{
-  position:absolute;
-  inset:0;
-  z-index:2;
-}
-
-/* ===== Center UI ===== */
 .center-ui{
   position:absolute;
   inset:0;
   display:flex;
   align-items:center;
   justify-content:center;
-  z-index:20;
 }
 
 .panel{
-  width:90%;
-  max-width:420px;
   background:rgba(255,255,255,.1);
-  border:1px solid var(--stroke);
-  backdrop-filter:blur(15px);
-  border-radius:20px;
   padding:20px;
+  border-radius:20px;
   text-align:center;
-  box-shadow:var(--shadow);
-}
-
-/* ===== Text ===== */
-.title{
-  font-size:22px;
-  font-weight:800;
-  margin-bottom:10px;
-  color:var(--accent);
-}
-
-.sub{
-  margin-bottom:10px;
-  font-size:14px;
-}
-
-.tips{
-  background:var(--glass2);
-  padding:10px;
-  border-radius:14px;
-  font-size:13px;
-  margin-bottom:15px;
-}
-
-/* ===== Buttons ===== */
-.buttons{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.button-row{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
 }
 
 button{
-  padding:12px;
+  padding:10px 15px;
   border:none;
-  border-radius:14px;
-  font-size:14px;
-  font-weight:bold;
-  cursor:pointer;
-  transition:0.2s;
-}
-
-button:active{
-  transform:scale(.95);
-}
-
-/* ===== Button Types ===== */
-.primary{
-  background:linear-gradient(135deg,var(--accent),#ffb300);
-  color:#000;
-}
-
-.secondary{
-  background:linear-gradient(135deg,#ff4b7d,#ff7a47);
-  color:#fff;
-}
-
-.ghost{
-  background:rgba(255,255,255,.08);
-  color:#fff;
-  border:1px solid rgba(255,255,255,.2);
-}
-
-.telegram{
-  background:linear-gradient(135deg,#22c1f1,#0b8fd8);
-  color:#fff;
-}
-
-/* ===== Leaderboard ===== */
-#leaderboardList{
-  margin-top:10px;
-}
-
-#leaderboardList div{
-  padding:8px;
-  background:rgba(255,255,255,.08);
   border-radius:10px;
-  margin-bottom:6px;
+  cursor:pointer;
 }
 
-/* ===== Hidden ===== */
-.hidden{
-  display:none;
-}
+.primary{background:gold;color:black;}
+.secondary{background:red;color:white;}
 
-/* ===== Responsive ===== */
-@media (max-width:500px){
-  .panel{
-    padding:15px;
-  }
-
-  .title{
-    font-size:18px;
-  }
-
-  .value{
-    font-size:16px;
-  }
-}
+.hidden{display:none;}
