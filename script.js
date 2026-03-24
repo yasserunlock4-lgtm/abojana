@@ -13,7 +13,12 @@
     };
 
     // تهيئة Firebase
-    firebase.initializeApp(firebaseConfig);
+    try {
+        firebase.initializeApp(firebaseConfig);
+    } catch (e) {
+        console.error("Firebase initialization error. Please check your config.", e);
+        alert("خطأ في الاتصال بقاعدة البيانات. يرجى التأكد من صحة إعدادات Firebase.");
+    }
     const database = firebase.database();
 
     // =================================================
@@ -43,7 +48,6 @@
     const finalText = document.getElementById("finalText");
     const winText = document.getElementById("winText");
 
-    // عناصر نظام المحاولات والمهمات
     const attemptsDisplay = document.querySelector("#attemptsDisplay .value");
     const timerDisplay = document.querySelector("#timerDisplay .value");
     const timerBadge = document.getElementById("timerDisplay");
@@ -57,10 +61,10 @@
     const closeTaskBtn = document.getElementById("closeTaskBtn");
 
     // =================================================
-    // تحميل الصور (تم التعديل هنا)
+    // تحميل الصور
     // =================================================
     const imgFoury = new Image();
-    imgFoury.src = "foury.jpg"; // سيتم تحميل الصورة من ملف foury.jpg في نفس المجلد
+    imgFoury.src = "foury.jpg";
 
     // =================================================
     // نظام المحاولات والمؤقت
@@ -82,7 +86,7 @@
 
     function updateUI() {
         const data = getPlayerData();
-        clearInterval(timerInterval); // إيقاف أي مؤقت سابق
+        clearInterval(timerInterval);
 
         if (data.cooldownUntil && new Date() < new Date(data.cooldownUntil)) {
             startBtn.disabled = true;
@@ -107,7 +111,7 @@
                 }
             }, 1000);
         } else {
-            startBtn.disabled = false;
+            startBtn.disabled = data.attempts <= 0;
             attemptsBadge.classList.remove("hidden");
             timerBadge.classList.add("hidden");
             attemptsDisplay.textContent = data.attempts;
@@ -146,13 +150,15 @@
 
         let data = getPlayerData();
         data.attempts += currentTask.reward || 1;
+        if (data.cooldownUntil) {
+            data.cooldownUntil = null;
+        }
         savePlayerData(data);
         updateUI();
 
         taskModal.classList.add("hidden");
         alert(`شكراً لك! لقد حصلت على ${currentTask.reward || 1} محاولات إضافية.`);
     });
-
 
     // =================================================
     // منطق اللعبة الرئيسي
@@ -169,13 +175,9 @@
         canvas.style.height = H + "px";
         ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     }
-    resizeCanvas();
-    window.addEventListener("resize", resizeCanvas);
-
+    
     const groundH = () => Math.max(70, H * 0.14);
-
     goalValue.textContent = WIN_TARGET;
-
     let best = +localStorage.getItem("abuJannaFourioBest") || 0;
     bestValue.textContent = best;
 
@@ -189,11 +191,9 @@
 
     function renderLeaderboard() {
         const b = JSON.parse(localStorage.getItem("abuJannaLeaderboard") || "[]");
-        if (!b.length) {
-            leaderboardList.innerHTML = '<div class="leader-item"><span>لا توجد نتائج بعد</span><span>—</span></div>';
-            return;
-        }
-        leaderboardList.innerHTML = b.map((item, i) => '<div class="leader-item"><span>#' + (i + 1) + ' - ' + item.name + '</span><span>' + item.score + ' نقطة</span></div>').join("");
+        leaderboardList.innerHTML = b.length ?
+            b.map((item, i) => `<div class="leader-item"><span>#${i + 1} - ${item.name}</span><span>${item.score} نقطة</span></div>`).join("") :
+            '<div class="leader-item"><span>لا توجد نتائج بعد</span><span>—</span></div>';
     }
 
     function hideAllMenus() {
@@ -205,6 +205,7 @@
         game.over = false;
         hideAllMenus();
         startScreen.classList.remove("hidden");
+        updateUI();
         render();
     }
 
@@ -218,7 +219,8 @@
         player.x = 80;
         player.w = Math.min(74, W * 0.17); player.h = player.w * 1.35;
         player.y = H - groundH() - player.h; player.vy = 0; player.onGround = true; player.bounce = 0;
-        scoreValue.textContent = "0"; hideAllMenus();
+        scoreValue.textContent = "0";
+        hideAllMenus();
     }
 
     function startGameFlow() {
@@ -293,7 +295,6 @@
             maxY = H - groundH() - 40;
         game.pickups.push({ x: W + 20, y: rand(minY, maxY), w: size, h: size * 1.9, bob: rand(0, Math.PI * 2) });
     }
-    
     function update() {
         if (!game.running) return;
         game.bgOffset += game.speed * 0.6;
@@ -382,28 +383,126 @@
 
     function drawPlayer() {
         const x = player.x, y = player.y, w = player.w, h = player.h;
+        const t = game.bgOffset * 0.18;
+        const ls = player.onGround ? Math.sin(t) * 0.38 : 0;
+        const as = player.onGround ? Math.sin(t + Math.PI) * 0.3 : 0;
+
+        ctx.beginPath();
+        ctx.fillStyle = "rgba(0,0,0,.25)";
+        ctx.ellipse(x + w / 2, H - groundH() + 7, w * 0.3, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+
         ctx.save();
-        ctx.fillStyle = "#f3c89d";
-        ctx.fillRect(x, y, w, h);
+        ctx.translate(x + w * 0.54, y + h * 0.54);
+        ctx.rotate(-ls);
+        ctx.fillStyle = "#0a1020";
+        roundRect(-w * 0.09, 0, w * 0.18, h * 0.26, w * 0.05, true);
+        ctx.fillStyle = "#1a1a2e";
+        roundRect(-w * 0.12, h * 0.25, w * 0.24, h * 0.1, w * 0.04, true);
         ctx.restore();
+
+        ctx.save();
+        ctx.translate(x + w * 0.68, y + h * 0.3);
+        ctx.rotate(as + 0.35);
+        ctx.fillStyle = "#c8905a";
+        roundRect(-w * 0.07, 0, w * 0.14, h * 0.24, w * 0.05, true);
+        ctx.restore();
+
+        ctx.fillStyle = "#101827";
+        roundRect(x + w * 0.2, y + h * 0.27, w * 0.6, h * 0.3, w * 0.08, true);
+        ctx.fillStyle = "#ffb703";
+        roundRect(x + w * 0.24, y + h * 0.3, w * 0.52, h * 0.24, w * 0.07, true);
+        ctx.fillStyle = "#231200";
+        ctx.font = `bold ${Math.max(9,w*0.1)}px Tahoma`;
+        ctx.textAlign = "center";
+        ctx.fillText("AJ", x + w * 0.5, y + h * 0.47);
+
+        ctx.save();
+        ctx.translate(x + w * 0.42, y + h * 0.54);
+        ctx.rotate(ls);
+        ctx.fillStyle = "#101827";
+        roundRect(-w * 0.09, 0, w * 0.18, h * 0.26, w * 0.05, true);
+        ctx.fillStyle = "#333";
+        roundRect(-w * 0.12, h * 0.25, w * 0.24, h * 0.1, w * 0.04, true);
+        ctx.restore();
+
+        ctx.save();
+        ctx.translate(x + w * 0.28, y + h * 0.3);
+        ctx.rotate(-as - 0.35);
+        ctx.fillStyle = "#f3c89d";
+        roundRect(-w * 0.07, 0, w * 0.14, h * 0.24, w * 0.05, true);
+        ctx.restore();
+
+        ctx.fillStyle = "#f3c89d";
+        ctx.beginPath();
+        ctx.arc(x + w * 0.5, y + h * 0.18, w * 0.19, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#2a1b12";
+        ctx.beginPath();
+        ctx.arc(x + w * 0.5, y + h * 0.15, w * 0.2, Math.PI, 0);
+        ctx.fill();
+        ctx.fillStyle = "#111";
+        ctx.beginPath();
+        ctx.arc(x + w * 0.45, y + h * 0.19, 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + w * 0.56, y + h * 0.19, 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#2a1b12";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(x + w * 0.5, y + h * 0.22, w * 0.06, 0.1, Math.PI - 0.1);
+        ctx.stroke();
     }
 
     function drawPickup(p) {
         const x = p.x, y = p.y + Math.sin(p.bob) * 5, w = p.w, h = p.h;
         ctx.save();
+        const glow = ctx.createRadialGradient(x + w / 2, y + h / 2, 2, x + w / 2, y + h / 2, w * 1.3);
+        glow.addColorStop(0, "rgba(52,211,153,.3)");
+        glow.addColorStop(1, "rgba(52,211,153,0)");
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(x + w / 2, y + h / 2, w * 1.3, 0, Math.PI * 2);
+        ctx.fill();
+        
         if (imgFoury.complete && imgFoury.naturalWidth > 0) {
+            ctx.shadowColor = "rgba(52,211,153,0.5)";
+            ctx.shadowBlur = 14;
+            roundRect(x, y, w, h, w * 0.2, true);
+            ctx.clip();
             ctx.drawImage(imgFoury, x, y, w, h);
         } else {
-            ctx.fillStyle = "#13d38f";
-            ctx.fillRect(x, y, w, h);
+            const g = ctx.createLinearGradient(x, y, x + w, y);
+            g.addColorStop(0, "#13d38f");
+            g.addColorStop(1, "#0ea56d");
+            ctx.fillStyle = g;
+            roundRect(x, y, w, h, w * 0.2, true);
+            ctx.fillStyle = "#fff";
+            ctx.font = "bold 12px Tahoma";
+            ctx.textAlign = "center";
+            ctx.fillText("4U", x + w / 2, y + h / 2 + 4);
         }
         ctx.restore();
     }
 
     function drawObstacle(o) {
         const x = o.x, y = o.y, w = o.w, h = o.h;
+        ctx.beginPath();
+        ctx.fillStyle = "rgba(0,0,0,.22)";
+        ctx.ellipse(x + w / 2, H - groundH() + 7, w * 0.34, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
         ctx.fillStyle = "#ff4b7d";
-        ctx.fillRect(x, y, w, h);
+        roundRect(x, y + h * 0.2, w, h * 0.8, 10, true);
+        ctx.fillStyle = "#ffd54a";
+        for (let i = 0; i < 4; i++) {
+            ctx.save();
+            ctx.translate(x + 10 + i * (w / 4), y + h * 0.62);
+            ctx.rotate(-0.55);
+            ctx.fillRect(0, 0, 10, h * 0.55);
+            ctx.restore();
+        }
     }
 
     function render() {
@@ -418,16 +517,21 @@
     function loop(ts) {
         requestAnimationFrame(loop);
         const dt = ts - lastTime;
-        if (dt < 16) return;
+        if (dt < 16) return; // Limit to ~60fps
         lastTime = ts;
         update();
         render();
     }
-    requestAnimationFrame(loop);
-
+    
+    // =================================================
+    // Event Listeners & Initialisation
+    // =================================================
     function handleTap() {
-        if (!game.started) return;
-        if (game.running) jump();
+        if (!game.started) {
+            startGameFlow();
+        } else if (game.running) {
+            jump();
+        }
     }
 
     tapZone.addEventListener("touchstart", (e) => { e.preventDefault(); handleTap(); }, { passive: false });
@@ -445,7 +549,11 @@
         boardScreen.classList.remove("hidden");
     });
 
-    // Initial UI update
+    // Initial setup
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
     updateUI();
-    render();
+    goHome();
+    requestAnimationFrame(loop);
+
 })();
