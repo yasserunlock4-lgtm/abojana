@@ -1,175 +1,200 @@
-// --- إعداد Firebase (الإصدار 9+) ---
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+// --- تهيئة العناصر ---
+const wrapper = document.getElementById("game-wrapper");
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
-// ضع إعدادات Firebase الخاصة بك هنا
-const firebaseConfig = {
-  apiKey: "AIzaSyDiCrZhKVpkYE3HUeeDkAo7xA9I88uZ1i0",
-  authDomain: "abojana-3f0c2.firebaseapp.com",
-  databaseURL: "https://abojana-3f0c2-default-rtdb.firebaseio.com",
-  projectId: "abojana-3f0c2",
-  storageBucket: "abojana-3f0c2.appspot.com",
-  messagingSenderId: "819681544560",
-  appId: "1:819681544560:web:be2249a51d0c79ee21a7b5",
-  measurementId: "G-23EYSF1BE0"
-};
+const scoreValue = document.getElementById("scoreValue");
+const bestValue = document.getElementById("bestValue");
+const startScreen = document.getElementById("startScreen");
+const gameOverScreen = document.getElementById("gameOverScreen");
+const finalText = document.getElementById("finalText");
+const tapZone = document.getElementById("tapZone");
 
-// تهيئة Firebase
-const app = initializeApp(firebaseConfig );
-const db = getFirestore(app);
+let W = 0, H = 0;
+const DPR = window.devicePixelRatio || 1;
 
-// --- عناصر واجهة المستخدم ---
-const player = document.getElementById('player');
-const gameBoard = document.getElementById('game-board');
-const scoreDisplay = document.getElementById('score');
-const highScoreDisplay = document.getElementById('high-score');
-const gameOverMenu = document.getElementById('game-over-menu');
-const finalScoreDisplay = document.getElementById('final-score');
-const restartButton = document.getElementById('restart-button');
-const missionsButton = document.getElementById('missions-button');
-const missionsModal = document.getElementById('missions-modal');
-const closeMissionsButton = document.getElementById('close-missions-button');
-const gameOverTitle = document.getElementById('game-over-title');
-const gameOverText = document.getElementById('game-over-text');
+// --- دالة لضبط حجم الكانفاس ---
+function resizeCanvas() {
+    W = wrapper.clientWidth;
+    H = wrapper.clientHeight;
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+    ctx.scale(DPR, DPR);
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+const groundH = H * 0.15; // ارتفاع الأرضية
+
+// --- حفظ أفضل نتيجة ---
+let best = +localStorage.getItem("runnerBestScore") || 0;
+bestValue.textContent = best;
 
 // --- متغيرات اللعبة ---
-let score = 0;
-let highScore = localStorage.getItem('highScore') || 0;
-let gameInterval;
-let obstacleGenerator;
-let isGameOver = true;
-let gameSpeed = 2; // سرعة حركة العقبات الأولية
+const game = {
+    running: false,
+    over: false,
+    score: 0,
+    speed: 5,
+    gravity: 0.7,
+    spawnTimer: 0,
+    obstacles: [],
+};
 
-// --- منطق اللعبة ---
-function startGame() {
-    score = 0;
-    gameSpeed = 2;
-    isGameOver = false;
-    scoreDisplay.textContent = score;
-    gameOverMenu.classList.add('hidden');
-    
-    document.querySelectorAll('.obstacle').forEach(obs => obs.remove());
+const player = {
+    x: 80,
+    y: 0,
+    w: 50,
+    h: 70,
+    vy: 0,
+    jumpPower: -13,
+    onGround: true,
+};
 
-    gameInterval = setInterval(updateGame, 20);
-    obstacleGenerator = setTimeout(createObstacle, 1500);
+// --- دوال التحكم باللعبة ---
+function hideAllMenus() {
+    startScreen.classList.add("hidden");
+    gameOverScreen.classList.add("hidden");
 }
 
-function updateGame() {
-    if (isGameOver) return;
+function goHome() {
+    game.running = false;
+    game.over = false;
+    hideAllMenus();
+    startScreen.classList.remove("hidden");
+}
+
+function resetGame() {
+    game.running = true;
+    game.over = false;
+    game.score = 0;
+    game.speed = 5;
+    game.spawnTimer = 0;
+    game.obstacles = [];
     
-    score++;
-    scoreDisplay.textContent = score;
+    player.y = H - groundH - player.h;
+    player.vy = 0;
+    player.onGround = true;
     
-    // زيادة سرعة اللعبة تدريجيًا
-    if (score % 200 === 0) {
-        gameSpeed += 0.2;
+    scoreValue.textContent = "0";
+    hideAllMenus();
+}
+
+function jump() {
+    if (game.running && player.onGround) {
+        player.vy = player.jumpPower;
+        player.onGround = false;
     }
-
-    document.querySelectorAll('.obstacle').forEach(obstacle => {
-        if (checkCollision(player, obstacle)) {
-            endGame();
-        }
-    });
-}
-
-function createObstacle() {
-    if (isGameOver) return;
-
-    const obstacle = document.createElement('div');
-    obstacle.classList.add('obstacle');
-    gameBoard.appendChild(obstacle);
-
-    // تحريك العقبة باستخدام JavaScript
-    let obstaclePosition = gameBoard.clientWidth + 50;
-    const moveObstacle = setInterval(() => {
-        if (isGameOver) {
-            clearInterval(moveObstacle);
-            return;
-        }
-        obstaclePosition -= gameSpeed;
-        obstacle.style.right = (gameBoard.clientWidth - obstaclePosition) + 'px';
-
-        if (obstaclePosition < -50) {
-            clearInterval(moveObstacle);
-            obstacle.remove();
-        }
-    }, 5);
-
-    const randomTime = Math.random() * 1500 + (1500 / gameSpeed);
-    obstacleGenerator = setTimeout(createObstacle, randomTime);
-}
-
-function checkCollision(player, obstacle) {
-    const playerRect = player.getBoundingClientRect();
-    const obstacleRect = obstacle.getBoundingClientRect();
-
-    return (
-        playerRect.right > obstacleRect.left &&
-        playerRect.left < obstacleRect.right &&
-        playerRect.bottom > obstacleRect.top &&
-        playerRect.top < obstacleRect.bottom
-    );
 }
 
 function endGame() {
-    if (isGameOver) return;
-    isGameOver = true;
+    if (game.over) return;
+    game.running = false;
+    game.over = true;
     
-    clearInterval(gameInterval);
-    clearTimeout(obstacleGenerator);
-
-    if (score > highScore) {
-        highScore = score;
-        localStorage.setItem('highScore', highScore);
-        highScoreDisplay.textContent = highScore;
+    finalText.textContent = "جبت " + game.score + " نقطة";
+    if (game.score > best) {
+        best = game.score;
+        localStorage.setItem("runnerBestScore", best);
+        bestValue.textContent = best;
     }
-
-    finalScoreDisplay.textContent = score;
-    gameOverTitle.textContent = "انتهت الجولة";
-    gameOverText.innerHTML = `لقد حصلت على <span id="final-score">${score}</span> نقطة`;
-    gameOverMenu.classList.remove('hidden');
-    
-    // checkMissionsCompletion(score); // يمكنك تفعيل هذا لاحقًا
+    gameOverScreen.classList.remove("hidden");
 }
 
-// --- التحكم باللاعب (القفز) ---
-function jump() {
-    if (isGameOver || player.classList.contains('jump')) return;
-    
-    player.classList.add('jump');
-    setTimeout(() => {
-        player.classList.remove('jump');
-    }, 500); // مدة الأنيميشن في CSS
+// --- دوال مساعدة ---
+function rand(a, b) { return Math.random() * (b - a) + a; }
+function rectsCollide(a, b) { return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y; }
+
+// --- إنشاء العقبات ---
+function spawnObstacle() {
+    const size = rand(30, 60);
+    game.obstacles.push({
+        x: W + 20,
+        y: H - groundH - size,
+        w: size,
+        h: size,
+    });
 }
 
-function handleInteraction() {
-    if (isGameOver) {
-        startGame();
-    } else {
-        jump();
+// --- التحديث المستمر للعبة ---
+function update() {
+    if (!game.running) return;
+
+    // تحديث حركة اللاعب
+    player.vy += game.gravity;
+    player.y += player.vy;
+
+    const floorY = H - groundH - player.h;
+    if (player.y >= floorY) {
+        player.y = floorY;
+        player.vy = 0;
+        player.onGround = true;
+    }
+
+    // إنشاء عقبات جديدة
+    game.spawnTimer++;
+    if (game.spawnTimer > 50) {
+        spawnObstacle();
+        game.spawnTimer = 0;
+    }
+
+    // تحديث العقبات والتحقق من الاصطدام
+    for (let i = game.obstacles.length - 1; i >= 0; i--) {
+        const o = game.obstacles[i];
+        o.x -= game.speed;
+
+        if (rectsCollide(player, o)) {
+            endGame();
+        }
+
+        if (o.x + o.w < 0) {
+            game.obstacles.splice(i, 1);
+            game.score++;
+            scoreValue.textContent = game.score;
+        }
     }
 }
 
-// ربط التحكم بالأحداث
-document.addEventListener('keydown', (e) => {
-    if (e.code === 'Space') {
-        handleInteraction();
+// --- دوال الرسم على الكانفاس ---
+function drawGround() {
+    ctx.fillStyle = "#3e2723";
+    ctx.fillRect(0, H - groundH, W, groundH);
+}
+
+function drawPlayer() {
+    ctx.fillStyle = "#ffd54a"; // لون اللاعب
+    ctx.fillRect(player.x, player.y, player.w, player.h);
+}
+
+function drawObstacles() {
+    ctx.fillStyle = "#ff4b7d"; // لون العقبات
+    for (const o of game.obstacles) {
+        ctx.fillRect(o.x, o.y, o.w, o.h);
     }
-});
-document.addEventListener('touchstart', handleInteraction);
-restartButton.addEventListener('click', startGame);
+}
 
-// --- أزرار القوائم ---
-missionsButton.addEventListener('click', () => {
-    missionsModal.classList.remove('hidden');
-    // fetchMissions(); // يمكنك تفعيل هذا لاحقًا
-});
-closeMissionsButton.addEventListener('click', () => {
-    missionsModal.classList.add('hidden');
-});
+function render() {
+    ctx.clearRect(0, 0, W, H);
+    drawGround();
+    if (game.running || game.over) {
+        drawPlayer();
+        drawObstacles();
+    }
+}
 
-// --- تهيئة أولية ---
-highScoreDisplay.textContent = highScore;
-gameOverTitle.textContent = "لعبة الركض";
-gameOverText.innerHTML = "اضغط 'مسافة' أو المس الشاشة للبدء";
-gameOverMenu.classList.remove('hidden');
+// --- حلقة اللعبة الرئيسية ---
+function loop() {
+    requestAnimationFrame(loop);
+    update();
+    render();
+}
+loop();
+
+// --- ربط الأحداث ---
+document.getElementById("startBtn").addEventListener("click", resetGame);
+document.getElementById("restartBtn").addEventListener("click", resetGame);
+document.getElementById("homeBtn").addEventListener("click", goHome);
+
+tapZone.addEventListener("touchstart", (e) => { e.preventDefault(); jump(); });
+tapZone.addEventListener("mousedown", (e) => { e.preventDefault(); jump(); });
+window.addEventListener("keydown", (e) => { if (e.code === "Space") { e.preventDefault(); jump(); } });
