@@ -1,11 +1,24 @@
-// --- إعداد Firebase (يبقى كما هو) ---
+// --- إعداد Firebase (الإصدار 9+) ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-const firebaseConfig = { /* ... إعداداتك هنا ... */ };
+
+// ضع إعدادات Firebase الخاصة بك هنا
+const firebaseConfig = {
+  apiKey: "AIzaSyDiCrZhKVpkYE3HUeeDkAo7xA9I88uZ1i0",
+  authDomain: "abojana-3f0c2.firebaseapp.com",
+  databaseURL: "https://abojana-3f0c2-default-rtdb.firebaseio.com",
+  projectId: "abojana-3f0c2",
+  storageBucket: "abojana-3f0c2.appspot.com",
+  messagingSenderId: "819681544560",
+  appId: "1:819681544560:web:be2249a51d0c79ee21a7b5",
+  measurementId: "G-23EYSF1BE0"
+};
+
+// تهيئة Firebase
 const app = initializeApp(firebaseConfig );
 const db = getFirestore(app);
 
-// --- عناصر واجهة المستخدم (تبقى كما هي) ---
+// --- عناصر واجهة المستخدم ---
 const player = document.getElementById('player');
 const gameBoard = document.getElementById('game-board');
 const scoreDisplay = document.getElementById('score');
@@ -13,29 +26,32 @@ const highScoreDisplay = document.getElementById('high-score');
 const gameOverMenu = document.getElementById('game-over-menu');
 const finalScoreDisplay = document.getElementById('final-score');
 const restartButton = document.getElementById('restart-button');
-// ... باقي العناصر
+const missionsButton = document.getElementById('missions-button');
+const missionsModal = document.getElementById('missions-modal');
+const closeMissionsButton = document.getElementById('close-missions-button');
+const gameOverTitle = document.getElementById('game-over-title');
+const gameOverText = document.getElementById('game-over-text');
 
-// --- متغيرات اللعبة (مُحدّثة) ---
+// --- متغيرات اللعبة ---
 let score = 0;
 let highScore = localStorage.getItem('highScore') || 0;
 let gameInterval;
 let obstacleGenerator;
 let isGameOver = true;
+let gameSpeed = 2; // سرعة حركة العقبات الأولية
 
-// --- منطق اللعبة الجديد (ركض جانبي) ---
-
+// --- منطق اللعبة ---
 function startGame() {
     score = 0;
+    gameSpeed = 2;
     isGameOver = false;
     scoreDisplay.textContent = score;
     gameOverMenu.classList.add('hidden');
     
-    // إزالة العقبات القديمة
     document.querySelectorAll('.obstacle').forEach(obs => obs.remove());
 
-    // بدء اللعبة
-    gameInterval = setInterval(updateGame, 50); // فحص الاصطدام وتحديث النتيجة
-    obstacleGenerator = setTimeout(createObstacle, 1000); // إنشاء أول عقبة
+    gameInterval = setInterval(updateGame, 20);
+    obstacleGenerator = setTimeout(createObstacle, 1500);
 }
 
 function updateGame() {
@@ -43,10 +59,13 @@ function updateGame() {
     
     score++;
     scoreDisplay.textContent = score;
+    
+    // زيادة سرعة اللعبة تدريجيًا
+    if (score % 200 === 0) {
+        gameSpeed += 0.2;
+    }
 
-    // فحص الاصطدام مع كل عقبة موجودة
-    const obstacles = document.querySelectorAll('.obstacle');
-    obstacles.forEach(obstacle => {
+    document.querySelectorAll('.obstacle').forEach(obstacle => {
         if (checkCollision(player, obstacle)) {
             endGame();
         }
@@ -60,13 +79,23 @@ function createObstacle() {
     obstacle.classList.add('obstacle');
     gameBoard.appendChild(obstacle);
 
-    // عندما تنتهي حركة العقبة وتختفي، قم بإزالتها من DOM
-    obstacle.addEventListener('animationend', () => {
-        obstacle.remove();
-    });
+    // تحريك العقبة باستخدام JavaScript
+    let obstaclePosition = gameBoard.clientWidth + 50;
+    const moveObstacle = setInterval(() => {
+        if (isGameOver) {
+            clearInterval(moveObstacle);
+            return;
+        }
+        obstaclePosition -= gameSpeed;
+        obstacle.style.right = (gameBoard.clientWidth - obstaclePosition) + 'px';
 
-    // إنشاء عقبة جديدة بعد فترة زمنية عشوائية
-    const randomTime = Math.random() * 2000 + 1000; // بين 1 و 3 ثواني
+        if (obstaclePosition < -50) {
+            clearInterval(moveObstacle);
+            obstacle.remove();
+        }
+    }, 5);
+
+    const randomTime = Math.random() * 1500 + (1500 / gameSpeed);
     obstacleGenerator = setTimeout(createObstacle, randomTime);
 }
 
@@ -74,28 +103,21 @@ function checkCollision(player, obstacle) {
     const playerRect = player.getBoundingClientRect();
     const obstacleRect = obstacle.getBoundingClientRect();
 
-    // فحص بسيط للتصادم الأفقي والعمودي
     return (
         playerRect.right > obstacleRect.left &&
         playerRect.left < obstacleRect.right &&
-        playerRect.bottom > obstacleRect.top
+        playerRect.bottom > obstacleRect.top &&
+        playerRect.top < obstacleRect.bottom
     );
 }
 
 function endGame() {
-    if (isGameOver) return; // منع تكرار النهاية
+    if (isGameOver) return;
     isGameOver = true;
     
-    // إيقاف كل شيء
     clearInterval(gameInterval);
     clearTimeout(obstacleGenerator);
 
-    // إيقاف حركة كل العقبات الموجودة
-    document.querySelectorAll('.obstacle').forEach(obs => {
-        obs.style.animationPlayState = 'paused';
-    });
-
-    // تحديث أفضل رقم
     if (score > highScore) {
         highScore = score;
         localStorage.setItem('highScore', highScore);
@@ -103,45 +125,51 @@ function endGame() {
     }
 
     finalScoreDisplay.textContent = score;
+    gameOverTitle.textContent = "انتهت الجولة";
+    gameOverText.innerHTML = `لقد حصلت على <span id="final-score">${score}</span> نقطة`;
     gameOverMenu.classList.remove('hidden');
     
-    // (منطق المهمات يبقى كما هو)
-    // checkMissionsCompletion(score);
+    // checkMissionsCompletion(score); // يمكنك تفعيل هذا لاحقًا
 }
 
 // --- التحكم باللاعب (القفز) ---
 function jump() {
-    if (isGameOver || player.classList.contains('jump')) {
-        return; // لا تقفز إذا كانت اللعبة منتهية أو إذا كان اللاعب يقفز بالفعل
-    }
+    if (isGameOver || player.classList.contains('jump')) return;
+    
     player.classList.add('jump');
-    // إزالة الكلاس بعد انتهاء الأنيميشن للسماح بالقفز مرة أخرى
     setTimeout(() => {
         player.classList.remove('jump');
-    }, 500); // يجب أن تكون المدة مطابقة لمدة الأنيميشن في CSS
+    }, 500); // مدة الأنيميشن في CSS
 }
 
-// ربط القفز بالضغط على مفتاح المسافة أو النقر على الشاشة
+function handleInteraction() {
+    if (isGameOver) {
+        startGame();
+    } else {
+        jump();
+    }
+}
+
+// ربط التحكم بالأحداث
 document.addEventListener('keydown', (e) => {
     if (e.code === 'Space') {
-        if (isGameOver) {
-            startGame(); // ابدأ اللعبة بالضغط على المسافة إذا كانت منتهية
-        } else {
-            jump();
-        }
+        handleInteraction();
     }
 });
-
-document.addEventListener('touchstart', () => {
-    if (isGameOver) return;
-    jump();
-});
-
-// --- ربط الأحداث والأزرار (تبقى كما هي) ---
+document.addEventListener('touchstart', handleInteraction);
 restartButton.addEventListener('click', startGame);
-// ... باقي الأزرار
+
+// --- أزرار القوائم ---
+missionsButton.addEventListener('click', () => {
+    missionsModal.classList.remove('hidden');
+    // fetchMissions(); // يمكنك تفعيل هذا لاحقًا
+});
+closeMissionsButton.addEventListener('click', () => {
+    missionsModal.classList.add('hidden');
+});
 
 // --- تهيئة أولية ---
 highScoreDisplay.textContent = highScore;
+gameOverTitle.textContent = "لعبة الركض";
+gameOverText.innerHTML = "اضغط 'مسافة' أو المس الشاشة للبدء";
 gameOverMenu.classList.remove('hidden');
-finalScoreDisplay.parentElement.innerHTML = "<h2>اضغط 'مسافة' للبدء</h2>";
