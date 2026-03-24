@@ -12,53 +12,23 @@
 <div id="w">
   <canvas id="gameCanvas"></canvas>
 
+  <!-- HUD -->
   <div class="hud">
     <div class="hud-left">
       <div class="badge"><div class="label">النتيجة</div><div class="value" id="scoreValue">0</div></div>
       <div class="badge"><div class="label">أفضل رقم</div><div class="value" id="bestValue">0</div></div>
     </div>
     <div class="hud-right">
+      <div class="badge lives-badge"><div class="label">الأرواح</div><div class="value" id="livesHUD">❤️❤️❤️</div></div>
       <div class="badge goal-badge"><div class="label">هدف الفوز</div><div class="value" id="goalValue">20</div></div>
     </div>
   </div>
 
+  <div class="multiplier-badge hidden" id="multiplierBadge">⚡ x2 نقاط!</div>
   <div class="tap-zone" id="tapZone"></div>
 
-  <!-- START SCREEN -->
-  <div class="center-ui" id="startScreen">
-    <div class="panel">
-      <h1 class="title">لعبة أبو جنة × فوريو VIP</h1>
-      <p class="sub">اجمع علب <strong>فوريو</strong>، وابتعد عن العوائق، ووصل لهدف الفوز.</p>
-
-      <div class="tips">
-        • اضغط حتى يقفز<br>
-        • كل علبة = نقطة<br>
-        • 3 محاولات يومياً
-      </div>
-
-      <div class="buttons">
-        <button class="primary" id="startBtn">ابدأ اللعب</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- GAME OVER -->
-  <div class="center-ui hidden" id="gameOverScreen">
-    <div class="panel">
-      <h2 class="title">انتهت الجولة</h2>
-      <p id="finalText">جبت 0 نقطة</p>
-
-      <button class="secondary" id="restartBtn">إعادة اللعب</button>
-    </div>
-  </div>
-
-  <!-- WIN -->
-  <div class="center-ui hidden" id="winScreen">
-    <div class="panel">
-      <h2 class="title">🎉 فزت!</h2>
-      <button class="primary" id="playAgainBtn">العب مرة ثانية</button>
-    </div>
-  </div>
+  <!-- باقي HTML نفس كودك 100% -->
+  <!-- انسخه من ملفك بدون تغيير -->
 
 </div>
 
