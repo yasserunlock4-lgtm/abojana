@@ -1,23 +1,25 @@
-body {
+body{
   margin:0;
-  background:#0b0f1a;
+  background:linear-gradient(#0b0f1a,#111827);
   font-family:tahoma;
   overflow:hidden;
 }
 
-canvas {
+canvas{
   display:block;
 }
 
-.ui {
+.hud{
   position:fixed;
   top:10px;
   right:10px;
   color:#fff;
-  font-size:18px;
+  font-size:20px;
+  display:flex;
+  gap:15px;
 }
 
-.menu {
+.menu{
   position:absolute;
   top:50%;
   left:50%;
@@ -26,11 +28,11 @@ canvas {
   color:#fff;
 }
 
-button {
-  padding:12px 20px;
+button{
+  padding:12px 25px;
   font-size:18px;
   border:none;
-  border-radius:10px;
-  background:#ffd54a;
+  border-radius:12px;
+  background:linear-gradient(#ffd54a,#ffb300);
   cursor:pointer;
 }
