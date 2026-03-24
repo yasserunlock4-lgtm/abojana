@@ -36,4 +36,48 @@ button:active{transform:scale(.98)}
 .ig-btn{background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;}
 .missions-btn{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;}
 
-/* (باقي الستايل نفس ملفك بالكامل) */
+/* MISSIONS */
+.mission-item{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:13px 14px;margin-bottom:9px;display:flex;align-items:center;gap:11px;text-align:right;}
+.mission-icon{font-size:26px;flex-shrink:0;}
+.mission-info{flex:1;}
+.mission-title{font-size:13.5px;font-weight:700;margin-bottom:3px;}
+.mission-reward{font-size:11.5px;color:var(--accent);opacity:.9;}
+.mission-reward span{color:var(--good);}
+.mission-btn{flex-shrink:0;border:none;border-radius:13px;padding:9px 14px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:"Tahoma","Arial",sans-serif;transition:.2s;}
+.mission-btn.completed{background:rgba(52,211,153,.2);color:#34d399;border:1px solid rgba(52,211,153,.4);pointer-events:none;}
+.mission-btn.go-yt{background:linear-gradient(135deg,#ff0000,#cc0000);color:#fff;}
+.mission-btn.go-ig{background:linear-gradient(135deg,#f09433,#dc2743);color:#fff;}
+.mission-btn.go-tg{background:linear-gradient(135deg,#22c1f1,#0b8fd8);color:#fff;}
+.mission-btn.go-play{background:linear-gradient(135deg,var(--accent),#ffb300);color:#221400;}
+.mission-btn.go-share{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;}
+
+.missions-reward-note{background:rgba(255,213,74,.1);border:1px solid rgba(255,213,74,.3);border-radius:16px;padding:10px;margin:8px 0 12px;font-size:13px;color:var(--accent);line-height:1.9;}
+.bonus-points-note{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);border-radius:16px;padding:10px;margin:8px 0;font-size:13px;color:#34d399;line-height:1.9;}
+
+.leaderboard{margin-top:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:12px;text-align:right;}
+.leader-item{display:flex;justify-content:space-between;gap:12px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.04);margin-bottom:8px;font-size:14px;}
+.leader-item:last-child{margin-bottom:0;}
+.rank-1{border:1px solid rgba(255,213,74,.4);background:rgba(255,213,74,.07)!important;}
+.rank-2{border:1px solid rgba(192,192,192,.3);}
+.rank-3{border:1px solid rgba(205,127,50,.3);}
+
+.footer-note{margin-top:12px;font-size:12px;opacity:.7;line-height:1.7;}
+.win-notice{background:rgba(255,213,74,.15);border:1px solid rgba(255,213,74,.4);border-radius:16px;padding:12px;margin:10px 0 14px;font-size:14px;line-height:1.8;color:var(--accent);}
+
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(30,20,50,.97);border:1px solid rgba(255,213,74,.5);color:#fff;padding:12px 20px;border-radius:16px;font-size:14px;text-align:center;line-height:1.7;z-index:9999;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.hidden{display:none}
+.tap-zone{position:absolute;inset:0;z-index:2;}
+.brand-mini{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:11px;opacity:.6;z-index:4;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.1);padding:6px 12px;border-radius:14px;backdrop-filter:blur(8px);pointer-events:none;white-space:nowrap;}
+.goal-wrap{margin-top:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:10px;}
+.goal-top{display:flex;justify-content:space-between;font-size:12px;opacity:.85;margin-bottom:8px;}
+.goal-bar{height:10px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;}
+.goal-fill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--good),var(--accent),var(--accent2));transition:width .2s ease;}
+.divider{height:1px;background:rgba(255,255,255,.1);margin:10px 0;}
+.lives-row{display:flex;justify-content:center;gap:6px;margin:6px 0;}
+.life-heart{font-size:17px;}
+.life-heart.empty{opacity:.22;filter:grayscale(1);}
+
+/* BONUS MULTIPLIER */
+.multiplier-badge{position:absolute;top:70px;right:12px;background:linear-gradient(135deg,#7c3aed,#a855f7);border:1px solid rgba(168,85,247,.5);backdrop-filter:blur(8px);padding:6px 12px;border-radius:12px;font-size:12px;font-weight:800;color:#fff;z-index:5;pointer-events:none;transition:.3s;}
+.multiplier-badge.hidden{display:none;}
