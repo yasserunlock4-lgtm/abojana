@@ -1,20 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snake Game</title>
+    <title>لعبة الركض</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="game-container">
-        <h1>Snake Game</h1>
-        <canvas id="gameCanvas" width="400" height="400"></canvas>
-        <div class="controls">
-            Use Arrow Keys to Move
+        <div class="header">
+            <div class="score-box">
+                <span>النتيجة</span>
+                <span id="score">0</span>
+            </div>
+            <div class="score-box">
+                <span>أفضل رقم</span>
+                <span id="high-score">0</span>
+            </div>
         </div>
-        <div id="score">Score: 0</div>
+        <div id="game-board">
+            <div id="player"></div>
+            <!-- سيتم إنشاء العقبات هنا بواسطة JavaScript -->
+        </div>
+        <div id="game-over-menu" class="hidden">
+            <h2>انتهت الجولة</h2>
+            <p>لقد حصلت على <span id="final-score">0</span> نقطة</p>
+            <button id="restart-button">إعادة اللعب</button>
+            <button id="missions-button">المهمات</button>
+        </div>
+        <div id="missions-modal" class="hidden">
+            <h2>قائمة المهمات</h2>
+            <ul id="missions-list">
+                <!-- سيتم تحميل المهمات هنا من Firebase -->
+            </ul>
+            <button id="close-missions-button">إغلاق</button>
+        </div>
     </div>
-    <script src="script.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <!-- Game Logic -->
+    <script src="game.js"></script>
 </body>
 </html>
