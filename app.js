@@ -12,17 +12,18 @@ let game = {
 };
 
 let player = {
-  x:100,
+  x:120,
   y:300,
-  w:50,
-  h:50,
+  w:60,
+  h:60,
   vy:0,
-  jump:-15,
-  gravity:0.8
+  gravity:0.9,
+  jump:-16
 };
 
-let obstacles = [];
-let coins = [];
+let obstacles=[];
+let coins=[];
+let particles=[];
 
 // START
 function startGame(){
@@ -34,41 +35,44 @@ function startGame(){
   coins=[];
 }
 
-// JUMP
-window.onclick = ()=>{
-  if(player.y >= canvas.height-100){
-    player.vy = player.jump;
-  }
-};
-
 // LOOP
 function loop(){
   requestAnimationFrame(loop);
-  if(!game.running)return;
+  if(!game.running) return;
 
   update();
   draw();
 }
 loop();
 
+// JUMP
+window.addEventListener("click",()=>{
+  if(player.y>=canvas.height-120){
+    player.vy=player.jump;
+  }
+});
+
 // UPDATE
 function update(){
 
-  player.vy += player.gravity;
-  player.y += player.vy;
+  player.vy+=player.gravity;
+  player.y+=player.vy;
 
-  if(player.y > canvas.height-100){
-    player.y = canvas.height-100;
-    player.vy = 0;
+  if(player.y>canvas.height-120){
+    player.y=canvas.height-120;
+    player.vy=0;
   }
+
+  // زيادة السرعة
+  game.speed+=0.001;
 
   // spawn obstacles
   if(Math.random()<0.02){
     obstacles.push({
       x:canvas.width,
-      y:canvas.height-100,
-      w:40,
-      h:40
+      y:canvas.height-120,
+      w:50,
+      h:50
     });
   }
 
@@ -77,20 +81,22 @@ function update(){
     coins.push({
       x:canvas.width,
       y:Math.random()*300+100,
-      r:15
+      r:12
     });
   }
 
-  // move obstacles
+  // obstacles
   obstacles.forEach((o,i)=>{
-    o.x -= game.speed;
+    o.x-=game.speed;
 
     if(collide(player,o)){
       game.lives--;
+      shake();
       obstacles.splice(i,1);
+
       if(game.lives<=0){
         game.running=false;
-        alert("انتهت اللعبة 😢");
+        alert("💀 انتهت اللعبة");
         location.reload();
       }
     }
@@ -98,10 +104,11 @@ function update(){
 
   // coins
   coins.forEach((c,i)=>{
-    c.x -= game.speed;
+    c.x-=game.speed;
 
     if(dist(player.x,player.y,c.x,c.y)<50){
-      game.score+=5;
+      game.score+=10;
+      createParticles(c.x,c.y);
       coins.splice(i,1);
     }
   });
@@ -116,9 +123,12 @@ function update(){
 function draw(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  // player
+  // player glow
+  ctx.shadowColor="yellow";
+  ctx.shadowBlur=20;
   ctx.fillStyle="yellow";
   ctx.fillRect(player.x,player.y,player.w,player.h);
+  ctx.shadowBlur=0;
 
   // obstacles
   ctx.fillStyle="red";
@@ -133,6 +143,37 @@ function draw(){
     ctx.arc(c.x,c.y,c.r,0,Math.PI*2);
     ctx.fill();
   });
+
+  // particles
+  particles.forEach((p,i)=>{
+    p.x+=p.vx;
+    p.y+=p.vy;
+    p.life--;
+
+    ctx.fillStyle="gold";
+    ctx.fillRect(p.x,p.y,4,4);
+
+    if(p.life<=0) particles.splice(i,1);
+  });
+}
+
+// PARTICLES
+function createParticles(x,y){
+  for(let i=0;i<15;i++){
+    particles.push({
+      x:x,
+      y:y,
+      vx:(Math.random()-0.5)*6,
+      vy:(Math.random()-0.5)*6,
+      life:30
+    });
+  }
+}
+
+// SHAKE
+function shake(){
+  canvas.style.transform="translate(5px)";
+  setTimeout(()=>canvas.style.transform="translate(0)",100);
 }
 
 // HELPERS
