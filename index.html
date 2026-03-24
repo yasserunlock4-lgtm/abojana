@@ -1,27 +1,20 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Abu Janna Ultimate</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
-<canvas id="game"></canvas>
-
-<div class="hud">
-  <div>🏆 <span id="score">0</span></div>
-  <div>❤️ <span id="lives">3</span></div>
-</div>
-
-<div class="menu" id="menu">
-  <h1>🔥 Abu Janna Ultimate</h1>
-  <button onclick="startGame()">ابدأ اللعب</button>
-</div>
-
-<script src="app.js"></script>
-
+    <div class="game-container">
+        <h1>Snake Game</h1>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div class="controls">
+            Use Arrow Keys to Move
+        </div>
+        <div id="score">Score: 0</div>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
