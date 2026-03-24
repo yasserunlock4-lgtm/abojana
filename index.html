@@ -7,7 +7,10 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- حاوية اللعبة الرئيسية -->
     <div class="game-container">
+        
+        <!-- الجزء العلوي: النتائج -->
         <div class="header">
             <div class="score-box">
                 <span>النتيجة</span>
@@ -18,27 +21,39 @@
                 <span id="high-score">0</span>
             </div>
         </div>
+
+        <!-- لوحة اللعبة حيث يتحرك اللاعب والعقبات -->
         <div id="game-board">
             <div id="player"></div>
             <!-- سيتم إنشاء العقبات هنا بواسطة JavaScript -->
         </div>
+
+        <!-- قائمة "انتهت الجولة" (مخفية افتراضيًا) -->
         <div id="game-over-menu" class="hidden">
-            <h2>انتهت الجولة</h2>
-            <p>لقد حصلت على <span id="final-score">0</span> نقطة</p>
-            <button id="restart-button">إعادة اللعب</button>
-            <button id="missions-button">المهمات</button>
+            <div class="menu-content">
+                <h2>انتهت الجولة</h2>
+                <p>لقد حصلت على <span id="final-score">0</span> نقطة</p>
+                <button id="restart-button">🔄 إعادة اللعب</button>
+                <button id="missions-button">🎯 المهمات</button>
+                <!-- يمكنك إضافة أزرار أخرى هنا مثل التي في الصورة -->
+                <button class="social-button youtube">اشترك في اليوتيوب</button>
+                <button class="social-button instagram">تابع الإنستقرام</button>
+            </div>
         </div>
+
+        <!-- قائمة "المهمات" (مخفية افتراضيًا) -->
         <div id="missions-modal" class="hidden">
-            <h2>قائمة المهمات</h2>
-            <ul id="missions-list">
-                <!-- سيتم تحميل المهمات هنا من Firebase -->
-            </ul>
-            <button id="close-missions-button">إغلاق</button>
+            <div class="menu-content">
+                <h2>قائمة المهمات</h2>
+                <ul id="missions-list">
+                    <!-- سيتم تحميل المهمات هنا من Firebase -->
+                </ul>
+                <button id="close-missions-button">إغلاق</button>
+            </div>
         </div>
     </div>
 
-    <!-- Game Logic -->
-    <!-- تم تغيير اسم الملف هنا -->
+    <!-- استدعاء ملف JavaScript الرئيسي -->
     <script type="module" src="app.js"></script> 
 </body>
 </html>
