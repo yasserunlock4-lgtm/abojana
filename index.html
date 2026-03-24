@@ -2,15 +2,16 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة الركض</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>لعبة القفز والركض</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <!-- حاوية اللعبة الرئيسية -->
     <div class="game-container">
         
-        <!-- الجزء العلوي: النتائج -->
+        <!-- الجزء العلوي: عرض النتائج -->
         <div class="header">
             <div class="score-box">
                 <span>النتيجة</span>
@@ -22,7 +23,7 @@
             </div>
         </div>
 
-        <!-- لوحة اللعبة حيث يتحرك اللاعب والعقبات -->
+        <!-- لوحة اللعبة: تحتوي على اللاعب والعقبات والأرضية -->
         <div id="game-board">
             <div id="player"></div>
             <!-- سيتم إنشاء العقبات هنا بواسطة JavaScript -->
@@ -31,13 +32,10 @@
         <!-- قائمة "انتهت الجولة" (مخفية افتراضيًا) -->
         <div id="game-over-menu" class="hidden">
             <div class="menu-content">
-                <h2>انتهت الجولة</h2>
-                <p>لقد حصلت على <span id="final-score">0</span> نقطة</p>
+                <h2 id="game-over-title">انتهت الجولة</h2>
+                <p id="game-over-text">لقد حصلت على <span id="final-score">0</span> نقطة</p>
                 <button id="restart-button">🔄 إعادة اللعب</button>
                 <button id="missions-button">🎯 المهمات</button>
-                <!-- يمكنك إضافة أزرار أخرى هنا مثل التي في الصورة -->
-                <button class="social-button youtube">اشترك في اليوتيوب</button>
-                <button class="social-button instagram">تابع الإنستقرام</button>
             </div>
         </div>
 
@@ -51,9 +49,11 @@
                 <button id="close-missions-button">إغلاق</button>
             </div>
         </div>
+
     </div>
 
-    <!-- استدعاء ملف JavaScript الرئيسي -->
+    <!-- استدعاء ملف JavaScript الرئيسي كوحدة (module) -->
     <script type="module" src="app.js"></script> 
+
 </body>
 </html>
