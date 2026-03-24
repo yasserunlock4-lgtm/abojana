@@ -1,59 +1,59 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>لعبة القفز والركض</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>لعبة الركض</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <!-- حاوية اللعبة الرئيسية -->
-    <div class="game-container">
-        
-        <!-- الجزء العلوي: عرض النتائج -->
-        <div class="header">
-            <div class="score-box">
-                <span>النتيجة</span>
-                <span id="score">0</span>
-            </div>
-            <div class="score-box">
-                <span>أفضل رقم</span>
-                <span id="high-score">0</span>
-            </div>
-        </div>
+    <div id="game-wrapper">
+        <!-- سيتم الرسم هنا -->
+        <canvas id="gameCanvas"></canvas>
 
-        <!-- لوحة اللعبة: تحتوي على اللاعب والعقبات والأرضية -->
-        <div id="game-board">
-            <div id="player"></div>
-            <!-- سيتم إنشاء العقبات هنا بواسطة JavaScript -->
-        </div>
-
-        <!-- قائمة "انتهت الجولة" (مخفية افتراضيًا) -->
-        <div id="game-over-menu" class="hidden">
-            <div class="menu-content">
-                <h2 id="game-over-title">انتهت الجولة</h2>
-                <p id="game-over-text">لقد حصلت على <span id="final-score">0</span> نقطة</p>
-                <button id="restart-button">🔄 إعادة اللعب</button>
-                <button id="missions-button">🎯 المهمات</button>
+        <!-- واجهة المستخدم العلوية -->
+        <div class="hud">
+            <div class="hud-left">
+                <div class="badge">
+                    <div class="label">النتيجة</div>
+                    <div class="value" id="scoreValue">0</div>
+                </div>
+                <div class="badge">
+                    <div class="label">أفضل رقم</div>
+                    <div class="value" id="bestValue">0</div>
+                </div>
             </div>
         </div>
 
-        <!-- قائمة "المهمات" (مخفية افتراضيًا) -->
-        <div id="missions-modal" class="hidden">
-            <div class="menu-content">
-                <h2>قائمة المهمات</h2>
-                <ul id="missions-list">
-                    <!-- سيتم تحميل المهمات هنا من Firebase -->
-                </ul>
-                <button id="close-missions-button">إغلاق</button>
+        <!-- منطقة النقر للقفز -->
+        <div class="tap-zone" id="tapZone"></div>
+
+        <!-- شاشة البداية -->
+        <div class="center-ui" id="startScreen">
+            <div class="panel">
+                <h1 class="title">لعبة الركض</h1>
+                <p class="sub">اقفز لتجنب العقبات وحقق أعلى نتيجة!</p>
+                <div class="buttons">
+                    <button class="primary" id="startBtn">ابدأ اللعب</button>
+                </div>
             </div>
         </div>
 
+        <!-- شاشة نهاية اللعبة -->
+        <div class="center-ui hidden" id="gameOverScreen">
+            <div class="panel">
+                <h2 class="title">انتهت الجولة</h2>
+                <p class="sub" id="finalText">جبت 0 نقطة</p>
+                <div class="buttons">
+                    <button class="secondary" id="restartBtn">إعادة اللعب</button>
+                    <button class="ghost" id="homeBtn">الرئيسية</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- استدعاء ملف JavaScript الرئيسي كوحدة (module) -->
-    <script type="module" src="app.js"></script> 
-
+    <!-- استدعاء ملف JavaScript -->
+    <script src="app.js"></script>
 </body>
 </html>
