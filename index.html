@@ -2,138 +2,66 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>لعبة أبو جنة VIP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>لعبة أبو جنة × فوريو VIP</title>
 
-  <!-- CSS -->
   <link rel="stylesheet" href="style.css">
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 </head>
 
 <body>
-
 <div id="w">
-
-  <!-- Canvas -->
   <canvas id="gameCanvas"></canvas>
 
-  <!-- HUD -->
   <div class="hud">
     <div class="hud-left">
-      <div class="badge">
-        <div class="label">النتيجة</div>
-        <div class="value" id="scoreValue">0</div>
-      </div>
-
-      <div class="badge">
-        <div class="label">أفضل رقم</div>
-        <div class="value" id="bestValue">0</div>
-      </div>
+      <div class="badge"><div class="label">النتيجة</div><div class="value" id="scoreValue">0</div></div>
+      <div class="badge"><div class="label">أفضل رقم</div><div class="value" id="bestValue">0</div></div>
     </div>
-
     <div class="hud-right">
-      <div class="badge goal-badge">
-        <div class="label">هدف الفوز</div>
-        <div class="value" id="goalValue">20</div>
-      </div>
+      <div class="badge goal-badge"><div class="label">هدف الفوز</div><div class="value" id="goalValue">20</div></div>
     </div>
   </div>
 
-  <!-- Tap Area -->
   <div class="tap-zone" id="tapZone"></div>
 
-  <!-- Start Screen -->
+  <!-- START SCREEN -->
   <div class="center-ui" id="startScreen">
     <div class="panel">
-      <h1 class="title">🔥 لعبة أبو جنة VIP</h1>
-
-      <p class="sub">
-        اجمع النقاط وابتعد عن العوائق للوصول للفوز
-      </p>
+      <h1 class="title">لعبة أبو جنة × فوريو VIP</h1>
+      <p class="sub">اجمع علب <strong>فوريو</strong>، وابتعد عن العوائق، ووصل لهدف الفوز.</p>
 
       <div class="tips">
-        • اضغط للقفز<br>
-        • كل نقطة = +1<br>
-        • 3 محاولات يومياً<br>
-        • أكمل المهام لتحصل على محاولات إضافية
+        • اضغط حتى يقفز<br>
+        • كل علبة = نقطة<br>
+        • 3 محاولات يومياً
       </div>
 
       <div class="buttons">
         <button class="primary" id="startBtn">ابدأ اللعب</button>
-
-        <div class="button-row">
-          <button class="telegram" onclick="completeTask(1)">
-            اشترك بالقناة
-          </button>
-
-          <button class="ghost" onclick="completeTask(2)">
-            مشاركة اللعبة
-          </button>
-        </div>
-
-        <button class="ghost" onclick="showLeaderboard()">
-          أفضل اللاعبين
-        </button>
       </div>
     </div>
   </div>
 
-  <!-- Game Over -->
+  <!-- GAME OVER -->
   <div class="center-ui hidden" id="gameOverScreen">
     <div class="panel">
-      <h2 class="title">❌ انتهت الجولة</h2>
-
+      <h2 class="title">انتهت الجولة</h2>
       <p id="finalText">جبت 0 نقطة</p>
 
-      <div class="buttons">
-        <button class="secondary" onclick="startGame()">إعادة اللعب</button>
-
-        <button class="ghost" onclick="goHome()">
-          الصفحة الرئيسية
-        </button>
-      </div>
+      <button class="secondary" id="restartBtn">إعادة اللعب</button>
     </div>
   </div>
 
-  <!-- Win Screen -->
+  <!-- WIN -->
   <div class="center-ui hidden" id="winScreen">
     <div class="panel">
       <h2 class="title">🎉 فزت!</h2>
-
-      <p id="winText">وصلت الهدف</p>
-
-      <div class="buttons">
-        <button class="primary" onclick="startGame()">
-          العب مرة ثانية
-        </button>
-
-        <button class="ghost" onclick="goHome()">
-          الرئيسية
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Leaderboard -->
-  <div class="center-ui hidden" id="boardScreen">
-    <div class="panel">
-      <h2 class="title">🏆 أفضل اللاعبين</h2>
-
-      <div id="leaderboardList"></div>
-
-      <button class="ghost" onclick="closeLeaderboard()">
-        رجوع
-      </button>
+      <button class="primary" id="playAgainBtn">العب مرة ثانية</button>
     </div>
   </div>
 
 </div>
 
-<!-- JS -->
 <script src="app.js"></script>
-
 </body>
 </html>
