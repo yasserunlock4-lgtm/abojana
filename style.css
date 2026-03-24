@@ -1,39 +1,122 @@
 body {
+    background-color: #1e1b2e;
+    color: white;
+    font-family: 'Cairo', sans-serif; /* يمكنك استخدام أي خط عربي تفضله */
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
-    background-color: #333;
-    font-family: 'Courier New', Courier, monospace;
-    color: white;
+    overflow: hidden;
 }
 
 .game-container {
-    text-align: center;
-    border: 2px solid #fff;
+    width: 375px; /* عرض مشابه لشاشة الهاتف */
+    height: 667px;
+    background: url('path/to/your/background-image.png') no-repeat center center/cover; /* ضع مسار خلفيتك هنا */
+    background-color: #2c2541;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.header {
+    display: flex;
+    justify-content: space-around;
     padding: 20px;
+}
+
+.score-box {
+    background-color: rgba(0,0,0,0.3);
+    padding: 10px 20px;
     border-radius: 10px;
-    background-color: #222;
+    text-align: center;
 }
 
-h1 {
-    margin-bottom: 20px;
-}
-
-canvas {
-    background-color: #000;
-    border: 1px solid #555;
-}
-
-.controls {
-    margin-top: 15px;
-    font-size: 0.9em;
-    color: #aaa;
-}
-
-#score {
-    margin-top: 10px;
+.score-box span {
+    display: block;
     font-size: 1.2em;
-    font-weight: bold;
+}
+
+#game-board {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+#player {
+    width: 40px;
+    height: 60px;
+    background-color: #ffc107; /* لون اللاعب */
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: left 0.1s linear; /* حركة اللاعب سلسة */
+}
+
+.obstacle {
+    width: 50px;
+    height: 50px;
+    background-color: #e91e63; /* لون العقبة */
+    position: absolute;
+    left: 50%;
+    bottom: 100%; /* تبدأ من خارج الشاشة */
+}
+
+/* شاشات القوائم */
+.hidden {
+    display: none !important;
+}
+
+#game-over-menu, #missions-modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(44, 37, 65, 0.9);
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#game-over-menu h2, #missions-modal h2 {
+    margin-top: 0;
+    color: #ffc107;
+}
+
+#game-over-menu button, #missions-modal button {
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1em;
+    cursor: pointer;
+    color: white;
+}
+
+#restart-button { background-color: #ff5722; }
+#missions-button { background-color: #9c27b0; }
+#close-missions-button { background-color: #607d8b; }
+
+#missions-list {
+    list-style: none;
+    padding: 0;
+    text-align: right;
+}
+
+#missions-list li {
+    background-color: rgba(0,0,0,0.2);
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+}
+
+#missions-list li.completed {
+    text-decoration: line-through;
+    color: #888;
 }
