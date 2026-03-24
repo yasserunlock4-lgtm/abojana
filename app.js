@@ -1,145 +1,78 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+(function(){
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+// ⚙️ الإعدادات
+const TELEGRAM_LINK   = "https://t.me/SS34SS4";
+const YOUTUBE_URL     = "https://www.youtube.com/@YOUR_CHANNEL";
+const INSTAGRAM_URL   = "https://www.instagram.com/YOUR_ACCOUNT";
+const WIN_TARGET      = 20;
+const MAX_LIVES       = 6;
 
-// ===== UI =====
-const startScreen = document.getElementById("startScreen");
-const gameOverScreen = document.getElementById("gameOverScreen");
-const winScreen = document.getElementById("winScreen");
+// ─── Canvas ───
+const wrapper = document.getElementById("w");
+const canvas  = document.getElementById("gameCanvas");
+const ctx     = canvas.getContext("2d");
 
-const scoreEl = document.getElementById("scoreValue");
-const bestEl = document.getElementById("bestValue");
+let W=0,H=0;
+function resizeCanvas(){
+  W=wrapper.clientWidth;
+  H=wrapper.clientHeight;
+  canvas.width=W;
+  canvas.height=H;
+}
+resizeCanvas();
+window.addEventListener("resize",resizeCanvas);
 
-// ===== بيانات =====
-let gameRunning = false;
-let score = 0;
-let best = localStorage.getItem("best") || 0;
-
-bestEl.innerText = best;
-
-// ===== اللاعب =====
-let player = {
-  x: 100,
-  y: 200,
-  size: 30,
-  velocity: 0,
-  gravity: 0.6,
-  jump: -10
+// ─── Game State ───
+const game={
+  running:false,
+  score:0
 };
 
-// ===== العوائق =====
-let obstacles = [];
+const player={
+  x:80,
+  y:200,
+  vy:0
+};
 
-// ===== بدء =====
-function startGame(){
-  startScreen.classList.add("hidden");
-  gameOverScreen.classList.add("hidden");
-  winScreen.classList.add("hidden");
-
-  score = 0;
-  scoreEl.innerText = score;
-
-  player.y = 200;
-  player.velocity = 0;
-
-  obstacles = [];
-  gameRunning = true;
-
-  loop();
+// ─── Jump ───
+function jump(){
+  player.vy=-12;
 }
 
-document.getElementById("startBtn").onclick = startGame;
-document.getElementById("restartBtn").onclick = startGame;
-
-// ===== قفز =====
-document.addEventListener("click", ()=>{
-  if(!gameRunning) return;
-  player.velocity = player.jump;
-});
-
-// ===== عوائق =====
-function createObstacle(){
-  obstacles.push({
-    x: canvas.width,
-    width: 40,
-    height: Math.random()*200+50
-  });
-}
-
-// ===== تحديث =====
+// ─── Update ───
 function update(){
-  player.velocity += player.gravity;
-  player.y += player.velocity;
+  if(!game.running)return;
 
-  if(player.y > canvas.height-player.size){
-    gameOver();
-  }
+  player.vy+=0.8;
+  player.y+=player.vy;
 
-  obstacles.forEach(o=>{
-    o.x -= 5;
-
-    if(
-      player.x < o.x + o.width &&
-      player.x + player.size > o.x &&
-      player.y + player.size > canvas.height - o.height
-    ){
-      gameOver();
-    }
-  });
-
-  if(obstacles.length && obstacles[0].x < -50){
-    obstacles.shift();
-    score++;
-    scoreEl.innerText = score;
-
-    if(score >= 20){
-      winGame();
-    }
+  if(player.y>H-100){
+    player.y=H-100;
+    player.vy=0;
   }
 }
 
-// ===== رسم =====
-function draw(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+// ─── Draw ───
+function render(){
+  ctx.clearRect(0,0,W,H);
 
   ctx.fillStyle="yellow";
-  ctx.fillRect(player.x,player.y,player.size,player.size);
-
-  ctx.fillStyle="red";
-  obstacles.forEach(o=>{
-    ctx.fillRect(o.x,canvas.height-o.height,o.width,o.height);
-  });
+  ctx.fillRect(player.x,player.y,50,50);
 }
 
-// ===== لوب =====
+// ─── Loop ───
 function loop(){
-  if(!gameRunning) return;
-
-  if(Math.random()<0.02) createObstacle();
-
   update();
-  draw();
-
+  render();
   requestAnimationFrame(loop);
 }
+loop();
 
-// ===== خسارة =====
-function gameOver(){
-  gameRunning=false;
+// ─── Controls ───
+document.addEventListener("click",jump);
 
-  if(score>best){
-    best=score;
-    localStorage.setItem("best",best);
-    bestEl.innerText=best;
-  }
+document.getElementById("startBtn").addEventListener("click",()=>{
+  game.running=true;
+});
 
-  gameOverScreen.classList.remove("hidden");
-}
-
-// ===== فوز =====
-function winGame(){
-  gameRunning=false;
-  winScreen.classList.remove("hidden");
-}
+})();
