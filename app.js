@@ -1,4 +1,3 @@
-// ===== عناصر =====
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -33,8 +32,8 @@ let player = {
 // ===== العوائق =====
 let obstacles = [];
 
-// ===== بدء اللعبة =====
-function startGame() {
+// ===== بدء =====
+function startGame(){
   startScreen.classList.add("hidden");
   gameOverScreen.classList.add("hidden");
   winScreen.classList.add("hidden");
@@ -51,87 +50,74 @@ function startGame() {
   loop();
 }
 
-// ===== القفز =====
-document.getElementById("tapZone").addEventListener("click", () => {
-  if (!gameRunning) return;
+document.getElementById("startBtn").onclick = startGame;
+document.getElementById("restartBtn").onclick = startGame;
+
+// ===== قفز =====
+document.addEventListener("click", ()=>{
+  if(!gameRunning) return;
   player.velocity = player.jump;
 });
 
-// ===== إنشاء عوائق =====
-function createObstacle() {
-  let height = Math.random() * 200 + 50;
-
+// ===== عوائق =====
+function createObstacle(){
   obstacles.push({
     x: canvas.width,
     width: 40,
-    height: height
-  });
-}
-
-// ===== رسم =====
-function drawPlayer() {
-  ctx.fillStyle = "#ffd54a";
-  ctx.fillRect(player.x, player.y, player.size, player.size);
-}
-
-function drawObstacles() {
-  ctx.fillStyle = "#ff4b7d";
-
-  obstacles.forEach(o => {
-    ctx.fillRect(o.x, canvas.height - o.height, o.width, o.height);
+    height: Math.random()*200+50
   });
 }
 
 // ===== تحديث =====
-function update() {
+function update(){
   player.velocity += player.gravity;
   player.y += player.velocity;
 
-  // أرض
-  if (player.y > canvas.height - player.size) {
+  if(player.y > canvas.height-player.size){
     gameOver();
   }
 
-  // العوائق
-  obstacles.forEach(o => {
+  obstacles.forEach(o=>{
     o.x -= 5;
 
-    // تصادم
-    if (
+    if(
       player.x < o.x + o.width &&
       player.x + player.size > o.x &&
       player.y + player.size > canvas.height - o.height
-    ) {
+    ){
       gameOver();
     }
   });
 
-  // حذف العوائق القديمة + زيادة نقاط
-  if (obstacles.length && obstacles[0].x < -50) {
+  if(obstacles.length && obstacles[0].x < -50){
     obstacles.shift();
     score++;
     scoreEl.innerText = score;
 
-    // فوز
-    if (score >= 20) {
+    if(score >= 20){
       winGame();
     }
   }
 }
 
 // ===== رسم =====
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  drawPlayer();
-  drawObstacles();
+  ctx.fillStyle="yellow";
+  ctx.fillRect(player.x,player.y,player.size,player.size);
+
+  ctx.fillStyle="red";
+  obstacles.forEach(o=>{
+    ctx.fillRect(o.x,canvas.height-o.height,o.width,o.height);
+  });
 }
 
 // ===== لوب =====
-function loop() {
-  if (!gameRunning) return;
+function loop(){
+  if(!gameRunning) return;
 
-  if (Math.random() < 0.02) createObstacle();
+  if(Math.random()<0.02) createObstacle();
 
   update();
   draw();
@@ -140,44 +126,20 @@ function loop() {
 }
 
 // ===== خسارة =====
-function gameOver() {
-  gameRunning = false;
+function gameOver(){
+  gameRunning=false;
 
-  if (score > best) {
-    best = score;
-    localStorage.setItem("best", best);
-    bestEl.innerText = best;
+  if(score>best){
+    best=score;
+    localStorage.setItem("best",best);
+    bestEl.innerText=best;
   }
 
   gameOverScreen.classList.remove("hidden");
 }
 
 // ===== فوز =====
-function winGame() {
-  gameRunning = false;
+function winGame(){
+  gameRunning=false;
   winScreen.classList.remove("hidden");
 }
-
-// ===== رجوع =====
-function goHome() {
-  startScreen.classList.remove("hidden");
-  gameOverScreen.classList.add("hidden");
-  winScreen.classList.add("hidden");
-}
-
-// ===== Leaderboard (وهمي حالياً) =====
-function showLeaderboard() {
-  alert("Leaderboard قريباً 🔥");
-}
-
-function closeLeaderboard() {
-  document.getElementById("boardScreen").classList.add("hidden");
-}
-
-// ===== مهمات =====
-function completeTask(id) {
-  alert("🔥 تم تنفيذ المهمة! + محاولة إضافية");
-}
-
-// ===== زر البداية =====
-document.getElementById("startBtn").onclick = startGame;
