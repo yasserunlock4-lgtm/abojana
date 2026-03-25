@@ -1,54 +1,31 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوت أبو جنة - عجلة الحظ</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Telegram Web App script -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <meta charset="UTF-8">
+  <title>🎰 أبو جنة VIP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="app.js"></script>
+
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- شاشة التحقق من الاشتراك (واجهة فقط ) -->
-    <div id="subscription-overlay" class="subscription-overlay">
-        <div class="subscription-box">
-            <img src="https://i.ibb.co/7jZJ3cW/logo.png" alt="شعار فور يو" class="logo">
-            <h2>مرحباً بك في عالم أبو جنة!</h2>
-            <p>لربح النقاط، يرجى الاشتراك في قناتنا الرسمية أولاً.</p>
-            <a href="https://t.me/YOUR_CHANNEL_NAME" target="_blank" class="button">🔗 اشترك في القناة</a>
-            <button id="confirm-subscription-btn" class="button-secondary">✅ لقد اشتركت، تابع</button>
-        </div>
-    </div>
 
-    <!-- المحتوى الرئيسي للتطبيق (مخفي في البداية ) -->
-    <div id="main-content" class="app-container hidden">
-        <header>
-            <h1>عجلة حظ أبو جنة</h1>
-            <div class="user-info">
-                <p>نقاطك: <span id="user-points">0</span></p>
-            </div>
-        </header>
+<div class="container">
 
-        <main>
-            <div class="wheel-container">
-                <div class="wheel" id="wheel">
-                    <div class="sector" style="--i:1; --clr:#db7093;"><span>10</span></div>
-                    <div class="sector" style="--i:2; --clr:#20b2aa;"><span>50</span></div>
-                    <div class="sector" style="--i:3; --clr:#daa520;"><span>20</span></div>
-                    <div class="sector" style="--i:4; --clr:#ff340f;"><span>صفر</span></div>
-                    <div class="sector" style="--i:5; --clr:#ff7f50;"><span>100</span></div>
-                    <div class="sector" style="--i:6; --clr:#3cb371;"><span>5</span></div>
-                    <div class="sector" style="--i:7; --clr:#4169e1;"><span>200</span></div>
-                    <div class="sector" style="--i:8; --clr:#6a5acd;"><span>25</span></div>
-                </div>
-                <div class="spin-button" id="spin-btn">لف</div>
-            </div>
-        </main>
-    </div>
+  <h1>🎰 عجلة أبو جنة</h1>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-    <script src="script.js"></script>
+  <button id="joinBtn">اشترك بالقناة</button>
+
+  <canvas id="wheel" width="300" height="300"></canvas>
+
+  <button id="spinBtn">لف العجلة</button>
+
+  <p id="result">النقاط: 0</p>
+
+</div>
+
 </body>
 </html>
