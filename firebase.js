@@ -1,16 +1,18 @@
+// 🔥 Firebase كامل - نسخة حديثة
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
 import {
   getDatabase,
   ref,
   get,
   set,
   update,
-  push,
-  query,
-  orderByChild,
-  limitToLast
+  remove,
+  push
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
+// ⚠️ حط apiKey الحقيقي مكان النجوم
 const firebaseConfig = {
   apiKey: "AIzaSyDiCrZhKVpkYE3HUeeDkAo7xA9I88uZ1i0",
   authDomain: "abojana-3f0c2.firebaseapp.com",
@@ -22,17 +24,17 @@ const firebaseConfig = {
   measurementId: "G-23EYSF1BE0"
 };
 
+// 🚀 تشغيل Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+// 📤 تصدير كل الدوال
 export {
   db,
   ref,
   get,
   set,
   update,
-  push,
-  query,
-  orderByChild,
-  limitToLast
+  remove,
+  push
 };
