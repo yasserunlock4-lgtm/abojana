@@ -8,66 +8,62 @@ document.addEventListener('DOMContentLoaded', () => {
         storageBucket: "abojana-3f0c2.firebasestorage.app",
         messagingSenderId: "819681544560",
         appId: "1:819681544560:web:be2249a51d0c79ee21a7b5",
-        measurementId: "G-23EYSF1BE0"
     };
 
-    // تهيئة تطبيق Firebase
     firebase.initializeApp(firebaseConfig );
     const database = firebase.database();
 
     // --- تهيئة تطبيق تليجرام المصغر ---
     const tg = window.Telegram.WebApp;
-    tg.ready(); // إعلام تليجرام بأن التطبيق جاهز
+    tg.ready();
+    tg.expand(); // توسيع التطبيق لملء الشاشة
 
-    // الحصول على بيانات المستخدم من تليجرام
     const user = tg.initDataUnsafe?.user;
-    const userId = user ? user.id : 'test_user_123'; // استخدام ID حقيقي أو ID للاختبار
-    const username = user ? user.first_name : 'زائر';
+    const userId = user ? user.id.toString() : 'test_user_123';
 
     // --- عناصر الواجهة الرسومية ---
+    const subscriptionOverlay = document.getElementById('subscription-overlay');
+    const mainContent = document.getElementById('main-content');
+    const confirmSubscriptionBtn = document.getElementById('confirm-subscription-btn');
     const wheel = document.getElementById('wheel');
     const spinBtn = document.getElementById('spin-btn');
     const userPointsSpan = document.getElementById('user-points');
-    const usernameSpan = document.getElementById('username');
-    const subscriptionCheck = document.getElementById('subscription-check');
-    const mainContent = document.getElementById('main-content');
-    const checkSubscriptionBtn = document.getElementById('check-subscription-button');
 
-    usernameSpan.textContent = username;
+    // --- منطق الاشتراك الوهمي ---
+    function showMainContent() {
+        subscriptionOverlay.classList.add('hidden');
+        mainContent.classList.remove('hidden');
+        loadUserData(); // تحميل بيانات المستخدم فقط بعد تأكيد الاشتراك
+    }
 
-    // --- قيم الجوائز على العجلة ---
-    const prizes = [10, 50, 20, 0, 100, 5, 200, 25]; // القيمة 0 تمثل "حاول مرة أخرى"
+    // التحقق إذا كان المستخدم قد "أكد" الاشتراك من قبل
+    if (localStorage.getItem('isSubscribed_' + userId) === 'true') {
+        showMainContent();
+    } else {
+        subscriptionOverlay.classList.remove('hidden');
+    }
+
+    // عند الضغط على زر "لقد اشتركت"
+    confirmSubscriptionBtn.addEventListener('click', () => {
+        // حفظ الاختيار في التخزين المحلي لمنع ظهور الشاشة مرة أخرى
+        localStorage.setItem('isSubscribed_' + userId, 'true');
+        showMainContent();
+    });
+
+    // --- بقية منطق التطبيق (عجلة الحظ و Firebase) ---
+    const prizes = [10, 50, 20, 0, 100, 5, 200, 25];
     let userPoints = 0;
     let isSpinning = false;
 
-    // --- منطق الاشتراك ---
-    // في البداية، نخفي المحتوى الرئيسي ونظهر شاشة الاشتراك
-    mainContent.classList.add('hidden');
-    subscriptionCheck.classList.remove('hidden');
-
-    checkSubscriptionBtn.addEventListener('click', () => {
-        // هنا يجب عليك إضافة منطق التحقق الفعلي عبر بوت التليجرام
-        // حالياً، سنقوم بمحاكاة النجاح وإظهار المحتوى
-        console.log("التحقق من الاشتراك...");
-        // لنفترض أن التحقق ناجح
-        subscriptionCheck.classList.add('hidden');
-        mainContent.classList.remove('hidden');
-        loadUserData(); // تحميل بيانات المستخدم بعد "التحقق"
-    });
-
-    // --- وظائف Firebase ---
     function loadUserData() {
         const userRef = database.ref('users/' + userId);
         userRef.on('value', (snapshot) => {
             const data = snapshot.val();
-            if (data && data.points) {
-                userPoints = data.points;
+            if (data) {
+                userPoints = data.points || 0;
             } else {
-                // إنشاء مستخدم جديد إذا لم يكن موجوداً
-                userRef.set({
-                    username: username,
-                    points: 0
-                });
+                const username = user ? user.first_name : 'زائر';
+                userRef.set({ username: username, points: 0 });
                 userPoints = 0;
             }
             userPointsSpan.textContent = userPoints;
@@ -76,34 +72,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateUserPoints(newPoints) {
         const totalPoints = userPoints + newPoints;
-        database.ref('users/' + userId).update({
-            points: totalPoints
-        });
+        database.ref('users/' + userId).update({ points: totalPoints });
     }
 
-    // --- منطق عجلة الحظ ---
     spinBtn.addEventListener('click', () => {
         if (isSpinning) return;
         isSpinning = true;
+        spinBtn.textContent = '...';
+        spinBtn.style.pointerEvents = 'none';
 
-        // حساب زاوية دوران عشوائية
-        const randomDegree = Math.floor(Math.random() * 3600) + 360; // دوران عدة مرات
+        const randomDegree = Math.floor(Math.random() * 4000) + 360;
+        wheel.style.transition = 'transform 5s cubic-bezier(0.25, 0.1, 0.25, 1)';
         wheel.style.transform = `rotate(${randomDegree}deg)`;
 
-        // بعد انتهاء الدوران
         setTimeout(() => {
             const actualDegree = randomDegree % 360;
-            const prizeIndex = Math.floor(actualDegree / 45); // 360 / 8 sectors = 45 degrees per sector
+            const prizeIndex = Math.floor(8 - actualDegree / 45) % 8;
             const prizeValue = prizes[prizeIndex];
 
+            tg.HapticFeedback.notificationOccurred(prizeValue > 0 ? 'success' : 'error');
+
             if (prizeValue > 0) {
-                alert(`مبروك! لقد ربحت ${prizeValue} نقطة!`);
                 updateUserPoints(prizeValue);
+                tg.showAlert(`مبروك! لقد ربحت ${prizeValue} نقطة!`);
             } else {
-                alert("حظ أوفر في المرة القادمة!");
+                tg.showAlert("حظ أوفر في المرة القادمة!");
             }
 
             isSpinning = false;
-        }, 5000); // مدة الدوران 5 ثواني
+            spinBtn.textContent = 'لف';
+            spinBtn.style.pointerEvents = 'auto';
+        }, 5000);
     });
 });
