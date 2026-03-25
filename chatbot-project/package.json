@@ -1,0 +1,23 @@
+{
+  "name": "chatbot-project",
+  "version": "1.0.0",
+  "description": "بوت دردشة شخصي بسيط مع نظام الرسائل المحدودة",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "dev": "python3 -m http.server 3000"
+  },
+  "keywords": [
+    "chatbot",
+    "chat",
+    "bot",
+    "html",
+    "javascript"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/chatbot-project.git"
+  }
+}
