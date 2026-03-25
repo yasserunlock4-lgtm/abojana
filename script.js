@@ -1,133 +1,109 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // عناصر الواجهة
-    const characterSelectionScreen = document.getElementById('character-selection');
-    const chatScreen = document.getElementById('chat-screen');
-    const characterCards = document.querySelectorAll('.character-card');
-    const backButton = document.getElementById('back-button');
-    const chatBox = document.getElementById('chat-box');
-    const userInput = document.getElementById('user-input');
-    const sendButton = document.getElementById('send-button');
-    const chatCharacterName = document.getElementById('chat-character-name');
-    const subscriptionModal = document.getElementById('subscription-modal');
-    const closeModalButton = document.getElementById('close-modal-button');
-
-    let currentCharacter = null;
-    let messageCount = 0;
-    const MESSAGE_LIMIT = 5;
-
-    // --- قاعدة بيانات الردود ---
-    // يمكنك تعديلها وإضافة المزيد من الردود بسهولة
-    const responses = {
-        ali: {
-            name: "علي",
-            responses: {
-                "مرحبا": "أهلاً وسهلاً بك!",
-                "كيف حالك": "أنا بخير، شكراً لسؤالك. كيف يمكنني مساعدتك؟",
-                "من اين انت": "أنا من العراق.",
-                "ما اسمك": "اسمي علي.",
-                "default": "لم أفهم سؤالك، هل يمكنك توضيحه؟" // رد افتراضي
-            }
-        },
-        fatima: {
-            name: "فاطمة",
-            responses: {
-                "مرحبا": "مرحباً بك، يسعدني التحدث معك.",
-                "كيف حالك": "بأفضل حال، وأنت؟",
-                "من اين انت": "أنا من مصر.",
-                "ما اسمك": "اسمي فاطمة.",
-                "default": "عذراً، لم أفهم ما تقصد."
-            }
-        },
-        zainab: {
-            name: "زينب",
-            responses: {
-                "مرحبا": "أهلاً بك يا صديقي.",
-                "كيف حالك": "الحمد لله، كل شيء على ما يرام.",
-                "من اين انت": "أنا من سوريا.",
-                "ما اسمك": "اسمي زينب.",
-                "default": "يبدو أن هذا السؤال صعب قليلاً، جرب سؤالاً آخر."
-            }
-        }
+    // --- تهيئة Firebase ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyDiCrZhKVpkYE3HUeeDkAo7xA9I88uZ1i0", // استبدل هذا بمفتاحك الحقيقي
+        authDomain: "abojana-3f0c2.firebaseapp.com",
+        databaseURL: "https://abojana-3f0c2-default-rtdb.firebaseio.com",
+        projectId: "abojana-3f0c2",
+        storageBucket: "abojana-3f0c2.firebasestorage.app",
+        messagingSenderId: "819681544560",
+        appId: "1:819681544560:web:be2249a51d0c79ee21a7b5",
+        measurementId: "G-23EYSF1BE0"
     };
 
-    // وظيفة لإضافة رسالة إلى صندوق الدردشة
-    function addMessage(text, sender) {
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('message', `${sender}-message`);
-        messageElement.textContent = text;
-        chatBox.appendChild(messageElement);
-        chatBox.scrollTop = chatBox.scrollHeight; // للتمرير لأسفل تلقائياً
-    }
+    // تهيئة تطبيق Firebase
+    firebase.initializeApp(firebaseConfig );
+    const database = firebase.database();
 
-    // وظيفة للحصول على رد البوت
-    function getBotResponse(userText) {
-        const characterResponses = responses[currentCharacter].responses;
-        // البحث عن تطابق في الردود (مع تجاهل الفراغات الزائدة)
-        const cleanedUserText = userText.trim();
-        return characterResponses[cleanedUserText] || characterResponses['default'];
-    }
+    // --- تهيئة تطبيق تليجرام المصغر ---
+    const tg = window.Telegram.WebApp;
+    tg.ready(); // إعلام تليجرام بأن التطبيق جاهز
 
-    // التعامل مع إرسال الرسالة
-    function handleSendMessage() {
-        const userText = userInput.value;
-        if (userText.trim() === "") return;
+    // الحصول على بيانات المستخدم من تليجرام
+    const user = tg.initDataUnsafe?.user;
+    const userId = user ? user.id : 'test_user_123'; // استخدام ID حقيقي أو ID للاختبار
+    const username = user ? user.first_name : 'زائر';
 
-        // التحقق من حد الرسائل
-        if (messageCount >= MESSAGE_LIMIT) {
-            subscriptionModal.classList.remove('hidden');
-            return;
-        }
+    // --- عناصر الواجهة الرسومية ---
+    const wheel = document.getElementById('wheel');
+    const spinBtn = document.getElementById('spin-btn');
+    const userPointsSpan = document.getElementById('user-points');
+    const usernameSpan = document.getElementById('username');
+    const subscriptionCheck = document.getElementById('subscription-check');
+    const mainContent = document.getElementById('main-content');
+    const checkSubscriptionBtn = document.getElementById('check-subscription-button');
 
-        addMessage(userText, 'user');
-        messageCount++;
+    usernameSpan.textContent = username;
 
-        // محاكاة تأخير في الرد
-        setTimeout(() => {
-            const botReply = getBotResponse(userText);
-            addMessage(botReply, 'bot');
-        }, 500);
+    // --- قيم الجوائز على العجلة ---
+    const prizes = [10, 50, 20, 0, 100, 5, 200, 25]; // القيمة 0 تمثل "حاول مرة أخرى"
+    let userPoints = 0;
+    let isSpinning = false;
 
-        userInput.value = '';
-    }
+    // --- منطق الاشتراك ---
+    // في البداية، نخفي المحتوى الرئيسي ونظهر شاشة الاشتراك
+    mainContent.classList.add('hidden');
+    subscriptionCheck.classList.remove('hidden');
 
-    // الانتقال إلى شاشة الدردشة
-    characterCards.forEach(card => {
-        card.addEventListener('click', () => {
-            currentCharacter = card.dataset.character;
-            const characterName = responses[currentCharacter].name;
-            
-            chatCharacterName.textContent = `الدردشة مع ${characterName}`;
-            characterSelectionScreen.classList.add('hidden');
-            chatScreen.classList.remove('hidden');
-            
-            // إضافة رسالة ترحيبية من البوت
-            addMessage(`مرحباً! أنا ${characterName}. كيف يمكنني مساعدتك اليوم؟`, 'bot');
+    checkSubscriptionBtn.addEventListener('click', () => {
+        // هنا يجب عليك إضافة منطق التحقق الفعلي عبر بوت التليجرام
+        // حالياً، سنقوم بمحاكاة النجاح وإظهار المحتوى
+        console.log("التحقق من الاشتراك...");
+        // لنفترض أن التحقق ناجح
+        subscriptionCheck.classList.add('hidden');
+        mainContent.classList.remove('hidden');
+        loadUserData(); // تحميل بيانات المستخدم بعد "التحقق"
+    });
+
+    // --- وظائف Firebase ---
+    function loadUserData() {
+        const userRef = database.ref('users/' + userId);
+        userRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.points) {
+                userPoints = data.points;
+            } else {
+                // إنشاء مستخدم جديد إذا لم يكن موجوداً
+                userRef.set({
+                    username: username,
+                    points: 0
+                });
+                userPoints = 0;
+            }
+            userPointsSpan.textContent = userPoints;
         });
-    });
+    }
 
-    // العودة إلى شاشة اختيار الشخصية
-    backButton.addEventListener('click', () => {
-        chatScreen.classList.add('hidden');
-        characterSelectionScreen.classList.remove('hidden');
-        // إعادة تعيين الدردشة
-        chatBox.innerHTML = '';
-        messageCount = 0;
-        currentCharacter = null;
-    });
+    function updateUserPoints(newPoints) {
+        const totalPoints = userPoints + newPoints;
+        database.ref('users/' + userId).update({
+            points: totalPoints
+        });
+    }
 
-    // إغلاق نافذة الاشتراك ومتابعة الدردشة
-    closeModalButton.addEventListener('click', () => {
-        subscriptionModal.classList.add('hidden');
-        // إعادة تعيين العداد أو زيادته (هنا نعيد تعيينه للسماح بـ 5 رسائل أخرى)
-        messageCount = 0; 
-        addMessage("شكراً لاشتراكك! يمكنك الآن إرسال 5 رسائل أخرى.", 'bot');
-    });
+    // --- منطق عجلة الحظ ---
+    spinBtn.addEventListener('click', () => {
+        if (isSpinning) return;
+        isSpinning = true;
 
-    // ربط الأحداث بالأزرار
-    sendButton.addEventListener('click', handleSendMessage);
-    userInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            handleSendMessage();
-        }
+        // حساب زاوية دوران عشوائية
+        const randomDegree = Math.floor(Math.random() * 3600) + 360; // دوران عدة مرات
+        wheel.style.transform = `rotate(${randomDegree}deg)`;
+
+        // بعد انتهاء الدوران
+        setTimeout(() => {
+            const actualDegree = randomDegree % 360;
+            const prizeIndex = Math.floor(actualDegree / 45); // 360 / 8 sectors = 45 degrees per sector
+            const prizeValue = prizes[prizeIndex];
+
+            if (prizeValue > 0) {
+                alert(`مبروك! لقد ربحت ${prizeValue} نقطة!`);
+                updateUserPoints(prizeValue);
+            } else {
+                alert("حظ أوفر في المرة القادمة!");
+            }
+
+            isSpinning = false;
+        }, 5000); // مدة الدوران 5 ثواني
     });
 });
