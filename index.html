@@ -1,40 +1,155 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔥 أبو جنة VIP</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>أبو جنة × فوريو V2</title>
 
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link rel="stylesheet" href="style.css">
+  <meta name="theme-color" content="#12051f" />
+  <link rel="stylesheet" href="style.css" />
 
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
+  <div class="bg-blur blur-1"></div>
+  <div class="bg-blur blur-2"></div>
+  <div class="bg-stars" id="bgStars"></div>
 
-<div class="app">
+  <div class="app-shell">
+    <header class="topbar glass">
+      <div class="brand">
+        <div class="brand-logo">🔥</div>
+        <div>
+          <h1 id="appTitle">أبو جنة × فوريو</h1>
+          <p id="appSubtitle">لف واربح طاقة ونقاط وجوائز</p>
+        </div>
+      </div>
 
-  <h1>🔥 أبو جنة × فوريو VIP</h1>
-  <p class="sub">لف واربح طاقة ⚡ + جبس 🍟</p>
+      <button id="shareBtn" class="icon-btn" title="مشاركة">
+        <span>📤</span>
+      </button>
+    </header>
 
-  <div class="stats">
-    <span id="coins">0</span> 💰
-    <span id="spins">5</span> 🎡
+    <section class="hero glass">
+      <div class="hero-left">
+        <div class="tag">VIP LEGENDARY</div>
+        <h2>مشروب طاقة فوريو ⚡ + جبس أبو جنة 🍟</h2>
+        <p>
+          اجمع النقاط يوميًا من عجلة الحظ، شارك أصدقاءك، واصعد في قائمة المتصدرين.
+        </p>
+
+        <div class="hero-buttons">
+          <button id="joinBtn" class="primary-btn">📢 اشترك بالقناة</button>
+          <button id="verifyJoinBtn" class="secondary-btn">✅ تم الاشتراك</button>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="chips">
+          <div class="chip glow-gold">⚡ فوريو</div>
+          <div class="chip glow-pink">🍟 جبس أبو جنة</div>
+          <div class="chip glow-purple">🎰 عجلة الجوائز</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="dashboard">
+      <div class="card glass stat-card">
+        <div class="stat-label">النقاط</div>
+        <div class="stat-value" id="coinsValue">0</div>
+      </div>
+
+      <div class="card glass stat-card">
+        <div class="stat-label">لفات اليوم</div>
+        <div class="stat-value" id="spinsValue">0</div>
+      </div>
+
+      <div class="card glass stat-card">
+        <div class="stat-label">الرتبة</div>
+        <div class="stat-value" id="rankValue">مبتدئ</div>
+      </div>
+
+      <div class="card glass stat-card">
+        <div class="stat-label">إحالاتك</div>
+        <div class="stat-value" id="referralsValue">0</div>
+      </div>
+    </section>
+
+    <section class="main-grid">
+      <div class="wheel-card glass">
+        <div class="wheel-header">
+          <div>
+            <h3>🎰 عجلة أبو جنة الأسطورية</h3>
+            <p>لف واربح نقاط وطاقة وجوائز خاصة</p>
+          </div>
+          <div class="daily-reset" id="dailyResetText">تحديث يومي...</div>
+        </div>
+
+        <div class="wheel-wrap">
+          <div class="wheel-pointer"></div>
+          <canvas id="wheelCanvas" width="360" height="360"></canvas>
+        </div>
+
+        <div class="wheel-actions">
+          <button id="spinBtn" class="spin-btn">🔥 لف الآن</button>
+        </div>
+
+        <div id="resultBox" class="result-box">
+          جاهز للفوز؟
+        </div>
+      </div>
+
+      <div class="side-col">
+        <div class="card glass profile-card">
+          <h3>👤 حسابك</h3>
+          <div class="profile-row"><span>الاسم:</span><strong id="userName">زائر</strong></div>
+          <div class="profile-row"><span>المعرف:</span><strong id="userIdText">-</strong></div>
+          <div class="profile-row"><span>كود الإحالة:</span><strong id="myReferralCode">-</strong></div>
+          <button id="copyReferralBtn" class="secondary-btn full-btn">📎 نسخ رابط الإحالة</button>
+        </div>
+
+        <div class="card glass gifts-card">
+          <h3>🎁 الجوائز</h3>
+          <div id="giftsList" class="gifts-list">
+            <div class="gift-item">
+              <span>⚡ باقة طاقة</span>
+              <b>250 نقطة</b>
+            </div>
+            <div class="gift-item">
+              <span>🍟 جبس أبو جنة</span>
+              <b>500 نقطة</b>
+            </div>
+            <div class="gift-item">
+              <span>👑 هدية VIP</span>
+              <b>1000 نقطة</b>
+            </div>
+          </div>
+        </div>
+
+        <div class="card glass leaderboard-card">
+          <h3>🏆 المتصدرون</h3>
+          <div id="leaderboardList" class="leaderboard-list">
+            <div class="leaderboard-empty">لا يوجد لاعبين بعد</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer-note">
+      <span>Powered by Telegram Mini App + Firebase + Vercel</span>
+    </footer>
   </div>
 
-  <button id="joinBtn">📢 اشترك بالقناة</button>
-
-  <div class="wheel-container">
-    <canvas id="wheel" width="320" height="320"></canvas>
+  <div id="winOverlay" class="win-overlay hidden">
+    <div class="win-card glass">
+      <div class="win-emoji">🎉</div>
+      <h2>مبروك!</h2>
+      <p id="winText">ربحت جائزة جديدة</p>
+      <button id="closeWinBtn" class="primary-btn">إغلاق</button>
+    </div>
   </div>
 
-  <button id="spinBtn">🎰 لف العجلة</button>
-
-  <div id="result"></div>
-
-</div>
-
-<script type="module" src="firebase.js"></script>
-<script type="module" src="app.js"></script>
-
+  <script type="module" src="./firebase.js"></script>
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
