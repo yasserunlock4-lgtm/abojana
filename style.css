@@ -1,28 +1,45 @@
 body {
   margin:0;
   font-family: sans-serif;
-  background: linear-gradient(135deg,#12051f,#24113f);
-  color:white;
+  background: radial-gradient(circle,#12051f,#000);
+  color:#fff;
   text-align:center;
 }
 
-.container {
+.app {
   padding:20px;
 }
 
+h1 {
+  color:#ffd54a;
+  text-shadow:0 0 20px #ff4b7d;
+}
+
+.sub {
+  opacity:.7;
+}
+
+.stats {
+  margin:10px;
+  font-size:18px;
+}
+
 canvas {
-  margin:20px auto;
-  display:block;
   border-radius:50%;
-  box-shadow:0 0 30px #ff4b7d;
+  box-shadow:0 0 40px #ff4b7d;
 }
 
 button {
-  padding:12px 20px;
+  padding:12px 18px;
   margin:10px;
   border:none;
-  border-radius:10px;
-  background:#ff4b7d;
-  color:white;
+  border-radius:12px;
+  background:linear-gradient(45deg,#ff4b7d,#ffd54a);
+  color:#000;
+  font-weight:bold;
   font-size:16px;
+}
+
+#wheel {
+  background:#1a0f2e;
 }
