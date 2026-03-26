@@ -25,7 +25,7 @@
       content: '';
       position: fixed; inset: 0; z-index: 0;
       background:
-        radial-gradient(ellipse at 30% 20%, rgba(245,197,24,0.08) 0%, transparent 55%),
+        radial-gradient(ellipse at 30% 20%, rgba(245,197,24,0.08 ) 0%, transparent 55%),
         radial-gradient(ellipse at 70% 80%, rgba(34,158,217,0.06) 0%, transparent 55%);
       pointer-events: none;
     }
@@ -248,6 +248,7 @@
     .modal-close:hover { background: rgba(255,255,255,0.14); color: #fff; }
 
     .tasks-list { display: flex; flex-direction: column; gap: 10px; }
+    .tasks-list .loading { text-align: center; color: #888; padding: 20px 0; }
 
     .task-item {
       display: flex; align-items: center; gap: 14px;
@@ -257,6 +258,9 @@
       transition: border-color .25s, transform .2s;
     }
     .task-item:hover { border-color: rgba(245,197,24,0.35); transform: translateX(-3px); }
+    .task-item.completed { opacity: 0.5; pointer-events: none; border-color: #00ff88; }
+    .task-item.completed .task-arrow::before { content: '✅'; color: #00ff88; }
+
 
     .task-icon {
       width: 42px; height: 42px; border-radius: 11px;
@@ -328,7 +332,7 @@
     </div>
   </div>
 
-  <button class="gate-check-btn" onclick="unlockMain()">✅ اشتركت — ادخل</button>
+  <button class="gate-check-btn" onclick="unlockMain( )">✅ اشتركت — ادخل</button>
 </div>
 
 <!-- ══ MAIN ══ -->
@@ -357,7 +361,7 @@
   <div class="spins-left">المحاولات المتبقية اليوم: <span id="spinsDisplay">5</span> / 5</div>
 
   <!-- Wheel -->
-  <div class="wheel-wrap" id="wheelWrap" onclick="spinWheel()">
+  <div class="wheel-wrap" id="wheelWrap" onclick="spinWheel( )">
     <div class="pointer" id="pointer">▼</div>
     <div class="wheel-ring"></div>
     <canvas id="wheelCanvas" width="270" height="270"></canvas>
@@ -381,55 +385,9 @@
       <div class="modal-title">🎁 مهام إضافية</div>
       <button class="modal-close" onclick="closeMod(null,'modalTasks')">✕</button>
     </div>
-    <div class="tasks-list">
-      <a class="task-item" href="https://instagram.com/YOUR_IG" target="_blank">
-        <div class="task-icon ig">📸</div>
-        <div class="task-text">
-          <div class="task-name">تابع حساب الانستقرام</div>
-          <div class="task-desc">@YOUR_IG_USERNAME</div>
-        </div>
-        <div class="task-arrow">←</div>
-      </a>
-      <a class="task-item" href="https://t.me/YOUR_EXTRA_CHANNEL" target="_blank">
-        <div class="task-icon tg">📢</div>
-        <div class="task-text">
-          <div class="task-name">اشترك في القناة الإضافية</div>
-          <div class="task-desc">@YOUR_CHANNEL</div>
-        </div>
-        <div class="task-arrow">←</div>
-      </a>
-      <a class="task-item" href="https://youtube.com/@YOUR_YT" target="_blank">
-        <div class="task-icon yt">▶️</div>
-        <div class="task-text">
-          <div class="task-name">اشترك في يوتيوب</div>
-          <div class="task-desc">@YOUR_YOUTUBE</div>
-        </div>
-        <div class="task-arrow">←</div>
-      </a>
-      <a class="task-item" href="https://tiktok.com/@YOUR_TT" target="_blank">
-        <div class="task-icon tk">🎵</div>
-        <div class="task-text">
-          <div class="task-name">تابع في تيك توك</div>
-          <div class="task-desc">@YOUR_TIKTOK</div>
-        </div>
-        <div class="task-arrow">←</div>
-      </a>
-      <a class="task-item" href="https://facebook.com/YOUR_FB" target="_blank">
-        <div class="task-icon fb">👍</div>
-        <div class="task-text">
-          <div class="task-name">تابع صفحة الفيسبوك</div>
-          <div class="task-desc">YOUR_FB_PAGE</div>
-        </div>
-        <div class="task-arrow">←</div>
-      </a>
-      <a class="task-item" href="https://wa.me/YOUR_NUMBER" target="_blank">
-        <div class="task-icon wa">💬</div>
-        <div class="task-text">
-          <div class="task-name">تواصل على واتساب</div>
-          <div class="task-desc">للدعم والاستفسار</div>
-        </div>
-        <div class="task-arrow">←</div>
-      </a>
+    <div class="tasks-list" id="tasksList">
+      <!-- سيتم ملء المهام هنا من Firebase -->
+      <div class="loading">جاري تحميل المهام...</div>
     </div>
   </div>
 </div>
@@ -452,7 +410,26 @@
   </div>
 </div>
 
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
 <script>
+// ══════════════════════════════════════
+//  FIREBASE CONFIG
+// ══════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  // ... other config values
+};
+
+// Initialize Firebase
+const app = firebase.initializeApp(firebaseConfig );
+const db = firebase.firestore();
+
+
 // ══════════════════════════════════════
 //  CONFIG
 // ══════════════════════════════════════
@@ -468,8 +445,13 @@ const WITHDRAW_MIN = 200000;
 function getState() {
   const today = new Date().toDateString();
   let s = JSON.parse(localStorage.getItem('abuJanna') || '{}');
-  if (s.date !== today) { s.spins = 0; s.date = today; }
+  if (s.date !== today) {
+    s.spins = 0;
+    s.date = today;
+    s.completedTasks = []; // Reset completed tasks daily
+  }
   if (!s.balance) s.balance = 0;
+  if (!s.completedTasks) s.completedTasks = [];
   return s;
 }
 function saveState(s) { localStorage.setItem('abuJanna', JSON.stringify(s)); }
@@ -629,12 +611,94 @@ function updateUI() {
 }
 
 // ══════════════════════════════════════
+//  TASKS LOGIC (Firebase)
+// ══════════════════════════════════════
+async function loadTasks() {
+  const tasksList = document.getElementById('tasksList');
+  tasksList.innerHTML = '<div class="loading">جاري تحميل المهام...</div>';
+  const s = getState();
+
+  try {
+    const snapshot = await db.collection('tasks').get();
+    if (snapshot.empty) {
+      tasksList.innerHTML = '<div class="loading">لا توجد مهام متاحة حالياً.</div>';
+      return;
+    }
+
+    tasksList.innerHTML = ''; // Clear loading message
+    snapshot.forEach(doc => {
+      const task = doc.data();
+      const taskId = doc.id;
+      const isCompleted = s.completedTasks.includes(taskId);
+
+      const taskItem = document.createElement('a');
+      taskItem.className = 'task-item';
+      if (isCompleted) {
+        taskItem.classList.add('completed');
+      }
+      taskItem.href = task.url;
+      taskItem.target = '_blank';
+      taskItem.onclick = (e) => {
+        if (!isCompleted) {
+          e.preventDefault(); // Prevent navigation to complete the task first
+          completeTask(taskId, task.reward, task.url);
+        }
+      };
+
+      // Icon mapping
+      const icons = {
+        ig: '📸', tg: '📢', yt: '▶️', tk: '🎵', fb: '👍', wa: '💬'
+      };
+      const iconEmoji = icons[task.icon] || '🎁';
+
+      taskItem.innerHTML = `
+        <div class="task-icon ${task.icon}">${iconEmoji}</div>
+        <div class="task-text">
+          <div class="task-name">${task.name} (+${task.reward} دينار)</div>
+          <div class="task-desc">${task.desc}</div>
+        </div>
+        <div class="task-arrow">←</div>
+      `;
+      tasksList.appendChild(taskItem);
+    });
+  } catch (error) {
+    console.error("Error loading tasks: ", error);
+    tasksList.innerHTML = '<div class="loading">حدث خطأ أثناء تحميل المهام.</div>';
+  }
+}
+
+function completeTask(taskId, reward, url) {
+  const s = getState();
+  if (s.completedTasks.includes(taskId)) {
+    return; // Already completed
+  }
+
+  // Add reward and mark as completed
+  s.balance += reward;
+  s.completedTasks.push(taskId);
+  saveState(s);
+
+  // Update UI
+  updateUI();
+  showToast(`✅ اكتملت المهمة! +${reward} دينار`, '#00ff88');
+
+  // Reload tasks to show the completed state
+  loadTasks();
+
+  // Open the link after a short delay
+  setTimeout(() => {
+    window.open(url, '_blank');
+  }, 500);
+}
+
+
+// ══════════════════════════════════════
 //  TOAST
 // ══════════════════════════════════════
 let toastTimer;
 function showToast(msg, color = '#f5c518') {
   const t = document.getElementById('toast');
-  t.textContent = msg;
+  t.innerHTML = msg; // Use innerHTML to render emojis correctly
   t.style.borderColor = color;
   t.style.color = color;
   t.classList.add('show');
@@ -646,11 +710,17 @@ function showToast(msg, color = '#f5c518') {
 //  MODALS
 // ══════════════════════════════════════
 function openModal(id) {
-  document.getElementById(id === 'tasks' ? 'modalTasks' : 'modalWithdraw').classList.add('open');
+  const modalId = id === 'tasks' ? 'modalTasks' : 'modalWithdraw';
+  document.getElementById(modalId).classList.add('open');
+  if (id === 'tasks') {
+    loadTasks(); // Load tasks from Firebase when modal is opened
+  }
 }
 function closeMod(e, id) {
   const overlay = document.getElementById(id);
-  if (!e || e.target === overlay) overlay.classList.remove('open');
+  if (!e || e.target === overlay) {
+    overlay.classList.remove('open');
+  }
 }
 
 // ══════════════════════════════════════
