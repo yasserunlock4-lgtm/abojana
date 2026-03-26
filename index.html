@@ -3,885 +3,570 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-  <title>أبو جنة | عجلة الحظ</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
+  <title>أبو جنة | اللعبة الاحترافية 💎</title>
+  
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --gold:#FFD700;--gold2:#FFC700;--gold3:#FF9500;
-  --bg:#F8F9FA;--bg2:#FFFFFF;--bg3:#F0F2F5;--card:#FFFFFF;
-  --border:#E0E3E8;--border2:#D0D5DC;
-  --txt:#1F2937;--txt2:#6B7280;--txt3:#9CA3AF;
-  --green:#10B981;--red:#EF4444;--energy:#3B82F6;
-  --safe:env(safe-area-inset-bottom,0px);
-  --purple:#A78BFA;--cyan:#06B6D4;--pink:#EC4899;
+  --primary: #6366f1; --primary-dark: #4f46e5;
+  --secondary: #ec4899; --accent: #f59e0b;
+  --bg: #0f172a; --card-bg: rgba(30, 41, 59, 0.7);
+  --text: #f8fafc; --text-muted: #94a3b8;
+  --gold: linear-gradient(135deg, #fbbf24, #d97706);
+  --glass: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --safe: env(safe-area-inset-bottom, 0px);
 }
+
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{min-height:100vh;background:linear-gradient(135deg, #F0F9FF 0%, #F3E8FF 100%);font-family:'Cairo',sans-serif;color:var(--txt);overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 90% 40% at 50% 0%,rgba(255,215,0,.08) 0%,transparent 60%),radial-gradient(ellipse 50% 50% at 5% 50%,rgba(59,130,246,.05) 0%,transparent 50%),radial-gradient(ellipse 40% 40% at 95% 80%,rgba(168,85,247,.05) 0%,transparent 50%);pointer-events:none;z-index:0}
-.app{position:relative;z-index:1;max-width:430px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:calc(68px + var(--safe))}
+html,body{min-height:100vh;background: var(--bg);font-family:'Cairo',sans-serif;color:var(--text);overflow-x:hidden}
 
-/* HERO */
-.hero{position:relative;height:195px;overflow:hidden;flex-shrink:0}
-.hero-bg{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(59,130,246,.3) 0%,rgba(168,85,247,.2) 55%,var(--bg) 100%)}
-.hero-img{position:absolute;bottom:0;right:50%;transform:translateX(50%);height:192px;object-fit:contain;filter:drop-shadow(0 0 28px rgba(255,215,0,.4))}
-.hero-brand{position:absolute;top:14px;left:0;right:0;text-align:center}
-.hero-name{font-size:26px;font-weight:900;background:linear-gradient(135deg,#FFC700,#FFD700,#FF9500);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px;text-shadow:0 0 20px rgba(255,215,0,.3)}
-.hero-sub{font-size:10px;color:var(--txt2);letter-spacing:4px;text-transform:uppercase;margin-top:2px}
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background: radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 80% 70%, rgba(236, 72, 153, 0.15) 0%, transparent 50%);
+  z-index: -1;
+}
 
-/* BALANCE */
-.bal-card{margin:0 14px 10px;background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(240,245,250,.95));border:2px solid var(--border);border-radius:18px;padding:15px 17px;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;backdrop-filter:blur(10px);box-shadow:0 8px 24px rgba(59,130,246,.1)}
-.bal-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#3B82F6,transparent);box-shadow:0 0 10px rgba(59,130,246,.3)}
-.bal-lbl{font-size:11px;color:var(--txt2);font-weight:600;margin-bottom:3px}
-.bal-num{font-size:30px;font-weight:900;color:#3B82F6;line-height:1}
-.bal-cur{font-size:12px;color:var(--txt2);margin-top:2px}
-.bal-right{display:flex;flex-direction:column;align-items:flex-end;gap:7px}
-.streak-pill{background:linear-gradient(135deg,#FF6B35,#FF9500);border-radius:9px;padding:4px 11px;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;gap:4px;box-shadow:0 4px 12px rgba(255,107,53,.3)}
-.wd-btn{background:linear-gradient(135deg,#3B82F6,#06B6D4);border:none;border-radius:9px;padding:7px 15px;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;color:#fff;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 12px rgba(59,130,246,.2)}
-.wd-btn:active{transform:scale(.95);box-shadow:0 2px 6px rgba(59,130,246,.15)}
+.app{position:relative;z-index:1;max-width:430px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:calc(80px + var(--safe))}
 
-/* TICKER */
-.ticker-wrap{overflow:hidden;background:rgba(59,130,246,.08);border-top:1px solid rgba(59,130,246,.2);border-bottom:1px solid rgba(59,130,246,.2);padding:5px 0;margin-bottom:4px;flex-shrink:0}
-.ticker{display:flex;gap:40px;animation:tkmove 22s linear infinite;width:max-content}
-.ticker-item{font-size:11px;color:#3B82F6;font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:6px}
-@keyframes tkmove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.header {
+  padding: 20px 16px; display: flex; justify-content: space-between; align-items: center;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-img { width: 45px; height: 45px; border-radius: 12px; background: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 0 20px rgba(251, 191, 36, 0.3); }
+.brand-name { font-size: 20px; font-weight: 900; background: var(--gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-/* TABS */
-.tabs{display:flex;margin:8px 14px 0;background:var(--card);border:2px solid var(--border);border-radius:13px;padding:4px;gap:2px}
-.tab{flex:1;padding:9px 4px;text-align:center;font-size:11px;font-weight:700;color:var(--txt2);border-radius:9px;cursor:pointer;transition:all .2s;user-select:none}
-.tab.act{background:linear-gradient(135deg,#3B82F6,#06B6D4);color:#fff;box-shadow:0 4px 12px rgba(59,130,246,.2)}
+.level-badge { background: var(--glass); border: 1px solid var(--glass-border); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; backdrop-filter: blur(10px); }
+.level-badge span { color: var(--accent); }
 
-/* SCREENS */
-.screen{display:none;flex-direction:column;gap:11px;padding:11px 14px;flex:1}
-.screen.act{display:flex}
+.stats-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 12px; margin: 0 16px 20px; }
+.stat-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 16px; backdrop-filter: blur(15px); position: relative; overflow: hidden; }
 
-/* WHEEL */
-.wh-section{display:flex;flex-direction:column;align-items:center}
-.wh-lbl{font-size:13px;color:var(--txt2);font-weight:600;margin-bottom:14px;text-align:center}
-.wh-lbl strong{color:var(--gold2)}
-.wh-container{position:relative;width:288px;height:288px;margin:0 auto}
-.wh-ring{position:absolute;inset:-7px;border-radius:50%;background:conic-gradient(#3B82F6,#06B6D4,#A78BFA,#3B82F6,#06B6D4,#A78BFA,#3B82F6);animation:rrot 7s linear infinite;opacity:.6}
-.wh-mask{position:absolute;inset:-3px;border-radius:50%;background:#F8F9FA}
-@keyframes rrot{to{transform:rotate(360deg)}}
-canvas#wc{position:relative;z-index:2;border-radius:50%;display:block}
-.wh-ptr{position:absolute;top:-11px;left:50%;transform:translateX(-50%);z-index:10;filter:drop-shadow(0 3px 8px rgba(255,215,0,.6))}
-.wh-ctr{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#06B6D4);border:3px solid #fff;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;font-size:10px;font-weight:900;color:#fff;cursor:pointer;box-shadow:0 0 20px rgba(59,130,246,.35),inset 0 1px 0 rgba(255,255,255,.25);transition:all .2s;text-align:center;line-height:1.2}
-.wh-ctr:active{transform:translate(-50%,-50%) scale(.93)}
-.wh-ctr.dis{opacity:.4;cursor:not-allowed}
+.bal-label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+.bal-value { font-size: 28px; font-weight: 900; color: #fff; margin: 4px 0; display: flex; align-items: baseline; gap: 4px; }
+.bal-value small { font-size: 12px; color: var(--text-muted); }
 
-.spins-row{display:flex;justify-content:space-between;align-items:center;width:100%;padding:12px 0 0}
-.spins-txt{font-size:12px;color:var(--txt2)}
-.spins-num{font-size:20px;font-weight:900;color:var(--energy)}
+.streak-box { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 12px; font-weight: 700; color: var(--accent); }
 
-/* Progress */
-.prog-box{background:linear-gradient(135deg,rgba(255,255,255,.8),rgba(240,245,250,.8));border:2px solid var(--border);border-radius:13px;padding:14px 15px;box-shadow:0 4px 12px rgba(59,130,246,.08)}
-.prog-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.prog-hd span{font-size:12px;color:var(--txt2);font-weight:600}
-.prog-hd strong{font-size:12px;color:#3B82F6;font-weight:700}
-.prog-track{background:rgba(59,130,246,.1);border-radius:6px;height:6px;overflow:hidden}
-.prog-fill{height:100%;background:linear-gradient(90deg,#3B82F6,#06B6D4);border-radius:6px;transition:width .5s ease;box-shadow:0 0 8px rgba(59,130,246,.4)}
-.prog-note{font-size:10px;color:var(--txt2);text-align:center;margin-top:5px}
+.wd-btn { width: 100%; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border: none; border-radius: 14px; padding: 12px; color: #fff; font-family: 'Cairo'; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+.wd-btn:active { transform: scale(0.96); }
 
-/* Prizes mini */
-.section-hd{font-size:13px;font-weight:700;color:var(--txt2);display:flex;align-items:center;gap:6px}
-.prizes-mini{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.pm-item{background:linear-gradient(135deg,rgba(255,255,255,.8),rgba(240,245,250,.8));border:2px solid var(--border);border-radius:10px;padding:8px 4px;text-align:center;transition:all .2s;box-shadow:0 2px 8px rgba(59,130,246,.08)}
-.pm-item:hover{border-color:#3B82F6;box-shadow:0 4px 12px rgba(59,130,246,.15)}
-.pm-e{font-size:18px}
-.pm-v{font-size:11px;font-weight:700;color:#3B82F6;margin-top:2px}
+.wheel-section { position: relative; display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; }
+.wheel-container { position: relative; width: 310px; height: 310px; border-radius: 50%; padding: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); box-shadow: 0 0 40px rgba(0,0,0,0.3); }
 
-/* TASKS */
-.task-item{background:linear-gradient(135deg,rgba(255,255,255,.8),rgba(240,245,250,.8));border:2px solid var(--border);border-radius:15px;padding:13px 14px;display:flex;align-items:center;gap:11px;transition:all .2s;box-shadow:0 2px 8px rgba(59,130,246,.05)}
-.task-item:hover{border-color:#3B82F6;box-shadow:0 4px 12px rgba(59,130,246,.1)}
-.task-item.done{border-color:rgba(34,197,94,.25);opacity:.55}
-.task-ico{width:42px;height:42px;border-radius:11px;background:#F0F2F5;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
-.task-body{flex:1}
-.task-name{font-size:13px;font-weight:700;color:var(--txt)}
-.task-desc{font-size:11px;color:var(--txt2);margin-top:2px}
-.task-rhs{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
-.task-rwd{font-size:12px;font-weight:900;color:#10B981}
-.task-btn{background:linear-gradient(135deg,#3B82F6,#06B6D4);border:none;border-radius:8px;padding:6px 13px;font-family:'Cairo',sans-serif;font-size:11px;font-weight:700;color:#fff;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 2px 8px rgba(59,130,246,.15)}
-.task-btn:active{transform:scale(.94)}
+.wheel-glow { position: absolute; inset: -5px; border-radius: 50%; background: conic-gradient(from 0deg, var(--primary), var(--secondary), var(--accent), var(--primary)); animation: rotateGlow 4s linear infinite; opacity: 0.5; filter: blur(10px); }
+@keyframes rotateGlow { to { transform: rotate(360deg); } }
 
-/* HISTORY */
-.hist-item{background:linear-gradient(135deg,rgba(255,255,255,.8),rgba(240,245,250,.8));border:2px solid var(--border);border-radius:13px;padding:12px 14px;display:flex;align-items:center;gap:10px;transition:all .2s;box-shadow:0 2px 8px rgba(59,130,246,.05)}
-.hist-item:hover{border-color:#3B82F6;box-shadow:0 4px 12px rgba(59,130,246,.1)}
-.hist-ico{width:38px;height:38px;border-radius:9px;background:#F0F2F5;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
-.hist-body{flex:1}
-.hist-nm{font-size:13px;font-weight:700;color:var(--txt)}
-.hist-dt{font-size:10px;color:var(--txt2);margin-top:2px}
-.hist-v{font-size:14px;font-weight:900;color:#3B82F6}
-.hist-v.neg{color:var(--red)}
-.empty-st{display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--txt2);font-size:12px;padding:40px 0;text-align:center}
-.empty-st span{font-size:38px}
+canvas#wc { position: relative; z-index: 2; border-radius: 50%; display: block; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
 
-/* BNAV */
-.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(255,255,255,.96);backdrop-filter:blur(20px);border-top:2px solid var(--border);display:flex;padding:8px 8px calc(8px + var(--safe));z-index:50}
-.bni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 4px;cursor:pointer;border-radius:10px;transition:background .15s}
-.bni:active{background:#F0F2F5}
-.bni-ico{font-size:21px;filter:grayscale(1) opacity(.4);transition:filter .2s}
-.bni-lbl{font-size:9px;color:var(--txt2);font-weight:700;transition:color .2s}
-.bni.act .bni-ico{filter:none}
-.bni.act .bni-lbl{color:#3B82F6}
+.wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); z-index: 10; font-size: 32px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5)); }
+.wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; width: 70px; height: 70px; border-radius: 50%; background: #fff; border: 4px solid var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 30px rgba(255,255,255,0.2); transition: 0.2s; }
+.wheel-center:active { transform: translate(-50%, -50%) scale(0.9); }
+.wheel-center span { font-size: 10px; font-weight: 900; color: var(--bg); line-height: 1.1; text-align: center; }
 
-/* OVERLAYS */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.87);backdrop-filter:blur(10px);z-index:200;display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;pointer-events:none;transition:opacity .3s}
-.overlay.show{opacity:1;pointer-events:all}
-.modal{background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(240,245,250,.98));border:2px solid var(--border);border-radius:26px;padding:30px 22px;width:100%;max-width:350px;text-align:center;position:relative;overflow:hidden;transform:scale(.8) translateY(22px);transition:transform .4s cubic-bezier(.34,1.56,.64,1);box-shadow:0 20px 60px rgba(59,130,246,.15)}
-.overlay.show .modal{transform:scale(1) translateY(0)}
-.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#3B82F6,#06B6D4,#A78BFA)}
+.spins-badge { margin-top: 20px; background: var(--glass); padding: 8px 20px; border-radius: 30px; font-size: 14px; font-weight: 700; border: 1px solid var(--glass-border); }
+.spins-badge strong { color: var(--accent); font-size: 18px; margin: 0 4px; }
 
-/* Result */
-.res-em{font-size:62px;display:block;margin-bottom:10px}
-.res-ttl{font-size:20px;font-weight:900;margin-bottom:8px;color:var(--txt)}
-.res-amt{font-size:28px;font-weight:900;color:#3B82F6;margin-bottom:12px;line-height:1.2}
-.res-tot{font-size:12px;color:var(--txt2);margin-bottom:18px;font-weight:600}
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border-top: 1px solid var(--glass-border); display: flex; padding: 12px 16px calc(12px + var(--safe)); z-index: 100; justify-content: space-around; }
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); cursor: pointer; transition: 0.3s; position: relative; }
+.nav-icon { font-size: 22px; opacity: 0.5; transition: 0.3s; }
+.nav-label { font-size: 10px; font-weight: 700; }
+.nav-item.active { color: #fff; }
+.nav-item.active .nav-icon { opacity: 1; transform: translateY(-4px); filter: drop-shadow(0 0 8px var(--primary)); }
+.nav-item.active::after { content: ''; position: absolute; top: -12px; width: 4px; height: 4px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 10px var(--primary); }
 
-/* Channel Gate */
-.ch-av{font-size:48px;margin-bottom:10px}
-.ch-ttl{font-size:18px;font-weight:900;margin-bottom:8px;color:var(--txt)}
-.ch-desc{font-size:12px;color:var(--txt2);margin-bottom:12px;line-height:1.5}
-.ch-dots{display:flex;justify-content:center;gap:6px;margin:12px 0;flex-wrap:wrap}
-.ch-dot{width:8px;height:8px;border-radius:50%;background:#D0D5DC;transition:all .3s}
-.ch-dot.dn{background:#10B981}
-.ch-dot.cr{background:#3B82F6;transform:scale(1.3)}
-.ch-prog{font-size:11px;color:var(--txt2);margin:12px 0;font-weight:600}
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: 0.3s; }
+.overlay.show { opacity: 1; pointer-events: all; }
+.modal { background: #1e293b; border: 1px solid var(--glass-border); border-radius: 32px; padding: 32px 24px; width: 100%; max-width: 360px; text-align: center; transform: scale(0.8); transition: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.overlay.show .modal { transform: scale(1); }
 
-/* Buttons */
-.btn{border:none;border-radius:11px;padding:12px 16px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:block;width:100%;margin-top:10px}
-.btn-gold{background:linear-gradient(135deg,#FFD700,#FFC700);color:#000;box-shadow:0 4px 12px rgba(255,215,0,.3)}
-.btn-gold:active{transform:scale(.96)}
-.btn-ghost{background:transparent;border:2px solid var(--border);color:var(--txt);box-shadow:none}
-.btn-ghost:active{background:var(--bg3)}
-.btn-green{background:linear-gradient(135deg,#10B981,#059669);color:#fff;box-shadow:0 4px 12px rgba(16,185,129,.3)}
-.btn-green:active{transform:scale(.96)}
+.modal-icon { font-size: 64px; margin-bottom: 16px; display: block; }
+.modal-title { font-size: 24px; font-weight: 900; margin-bottom: 8px; }
+.modal-body { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+.modal-btn { width: 100%; background: var(--primary); border: none; border-radius: 16px; padding: 14px; color: #fff; font-family: 'Cairo'; font-weight: 700; font-size: 16px; cursor: pointer; margin-bottom: 10px; }
 
-/* Inputs */
-.inp-grp{margin:12px 0;text-align:right}
-.inp-grp label{display:block;font-size:11px;font-weight:700;color:var(--txt2);margin-bottom:6px}
-.inp-grp input,.inp-grp select{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:9px;font-family:'Cairo',sans-serif;font-size:13px;background:var(--bg2);color:var(--txt);transition:border .2s}
-.inp-grp input:focus,.inp-grp select:focus{outline:none;border-color:#3B82F6}
+.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: rgba(255,255,255,0.95); color: #000; padding: 12px 24px; border-radius: 16px; font-size: 14px; font-weight: 700; z-index: 1000; transition: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+.toast.show { transform: translateX(-50%) translateY(0); }
 
-/* Withdraw */
-.wd-bal{font-size:24px;font-weight:900;color:#3B82F6;margin:12px 0}
-.wd-note{font-size:11px;color:var(--txt2);margin:12px 0;line-height:1.5}
+.confetti { position: fixed; width: 10px; height: 10px; background: #f00; z-index: 300; pointer-events: none; }
 
-/* Confetti */
-.conf-piece{position:fixed;width:8px;height:8px;border-radius:50%;pointer-events:none;animation:conffall linear forwards}
-@keyframes conffall{to{transform:translateY(100vh) rotate(360deg);opacity:0}}
+.channel-list { max-height: 400px; overflow-y: auto; margin: 20px 0; }
+.channel-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--glass-border); }
+.channel-item-title { font-weight: 700; margin-bottom: 4px; }
+.channel-item-desc { font-size: 12px; color: var(--text-muted); }
 
-/* Toast */
-.toast{position:fixed;bottom:calc(68px + var(--safe) + 12px);left:50%;transform:translateX(-50%);background:rgba(0,0,0,.9);color:#fff;padding:12px 20px;border-radius:9px;font-size:13px;font-weight:600;z-index:300;opacity:0;pointer-events:none;transition:opacity .3s;max-width:300px;text-align:center}
-.toast.show{opacity:1;pointer-events:all}
-
-/* JOIN SCREEN */
-.join-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:30px 20px;text-align:center;flex:1}
-.join-ico{font-size:72px;margin-bottom:10px}
-.join-ttl{font-size:24px;font-weight:900;color:var(--txt)}
-.join-desc{font-size:13px;color:var(--txt2);line-height:1.6;margin-bottom:10px}
-.join-steps{text-align:right;margin:20px 0;font-size:12px}
-.join-steps li{list-style:none;margin:8px 0;color:var(--txt2)}
-.join-steps .sn{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:linear-gradient(135deg,#3B82F6,#06B6D4);color:#fff;border-radius:50%;font-weight:700;margin-left:8px;font-size:11px}
-
-/* Loading */
-.loading{display:inline-block;width:20px;height:20px;border:3px solid rgba(59,130,246,.2);border-top-color:#3B82F6;border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 
 <div class="app">
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-brand">
-      <div class="hero-name">🎰 أبو جنة</div>
-      <div class="hero-sub">عجلة الحظ</div>
+  <div class="header">
+    <div class="brand">
+      <div class="brand-img">🎡</div>
+      <div class="brand-name">أبو جنة</div>
+    </div>
+    <div class="level-badge">المستوى <span id="levelNum">1</span> 🏆</div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="bal-label">الرصيد الكلي</div>
+      <div class="bal-value"><span id="balNum">0</span> <small>د.ع</small></div>
+      <div class="streak-box">🔥 نشاطك: <span id="streakNum">0</span></div>
+    </div>
+    <div class="stat-card" style="display: flex; align-items: center;">
+      <button class="wd-btn" onclick="showOv('wdOv')">سحب 💸</button>
     </div>
   </div>
 
-  <!-- TICKER -->
-  <div class="ticker-wrap">
-    <div class="ticker" id="ticker"></div>
-  </div>
-
-  <!-- BALANCE -->
-  <div class="bal-card" id="balCard" style="display:none">
-    <div>
-      <div class="bal-lbl">رصيدك</div>
-      <div class="bal-num" id="balNum">0</div>
-      <div class="bal-cur">دينار عراقي</div>
-    </div>
-    <div class="bal-right">
-      <div class="streak-pill">🔥 <span id="streakN">0</span> يوم متتالي</div>
-      <button class="wd-btn" onclick="openWd()">💸 سحب الأرباح</button>
-    </div>
-  </div>
-
-  <!-- TABS -->
-  <div class="tabs" id="tabsRow" style="display:none">
-    <div class="tab act" onclick="goTab(this,'spin')">🎰 العجلة</div>
-    <div class="tab" onclick="goTab(this,'tasks')">📋 المهام</div>
-    <div class="tab" onclick="goTab(this,'hist')">📜 السجل</div>
-  </div>
-
-  <!-- JOIN SCREEN -->
-  <div class="screen act" id="joinScreen">
-    <div class="join-screen">
-      <div class="join-ico">👑</div>
-      <div class="join-ttl">أهلاً بك في أبو جنة!</div>
-      <div class="join-desc">اشترك في قناتنا الرسمية أولاً، ثم ابدأ بالدوران واكسب دنانير عراقية حقيقية!</div>
-      <ul class="join-steps">
-        <li><div class="sn">١</div>اضغط على زر الاشتراك أدناه</li>
-        <li><div class="sn">٢</div>انضم للقناة على التليغرام</li>
-        <li><div class="sn">٣</div>عد وأكد الاشتراك</li>
-        <li><div class="sn">٤</div>ابدأ بالدوران والربح 🎉</li>
-      </ul>
-      <button class="btn btn-gold" onclick="openMainCh()">📢 اشترك في القناة</button>
-      <button class="btn btn-ghost" id="verBtn" onclick="verifyMain()">✅ تأكيد الاشتراك</button>
-    </div>
-  </div>
-
-  <!-- SPIN SCREEN -->
-  <div class="screen" id="spinScreen">
-    <div class="wh-section">
-      <div class="wh-lbl">دور العجلة واكسب <strong>دنانير عراقية حقيقية</strong> 💰</div>
-      <div class="wh-container">
-        <div class="wh-ring"></div>
-        <div class="wh-mask"></div>
-        <svg class="wh-ptr" width="28" height="32" viewBox="0 0 28 32">
-          <path d="M14 0L27 20H1L14 0Z" fill="#D4A843"/>
-          <path d="M14 4L24 18H4L14 4Z" fill="#F5C842"/>
-          <circle cx="14" cy="25" r="7" fill="#D4A843"/>
-          <circle cx="14" cy="25" r="4.5" fill="#F5C842"/>
-        </svg>
-        <canvas id="wc" width="288" height="288"></canvas>
-        <div class="wh-ctr" id="spinBtn" onclick="doSpin()">
-          <span>🎰</span><span>دور!</span>
+  <div id="mainScreen" class="screen" style="display: block; flex: 1;">
+    <div class="wheel-section">
+      <div class="wheel-container">
+        <div class="wheel-glow"></div>
+        <canvas id="wc" width="290" height="290"></canvas>
+        <div class="wheel-pointer">👇</div>
+        <div class="wheel-center" id="spinBtn" onclick="startSpin()">
+          <span>اضغط<br>للفوز</span>
         </div>
       </div>
-      <div class="spins-row">
-        <div class="spins-txt">لفات اليوم: <span class="spins-num" id="spinsLeft">3</span></div>
-        <div style="font-size:11px;color:var(--txt2)" id="nextLbl"></div>
+      <div class="spins-badge">لديك <strong><span id="spinsNum">0</span></strong> لفات متبقية</div>
+    </div>
+
+    <div class="stat-card" style="margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 12px; font-weight: 700;">التقدم نحو الجائزة الكبرى</span>
+        <span style="font-size: 12px; color: var(--accent);" id="progPct">0%</span>
+      </div>
+      <div style="height: 8px; background: var(--glass); border-radius: 10px; overflow: hidden;">
+        <div id="progFill" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: 0.5s;"></div>
       </div>
     </div>
+  </div>
 
-    <div class="prog-box">
-      <div class="prog-hd">
-        <span>🎁 حتى المكافأة التالية</span>
-        <strong><span id="pgCur">0</span> / 250 دينار</strong>
-      </div>
-      <div class="prog-track"><div class="prog-fill" id="pgFill" style="width:0%"></div></div>
-      <div class="prog-note">اجمع كل 250 دينار للحصول على قناة خاصة!</div>
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="toggleNav(this)">
+      <div class="nav-icon">🎡</div>
+      <div class="nav-label">الرئيسية</div>
     </div>
-
-    <div class="section-hd">🎁 جدول الجوائز</div>
-    <div class="prizes-mini" id="prizesGrid"></div>
-  </div>
-
-  <!-- TASKS SCREEN -->
-  <div class="screen" id="tasksScreen">
-    <div class="section-hd" style="justify-content:space-between">
-      <span>📋 المهام اليومية</span>
-      <span style="font-size:11px;color:var(--energy);font-weight:700">كل مهمة = 50 دينار</span>
+    <div class="nav-item" onclick="toggleNav(this)">
+      <div class="nav-icon">📊</div>
+      <div class="nav-label">الإحصائيات</div>
     </div>
-    <div id="tasksList"></div>
+    <div class="nav-item" onclick="toggleNav(this)">
+      <div class="nav-icon">🏆</div>
+      <div class="nav-label">الشرف</div>
+    </div>
   </div>
-
-  <!-- HISTORY SCREEN -->
-  <div class="screen" id="histScreen">
-    <div class="section-hd">📜 سجل الأرباح</div>
-    <div id="histList"></div>
-  </div>
-
 </div>
 
-<!-- BNAV -->
-<div class="bnav" id="bnav" style="display:none">
-  <div class="bni act" onclick="goNav(this,'spin')"><div class="bni-ico">🎰</div><div class="bni-lbl">العجلة</div></div>
-  <div class="bni" onclick="goNav(this,'tasks')"><div class="bni-ico">📋</div><div class="bni-lbl">المهام</div></div>
-  <div class="bni" onclick="goNav(this,'hist')"><div class="bni-ico">📜</div><div class="bni-lbl">السجل</div></div>
-</div>
-
-<!-- RESULT OVERLAY -->
-<div class="overlay" id="resOv">
+<!-- MODALS -->
+<div id="initChannelsOv" class="overlay show">
   <div class="modal">
-    <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden" id="confBox"></div>
-    <span class="res-em" id="resEm">🎉</span>
-    <div class="res-ttl" id="resTtl">مبروك!</div>
-    <div class="res-amt" id="resAmt">+<span>500</span> دينار</div>
-    <div class="res-tot" id="resTot">رصيدك: 0 دينار</div>
-    <button class="btn btn-gold" onclick="closeRes()">رائع! 🔥</button>
+    <span class="modal-icon">📱</span>
+    <h2 class="modal-title">قنوات مهمة</h2>
+    <p class="modal-body">يجب الاشتراك في هذه القنوات للمتابعة</p>
+    <div class="channel-list" id="initChannelsList"></div>
+    <button class="modal-btn" onclick="subscribeToInitChannels()">تم الاشتراك في جميع القنوات ✓</button>
   </div>
 </div>
 
-<!-- CHANNEL GATE OVERLAY -->
-<div class="overlay" id="chOv">
+<div id="resOv" class="overlay">
   <div class="modal">
-    <div class="ch-av" id="chAv">📢</div>
-    <div class="ch-ttl" id="chTtl">انضم للقناة</div>
-    <div class="ch-desc">لمتابعة الفوز وجمع الدنانير، انضم لهذه القناة المميزة الآن!</div>
-    <div class="ch-dots" id="chDots"></div>
-    <div class="ch-prog">قناة <span id="chIdxShow">1</span> من <span id="chTotShow">10</span> — فقط <span id="chLeft">9</span> متبقية!</div>
-    <button class="btn btn-gold" id="chJoinBtn">📢 انضم الآن</button>
-    <button class="btn btn-ghost" onclick="doneChannel()">✅ انضممت، تحقق</button>
+    <span class="modal-icon" id="resEmoji">🎉</span>
+    <h2 class="modal-title" id="resTitle">مبروك!</h2>
+    <p class="modal-body" id="resBody">لقد فزت بـ 500 دينار عراقي</p>
+    <button class="modal-btn" onclick="closeOv('resOv')">استلام الجائزة ✨</button>
   </div>
 </div>
 
-<!-- WITHDRAW OVERLAY -->
-<div class="overlay" id="wdOv">
+<div id="chOv" class="overlay">
   <div class="modal">
-    <div style="font-size:28px">💸</div>
-    <div style="font-size:17px;font-weight:900;margin-top:8px">سحب الأرباح</div>
-    <div class="wd-bal" id="wdBalShow">0 دينار</div>
-    <div class="wd-note">الحد الأدنى للسحب: 1,000 دينار عراقي<br>يُراجع طلبك خلال 24–48 ساعة</div>
-    <div class="inp-grp">
-      <label>مبلغ السحب (IQD)</label>
-      <input type="number" id="wdAmt" placeholder="أدخل المبلغ المطلوب">
-    </div>
-    <div class="inp-grp">
-      <label>طريقة الدفع</label>
-      <select id="wdMeth">
-        <option value="">اختر الطريقة</option>
-        <option value="zainCash">زين كاش</option>
-        <option value="asia">آسيا هواة</option>
-        <option value="mastercard">ماستر كارد</option>
-        <option value="bank">حوالة مصرفية</option>
-      </select>
-    </div>
-    <div class="inp-grp">
-      <label>رقم الهاتف / الحساب</label>
-      <input type="text" id="wdAcc" placeholder="أدخل رقم الحساب">
-    </div>
-    <button class="btn btn-green" onclick="submitWd()">💸 تأكيد طلب السحب</button>
-    <button class="btn btn-ghost" onclick="closeOv('wdOv')">إلغاء</button>
+    <span class="modal-icon" id="chEmoji">📱</span>
+    <h2 class="modal-title" id="chTitle">قناة جديدة</h2>
+    <p class="modal-body">اشترك في هذه القناة لمتابعة المزيد من الجوائز!</p>
+    <button class="modal-btn" id="chLinkBtn" style="margin-bottom: 12px;">انضم الآن 🚀</button>
+    <button class="modal-btn" style="background: var(--glass); border: 1px solid var(--glass-border);" onclick="verifyChannel()">تم الانضمام ✓</button>
   </div>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
+<div id="wdOv" class="overlay">
+  <div class="modal">
+    <h2 class="modal-title">سحب الأرباح 💸</h2>
+    <p class="modal-body">الحد الأدنى للسحب هو 10,000 دينار</p>
+    <div style="text-align: right; margin-bottom: 16px;">
+      <label style="font-size: 12px; margin-bottom: 6px; display: block;">رقم المحفظة</label>
+      <input type="text" id="wdPhone" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--glass-border); background: var(--bg); color: #fff; font-family: 'Cairo';" placeholder="07XXXXXXXXX">
+    </div>
+    <button class="modal-btn" onclick="processWithdraw()">تأكيد الطلب</button>
+    <p style="font-size: 10px; color: var(--text-muted); margin-top: 12px; cursor: pointer;" onclick="closeOv('wdOv')">إلغاء</p>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
 
 <script>
-/* ============ FIREBASE CONFIG ============ */
+// ============ FIREBASE CONFIG ============
 const firebaseConfig = {
-  apiKey: "AIzaSyDqV9Z9Z9Z9Z9Z9Z9Z9Z9Z9Z9Z9Z9Z9Z9Z",
+  apiKey: "AIzaSyDiCrZhKVpkYE3HUeeDkAo7xA9I88uZ1i0",
   authDomain: "abojana-3f0c2.firebaseapp.com",
   databaseURL: "https://abojana-3f0c2-default-rtdb.firebaseio.com",
   projectId: "abojana-3f0c2",
   storageBucket: "abojana-3f0c2.firebasestorage.app",
   messagingSenderId: "819681544560",
-  appId: "1:819681544560:web:be2249a51d0c79ee21a7b5",
-  measurementId: "G-23EYSF1BE0"
+  appId: "1:819681544560:web:be2249a51d0c79ee21a7b5"
 };
 
-// Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.database(app);
-
-/* ============ CONFIG ============ */
-const MAIN_CH_URL = 'https://t.me/YOUR_MAIN_CHANNEL';
-
-// Default data structure
-let CHANNELS = [];
-let PRIZES = [];
-let TASKS = [];
-let WEIGHTS = [];
-
-/* ============ STATE ============ */
+// ============ GAME STATE ============
 let S = {
-  bal: 0, spins: 3, streak: 0, lastDay: null,
-  hist: [], tasks: {}, chJoined: 0, allChDone: false,
-  totalEarned: 0, pendingCh: -1, isSubbed: false
+  bal: 0, spins: 5, level: 1, xp: 0, 
+  totalEarned: 0, subscribedChannels: [],
+  lastSpinDate: new Date().toDateString(),
+  initialSubscribed: false
 };
 
-let spinning = false;
-let firebaseReady = false;
+let CHANNELS = [];
+let INIT_CHANNELS = [];
 
-/* ============ FIREBASE LISTENERS ============ */
-function initFirebaseListeners() {
-  // Listen to channels
-  db.ref('config/channels').on('value', (snapshot) => {
-    if (snapshot.exists()) {
-      CHANNELS = snapshot.val();
-      toast('✅ تم تحديث القنوات من Firebase');
-      if (S.isSubbed) buildUI();
+const PRIZES = [
+  {e:'💰', n:'500 د.ع', v:500, w:10},
+  {e:'🎁', n:'1000 د.ع', v:1000, w:5},
+  {e:'⭐', n:'250 د.ع', v:250, w:20},
+  {e:'🎡', n:'لفة إضافية', v:0, extra:'spin', w:15},
+  {e:'💎', n:'5000 د.ع', v:5000, w:2},
+  {e:'🔥', n:'100 د.ع', v:100, w:30},
+  {e:'✨', n:'750 د.ع', v:750, w:10},
+  {e:'😅', n:'حظ أوفر', v:0, w:25}
+];
+
+let isSpinning = false;
+let wheelRotation = 0;
+let db = null;
+
+// ============ INITIALIZATION ============
+window.onload = function() {
+  console.log('App started');
+  
+  loadData();
+  initWheel();
+  updateUI();
+  
+  try {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
     }
-  }, (error) => {
-    console.error('خطأ في تحميل القنوات:', error);
-  });
+    db = firebase.database();
+    syncChannels();
+    syncInitChannels();
+  } catch(e) {
+    console.error('Firebase error:', e);
+  }
+  
+  // Show initial channels if not subscribed yet
+  if(!S.initialSubscribed) {
+    showOv('initChannelsOv');
+  }
+};
 
-  // Listen to prizes
-  db.ref('config/prizes').on('value', (snapshot) => {
-    if (snapshot.exists()) {
-      PRIZES = snapshot.val();
-      toast('✅ تم تحديث الجوائز من Firebase');
-      if (S.isSubbed) {
-        buildPrizesGrid();
-        drawWheel(0);
+function loadData() {
+  const saved = localStorage.getItem('abojana_final_data');
+  if(saved) {
+    try {
+      const p = JSON.parse(saved);
+      const today = new Date().toDateString();
+      if(p.lastSpinDate !== today) {
+        p.spins = 5;
+        p.lastSpinDate = today;
       }
+      S = Object.assign({}, S, p);
+    } catch(e) {
+      console.error('Data parse error:', e);
     }
-  }, (error) => {
-    console.error('خطأ في تحميل الجوائز:', error);
-  });
-
-  // Listen to weights
-  db.ref('config/weights').on('value', (snapshot) => {
-    if (snapshot.exists()) {
-      WEIGHTS = snapshot.val();
-      console.log('تم تحديث الأوزان:', WEIGHTS);
-    }
-  }, (error) => {
-    console.error('خطأ في تحميل الأوزان:', error);
-  });
-
-  // Listen to tasks
-  db.ref('config/tasks').on('value', (snapshot) => {
-    if (snapshot.exists()) {
-      TASKS = snapshot.val();
-      toast('✅ تم تحديث المهام من Firebase');
-      if (S.isSubbed) buildTasks();
-    }
-  }, (error) => {
-    console.error('خطأ في تحميل المهام:', error);
-  });
-
-  firebaseReady = true;
+  }
 }
 
-/* ============ LOAD & SAVE ============ */
-function load() {
-  try {
-    const raw = localStorage.getItem('aj3');
-    if (raw) Object.assign(S, JSON.parse(raw));
-    const today = new Date().toDateString();
-    if (S.lastDay !== today) {
-      const yd = new Date();
-      yd.setDate(yd.getDate() - 1);
-      if (S.lastDay) S.streak = (S.lastDay === yd.toDateString()) ? S.streak + 1 : 0;
-      S.spins = 3;
-      S.lastDay = today;
-      Object.keys(S.tasks).forEach(k => {
-        if (S.tasks[k] === 'daily') delete S.tasks[k];
+function saveData() {
+  localStorage.setItem('abojana_final_data', JSON.stringify(S));
+}
+
+function syncChannels() {
+  if(!db) return;
+  db.ref('channels').on('value', function(snap) {
+    CHANNELS = [];
+    const data = snap.val();
+    if(data) {
+      Object.keys(data).forEach(function(id) {
+        CHANNELS.push(Object.assign({id: id}, data[id]));
       });
-      save();
     }
-  } catch (e) {
-    console.error('خطأ في التحميل:', e);
-  }
-}
-
-function save() {
-  try {
-    localStorage.setItem('aj3', JSON.stringify(S));
-  } catch (e) {
-    console.error('خطأ في الحفظ:', e);
-  }
-}
-
-/* ============ INIT ============ */
-window.addEventListener('load', () => {
-  try {
-    Telegram?.WebApp?.expand();
-  } catch (e) {}
-  
-  load();
-  initFirebaseListeners();
-  
-  // Wait for Firebase data to load
-  setTimeout(() => {
-    if (firebaseReady && CHANNELS.length > 0 && PRIZES.length > 0) {
-      buildPrizesGrid();
-      drawWheel(0);
-      buildTasks();
-      buildTicker();
-      if (S.isSubbed) showApp();
-    }
-  }, 1500);
-});
-
-function buildTicker() {
-  const ticker = document.getElementById('ticker');
-  ticker.innerHTML = PRIZES
-    .filter(p => p.v > 0)
-    .map(p => `<div class="ticker-item">${p.e} ${p.n}</div>`)
-    .join('');
-}
-
-function buildUI() {
-  buildPrizesGrid();
-  buildTasks();
-  buildTicker();
-  drawWheel(0);
-}
-
-function showApp() {
-  document.getElementById('joinScreen').style.display = 'none';
-  document.getElementById('spinScreen').classList.add('act');
-  document.getElementById('balCard').style.display = 'flex';
-  document.getElementById('tabsRow').style.display = 'flex';
-  document.getElementById('bnav').style.display = 'flex';
-  updateUI();
-  buildHist();
-}
-
-function updateUI() {
-  document.getElementById('balNum').textContent = fmt(S.bal);
-  document.getElementById('wdBalShow').textContent = fmt(S.bal) + ' دينار';
-  document.getElementById('spinsLeft').textContent = S.spins;
-  document.getElementById('streakN').textContent = S.streak;
-  document.getElementById('spinBtn').classList.toggle('dis', S.spins <= 0);
-  document.getElementById('nextLbl').textContent = S.spins <= 0 ? '⏰ تجدد كل يوم' : '';
-  const mod = S.allChDone ? 250 : Math.min(S.totalEarned % 250, 250);
-  const pct = S.allChDone ? 100 : (mod / 250) * 100;
-  document.getElementById('pgFill').style.width = pct + '%';
-  document.getElementById('pgCur').textContent = mod;
-}
-
-function fmt(n) {
-  return n.toLocaleString('ar-IQ');
-}
-
-/* ============ JOIN ============ */
-function openMainCh() {
-  window.open(MAIN_CH_URL, '_blank');
-  setTimeout(() => {
-    const b = document.getElementById('verBtn');
-    b.style.borderColor = '#22C55E';
-    b.style.color = '#22C55E';
-  }, 1800);
-}
-
-function verifyMain() {
-  S.isSubbed = true;
-  save();
-  toast('✅ أهلاً بك! ابدأ بالدوران 🎉');
-  setTimeout(showApp, 700);
-}
-
-/* ============ WHEEL ============ */
-function drawWheel(rot) {
-  const cv = document.getElementById('wc');
-  const ctx = cv.getContext('2d');
-  const cx = 144, cy = 144, r = 141, sl = (2 * Math.PI) / PRIZES.length;
-  ctx.clearRect(0, 0, 288, 288);
-  
-  PRIZES.forEach((p, i) => {
-    const s = rot + i * sl - Math.PI / 2, e = s + sl;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, r, s, e);
-    ctx.closePath();
-    ctx.fillStyle = p.c;
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(0,0,0,.3)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(s + sl / 2);
-    ctx.font = '17px serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(p.e, r * 0.63, 0);
-    ctx.fillStyle = p.tc;
-    ctx.font = 'bold 9px Cairo,sans-serif';
-    ctx.fillText(p.v > 0 ? p.v + ' د.ع' : p.n.slice(0, 5), r * 0.36, 0);
-    ctx.restore();
+    console.log('Channels synced:', CHANNELS.length);
   });
-  
-  ctx.beginPath();
-  ctx.arc(cx, cy, 29, 0, Math.PI * 2);
-  ctx.fillStyle = '#0A0E27';
-  ctx.fill();
-  ctx.strokeStyle = '#FFD700';
-  ctx.lineWidth = 2.5;
-  ctx.stroke();
 }
 
-function doSpin() {
-  if (spinning) return;
-  if (S.spins <= 0) {
-    toast('⏰ لا توجد لفات متبقية اليوم');
-    return;
-  }
-  spinning = true;
-  document.getElementById('spinBtn').classList.add('dis');
-  
-  const tot = WEIGHTS.reduce((a, b) => a + b, 0);
-  let rnd = Math.random() * tot;
-  let pi = 0;
-  let cumWeight = 0;
-  for (let i = 0; i < WEIGHTS.length; i++) {
-    cumWeight += WEIGHTS[i];
-    if (rnd <= cumWeight) {
-      pi = i;
-      break;
+function syncInitChannels() {
+  if(!db) return;
+  db.ref('initial_channels').on('value', function(snap) {
+    INIT_CHANNELS = [];
+    const data = snap.val();
+    if(data) {
+      Object.keys(data).forEach(function(id) {
+        INIT_CHANNELS.push(Object.assign({id: id}, data[id]));
+      });
     }
-  }
-  
-  const sliceAngle = (2 * Math.PI) / PRIZES.length;
-  const prizeAngle = pi * sliceAngle;
-  const rotations = 6 + Math.random() * 3;
-  const target = 2 * Math.PI * rotations + (Math.PI / 2) - prizeAngle;
-  
-  const dur = 4400 + Math.random() * 1200;
-  let t0 = null;
-  const ease = x => 1 - Math.pow(1 - x, 4);
-  
-  function frame(ts) {
-    if (!t0) t0 = ts;
-    const prog = Math.min((ts - t0) / dur, 1);
-    drawWheel(target * ease(prog));
-    if (prog < 1) {
-      requestAnimationFrame(frame);
-      return;
+    console.log('Initial channels synced:', INIT_CHANNELS.length);
+    if(!S.initialSubscribed) {
+      buildInitChannelsList();
     }
-    spinning = false;
-    const pr = PRIZES[pi];
-    S.spins--;
-    if (pr.extra === 'free') S.spins++;
-    if (pr.v > 0) {
-      S.bal += pr.v;
-      S.totalEarned += pr.v;
-      checkChTrigger();
-    }
-    S.hist.unshift({
-      e: pr.e,
-      n: pr.n,
-      v: pr.v,
-      ts: new Date().toLocaleString('ar-IQ')
-    });
-    save();
-    updateUI();
-    buildHist();
-    showResult(pr);
+  });
+}
+
+// ============ UI CONTROLS ============
+function updateUI() {
+  document.getElementById('balNum').textContent = S.bal.toLocaleString();
+  document.getElementById('spinsNum').textContent = S.spins;
+  document.getElementById('streakNum').textContent = S.totalEarned.toLocaleString();
+  document.getElementById('levelNum').textContent = S.level;
+  
+  const prog = Math.min(100, (S.xp % 1000) / 10);
+  document.getElementById('progPct').textContent = Math.floor(prog) + '%';
+  document.getElementById('progFill').style.width = prog + '%';
+}
+
+function toggleNav(el) {
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  el.classList.add('active');
+}
+
+function showOv(id) { 
+  const ov = document.getElementById(id);
+  if(ov) ov.classList.add('show'); 
+}
+
+function closeOv(id) { 
+  const ov = document.getElementById(id);
+  if(ov) ov.classList.remove('show'); 
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  if(t) {
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 3000);
   }
-  requestAnimationFrame(frame);
 }
 
-/* ============ CHANNEL TRIGGER ============ */
-function checkChTrigger() {
-  if (S.allChDone) return;
-  const milestone = Math.floor(S.totalEarned / 250);
-  if (milestone > S.chJoined && S.chJoined < CHANNELS.length) {
-    S.pendingCh = S.chJoined;
-    save();
-  }
-}
-
-function showResult(pr) {
-  document.getElementById('resEm').textContent = pr.e;
-  if (pr.v > 0) {
-    document.getElementById('resTtl').textContent = 'مبروك! 🎊';
-    document.getElementById('resAmt').innerHTML = `+<span>${fmt(pr.v)}</span> دينار عراقي`;
-  } else if (pr.extra === 'free') {
-    document.getElementById('resTtl').textContent = '🎁 لفة مجانية!';
-    document.getElementById('resAmt').innerHTML = `<span style="font-size:19px">${pr.n}</span>`;
-  } else {
-    document.getElementById('resTtl').textContent = 'حظاً أوفر 😊';
-    document.getElementById('resAmt').innerHTML = `<span style="font-size:19px">${pr.n}</span>`;
-  }
-  document.getElementById('resTot').textContent = `رصيدك الكلي: ${fmt(S.bal)} دينار`;
-  if (pr.v > 0 || pr.extra) spawnConf();
-  showOv('resOv');
-}
-
-function closeRes() {
-  closeOv('resOv');
-  document.getElementById('spinBtn').classList.toggle('dis', S.spins <= 0);
-  if (S.pendingCh >= 0 && !S.allChDone) setTimeout(openChGate, 500);
-}
-
-/* ============ CHANNEL GATE ============ */
-function openChGate() {
-  const idx = S.pendingCh;
-  if (idx < 0 || idx >= CHANNELS.length) return;
-  const ch = CHANNELS[idx];
-  document.getElementById('chAv').textContent = ch.emoji;
-  document.getElementById('chTtl').textContent = ch.name;
-  document.getElementById('chIdxShow').textContent = idx + 1;
-  document.getElementById('chTotShow').textContent = CHANNELS.length;
-  document.getElementById('chLeft').textContent = CHANNELS.length - (idx + 1);
-  const dots = document.getElementById('chDots');
-  dots.innerHTML = CHANNELS.map((_, i) => `<div class="ch-dot ${i < idx ? 'dn' : i === idx ? 'cr' : ''}"></div>`).join('');
-  document.getElementById('chJoinBtn').onclick = () => window.open(ch.url, '_blank');
-  showOv('chOv');
-}
-
-function doneChannel() {
-  S.chJoined++;
-  if (S.chJoined >= CHANNELS.length) {
-    S.allChDone = true;
-  }
-  S.pendingCh = -1;
-  save();
-  updateUI();
-  closeOv('chOv');
-  toast(S.allChDone ? '🎉 انضممت لكل القنوات! لن نطلب ذلك مجدداً.' : `✅ رائع! ${S.chJoined} من ${CHANNELS.length} قنوات`);
-}
-
-/* ============ TASKS ============ */
-function buildTasks() {
-  document.getElementById('tasksList').innerHTML = TASKS.map(t => {
-    const done = !!S.tasks[t.id];
-    return `<div class="task-item ${done ? 'done' : ''}">
-      <div class="task-ico">${t.e}</div>
-      <div class="task-body">
-        <div class="task-name">${t.n}</div>
-        <div class="task-desc">${t.d}</div>
-      </div>
-      <div class="task-rhs">
-        <div class="task-rwd">+${t.r || 50} د.ع</div>
-        ${done ? '<div style="font-size:20px">✅</div>' : `<button class="task-btn" onclick="doTask('${t.id}','${t.e}','${t.n}',${t.r || 50})">ابدأ</button>`}
-      </div>
-    </div>`;
+// ============ INITIAL CHANNELS ============
+function buildInitChannelsList() {
+  const list = document.getElementById('initChannelsList');
+  if(!list) return;
+  
+  list.innerHTML = INIT_CHANNELS.slice(0, 2).map(function(ch) {
+    return '<div class="channel-item">' +
+      '<div class="channel-item-title">' + (ch.emoji || '📱') + ' ' + ch.name + '</div>' +
+      '<div class="channel-item-desc">' + (ch.description || 'قناة مهمة') + '</div>' +
+      '<button class="modal-btn" style="margin-top: 8px; padding: 8px;" onclick="window.open(\'' + ch.url + '\', \'_blank\')">انضم</button>' +
+    '</div>';
   }).join('');
 }
 
-function doTask(id, e, n, reward) {
-  if (S.tasks[id]) return;
-  S.tasks[id] = true;
-  S.bal += reward;
-  S.totalEarned += reward;
-  S.hist.unshift({
-    e,
-    n: 'مهمة: ' + n,
-    v: reward,
-    ts: new Date().toLocaleString('ar-IQ')
+function subscribeToInitChannels() {
+  S.initialSubscribed = true;
+  S.subscribedChannels = INIT_CHANNELS.slice(0, 2).map(function(ch) { return ch.id; });
+  saveData();
+  closeOv('initChannelsOv');
+  toast('✅ تم الاشتراك! استمتع باللعبة');
+}
+
+// ============ WHEEL LOGIC ============
+const canvas = document.getElementById('wc');
+const ctx = canvas ? canvas.getContext('2d') : null;
+
+function initWheel() {
+  if(ctx) drawWheel(0);
+}
+
+function drawWheel(angle) {
+  if(!ctx) return;
+  
+  const size = 290;
+  const center = size / 2;
+  ctx.clearRect(0, 0, size, size);
+  
+  const sliceAngle = (Math.PI * 2) / PRIZES.length;
+  
+  PRIZES.forEach(function(p, i) {
+    const startAngle = i * sliceAngle + angle;
+    const endAngle = (i + 1) * sliceAngle + angle;
+    
+    ctx.beginPath();
+    ctx.moveTo(center, center);
+    ctx.arc(center, center, center - 10, startAngle, endAngle);
+    ctx.closePath();
+    
+    const grad = ctx.createRadialGradient(center, center, 0, center, center, center);
+    const colors = i % 2 === 0 ? ['#4f46e5', '#3730a3'] : ['#1e293b', '#0f172a'];
+    grad.addColorStop(0, colors[0]);
+    grad.addColorStop(1, colors[1]);
+    
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    ctx.save();
+    ctx.translate(center, center);
+    ctx.rotate(startAngle + sliceAngle / 2);
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#fff";
+    
+    ctx.font = "bold 22px Cairo";
+    ctx.fillText(p.e, center - 35, -8);
+    
+    const amountText = p.n.split(' ')[0];
+    ctx.font = "bold 11px Cairo";
+    ctx.fillStyle = "rgba(255,255,255,0.95)";
+    ctx.fillText(amountText, center - 35, 8);
+    
+    ctx.restore();
   });
-  checkChTrigger();
-  save();
+}
+
+function startSpin() {
+  if(isSpinning) return;
+  if(S.spins <= 0) return toast('❌ انتهت لفاتك اليوم!');
+  
+  isSpinning = true;
+  S.spins--;
   updateUI();
-  buildTasks();
-  buildHist();
-  toast('✅ أحسنت! ربحت ' + reward + ' دينار 🎉');
-  if (S.pendingCh >= 0 && !S.allChDone) setTimeout(openChGate, 1100);
+  
+  const totalWeight = PRIZES.reduce(function(a, b) { return a + b.w; }, 0);
+  let random = Math.random() * totalWeight;
+  let prizeIndex = 0;
+  for(let i=0; i<PRIZES.length; i++) {
+    random -= PRIZES[i].w;
+    if(random <= 0) { prizeIndex = i; break; }
+  }
+  
+  const targetPrize = PRIZES[prizeIndex];
+  const extraRotations = 8 + Math.random() * 5;
+  const sliceAngle = (Math.PI * 2) / PRIZES.length;
+  const targetAngle = (Math.PI * 2 * extraRotations) + (Math.PI * 1.5) - (prizeIndex * sliceAngle) - (sliceAngle / 2);
+  
+  const duration = 5000;
+  const startTime = performance.now();
+  
+  function animate(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const easeOut = 1 - Math.pow(1 - progress, 3);
+    
+    wheelRotation = targetAngle * easeOut;
+    drawWheel(wheelRotation);
+    
+    if(progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      isSpinning = false;
+      finishSpin(targetPrize);
+    }
+  }
+  requestAnimationFrame(animate);
 }
 
-/* ============ HISTORY ============ */
-function buildHist() {
-  const el = document.getElementById('histList');
-  if (!S.hist.length) {
-    el.innerHTML = '<div class="empty-st"><span>📜</span><div>لا توجد سجلات بعد</div><div>ابدأ بالدوران أو أنجز مهمة!</div></div>';
-    return;
+function finishSpin(p) {
+  if(p.v > 0) {
+    S.bal += p.v;
+    S.totalEarned += p.v;
+    S.xp += Math.floor(p.v / 10);
   }
-  el.innerHTML = S.hist.slice(0, 30).map(h => `
-    <div class="hist-item">
-      <div class="hist-ico">${h.e}</div>
-      <div class="hist-body">
-        <div class="hist-nm">${h.n}</div>
-        <div class="hist-dt">${h.ts}</div>
-      </div>
-      <div class="hist-v ${h.v < 0 ? 'neg' : ''}">${h.v > 0 ? '+' + fmt(h.v) : h.v < 0 ? fmt(h.v) : '🎁'} ${h.v !== 0 ? 'د.ع' : ''}</div>
-    </div>`).join('');
-}
-
-/* ============ PRIZES ============ */
-function buildPrizesGrid() {
-  document.getElementById('prizesGrid').innerHTML = PRIZES
-    .filter(p => p.v > 0)
-    .map(p => `<div class="pm-item"><div class="pm-e">${p.e}</div><div class="pm-v">${fmt(p.v)} د.ع</div></div>`)
-    .join('');
-}
-
-/* ============ WITHDRAW ============ */
-function openWd() {
-  document.getElementById('wdBalShow').textContent = fmt(S.bal) + ' دينار';
-  showOv('wdOv');
-}
-
-function submitWd() {
-  const amt = parseInt(document.getElementById('wdAmt').value);
-  const meth = document.getElementById('wdMeth').value;
-  const acc = document.getElementById('wdAcc').value.trim();
-  if (!amt || amt < 1000) {
-    toast('⚠️ الحد الأدنى 1000 دينار');
-    return;
-  }
-  if (amt > S.bal) {
-    toast('⚠️ رصيدك غير كافٍ');
-    return;
-  }
-  if (!meth) {
-    toast('⚠️ اختر طريقة الدفع');
-    return;
-  }
-  if (!acc) {
-    toast('⚠️ أدخل رقم الحساب');
-    return;
-  }
-  S.bal -= amt;
-  S.hist.unshift({
-    e: '💸',
-    n: 'سحب - ' + meth,
-    v: -amt,
-    ts: new Date().toLocaleString('ar-IQ')
-  });
-  save();
+  if(p.extra === 'spin') S.spins++;
+  
+  checkLevelUp();
+  checkChannelTrigger();
+  
+  document.getElementById('resEmoji').textContent = p.v > 0 ? '🎉' : '😅';
+  document.getElementById('resTitle').textContent = p.v > 0 ? 'مبروك الفوز!' : 'حظ أوفر';
+  document.getElementById('resBody').textContent = p.v > 0 ? 'لقد ربحت ' + p.n : 'لا تقلق، حاول مرة أخرى!';
+  
+  if(p.v > 500) spawnConfetti();
+  showOv('resOv');
+  saveData();
   updateUI();
-  buildHist();
+}
+
+function checkLevelUp() {
+  const newLevel = Math.floor(S.xp / 1000) + 1;
+  if(newLevel > S.level) {
+    S.level = newLevel;
+    toast('🎊 مبروك! صعدت للمستوى ' + S.level);
+  }
+}
+
+function checkChannelTrigger() {
+  // Check if total earned is a multiple of 1000
+  const milestones = Math.floor(S.totalEarned / 1000);
+  const currentSubscribed = S.subscribedChannels.length - 2; // Subtract initial 2
+  
+  if(milestones > currentSubscribed && CHANNELS.length > currentSubscribed) {
+    const ch = CHANNELS[currentSubscribed];
+    document.getElementById('chEmoji').textContent = ch.emoji || '📱';
+    document.getElementById('chTitle').textContent = ch.name || 'قناة جديدة';
+    document.getElementById('chLinkBtn').onclick = function() { window.open(ch.url, '_blank'); };
+    setTimeout(function() { showOv('chOv'); }, 500);
+  }
+}
+
+function verifyChannel() {
+  const milestones = Math.floor(S.totalEarned / 1000);
+  const currentSubscribed = S.subscribedChannels.length - 2;
+  
+  if(currentSubscribed < CHANNELS.length) {
+    const ch = CHANNELS[currentSubscribed];
+    S.subscribedChannels.push(ch.id);
+    S.spins += 2;
+    closeOv('chOv');
+    toast('✅ تم التحقق! حصلت على لفتين إضافيتين');
+    saveData();
+    updateUI();
+  }
+}
+
+// ============ WITHDRAW ============
+function processWithdraw() {
+  const phone = document.getElementById('wdPhone').value;
+  if(!phone || phone.length < 10) return toast('⚠️ أدخل رقم هاتف صحيح');
+  if(S.bal < 10000) return toast('❌ الرصيد أقل من 10,000');
+  
+  toast('⏳ جاري المعالجة...');
   closeOv('wdOv');
-  document.getElementById('wdAmt').value = '';
-  document.getElementById('wdAcc').value = '';
-  toast('✅ طلب السحب أُرسل! سيُراجع خلال 24–48 ساعة');
 }
 
-/* ============ NAVIGATION ============ */
-function goTab(el, key) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('act'));
-  el.classList.add('act');
-  document.querySelectorAll('.bni').forEach((b, i) => b.classList.toggle('act', ['spin', 'tasks', 'hist'][i] === key));
-  showScreen(key);
-}
-
-function goNav(el, key) {
-  document.querySelectorAll('.bni').forEach(b => b.classList.remove('act'));
-  el.classList.add('act');
-  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('act', ['spin', 'tasks', 'hist'][i] === key));
-  showScreen(key);
-}
-
-function showScreen(key) {
-  const map = { spin: 'spinScreen', tasks: 'tasksScreen', hist: 'histScreen' };
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('act'));
-  document.getElementById(map[key]).classList.add('act');
-  if (key === 'hist') buildHist();
-  if (key === 'tasks') buildTasks();
-}
-
-/* ============ OVERLAYS ============ */
-function showOv(id) {
-  document.getElementById(id).classList.add('show');
-}
-
-function closeOv(id) {
-  document.getElementById(id).classList.remove('show');
-}
-
-/* ============ CONFETTI ============ */
-function spawnConf() {
-  const c = document.getElementById('confBox');
-  c.innerHTML = '';
-  const cols = ['#FFD700', '#FFC700', '#FF9500', '#10B981', '#06B6D4', '#8B5CF6', '#EF4444'];
-  for (let i = 0; i < 34; i++) {
-    const p = document.createElement('div');
-    p.className = 'conf-piece';
-    p.style.cssText = `left:${Math.random() * 100}%;background:${cols[i % cols.length]};animation-delay:${Math.random() * 0.5}s;animation-duration:${1.2 + Math.random() * 0.9}s;`;
-    c.appendChild(p);
+// ============ EFFECTS ============
+function spawnConfetti() {
+  for(let i=0; i<40; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.top = '-10px';
+    c.style.backgroundColor = ['#6366f1', '#ec4899', '#f59e0b', '#10b981'][Math.floor(Math.random()*4)];
+    document.body.appendChild(c);
+    
+    const duration = 2000 + Math.random() * 2000;
+    c.animate([
+      { transform: 'translateY(0) rotate(0)', opacity: 1 },
+      { transform: 'translateY(100vh) rotate(720deg)', opacity: 0 }
+    ], { duration: duration, easing: 'ease-in' });
+    
+    setTimeout(function() { c.remove(); }, duration);
   }
 }
 
-/* ============ TOAST ============ */
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
 </script>
 </body>
 </html>
