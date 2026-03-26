@@ -1,62 +1,124 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>أبو جنة × فوريو VIP</title>
 
-<title>🔥 أبو جنة × فوريو VIP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
-<!-- Telegram -->
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="style.css" />
 
-<!-- ستايل -->
-<link rel="stylesheet" href="style.css">
-
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 </head>
 <body>
+  <div class="bg-blur bg1"></div>
+  <div class="bg-blur bg2"></div>
 
-<div class="app">
+  <div class="app-shell">
+    <header class="hero-card">
+      <div class="hero-top">
+        <div>
+          <div class="brand-badge">VIP EDITION</div>
+          <h1>🔥 أبو جنة × فوريو</h1>
+          <p class="subtitle">لف العجلة، نفذ المهمات، اجمع النقاط، واستبدلها بجوائز</p>
+        </div>
+        <div class="hero-energy">
+          <div class="can">⚡</div>
+        </div>
+      </div>
 
-  <!-- 🔥 العنوان -->
-  <h1>🔥 أبو جنة × فوريو VIP</h1>
-  <p class="sub">اربح نقاط وطاقة ⚡ + جبس 🍟</p>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <span>النقاط</span>
+          <strong id="pointsValue">0</strong>
+        </div>
+        <div class="stat-box">
+          <span>لفات اليوم</span>
+          <strong id="spinsLeftValue">0</strong>
+        </div>
+        <div class="stat-box">
+          <span>اسم اللاعب</span>
+          <strong id="playerName">زائر</strong>
+        </div>
+      </div>
+    </header>
 
-  <!-- 💰 معلومات -->
-  <div class="stats">
-    <div>💰 النقاط: <span id="coinsValue">0</span></div>
-    <div>🎡 المحاولات: <span id="spinsValue">0</span></div>
+    <section id="subscribeSection" class="glass-card section">
+      <div class="section-head">
+        <h2>🚀 خطوة البداية</h2>
+        <p>اشترك أولًا بالقناة الرئيسية حتى تفتح اللعبة</p>
+      </div>
+
+      <div class="subscribe-box">
+        <a id="channelLink" href="#" target="_blank" class="primary-btn">فتح القناة</a>
+        <button id="subscribeDoneBtn" class="secondary-btn">تحققت من الاشتراك</button>
+      </div>
+      <p class="tiny-note">يمكنك تغيير رابط القناة من Firebase بدون تعديل الكود.</p>
+    </section>
+
+    <main id="mainContent" class="hidden">
+      <section class="glass-card section">
+        <div class="section-head">
+          <h2>🎰 عجلة الحظ</h2>
+          <p>كل لفة ممكن تربح نقاط أو بونص إضافي</p>
+        </div>
+
+        <div class="wheel-wrap">
+          <div class="wheel-pointer"></div>
+          <div class="wheel-glow"></div>
+          <div id="wheel" class="wheel">
+            <div class="wheel-center">SPIN</div>
+          </div>
+        </div>
+
+        <div class="wheel-actions">
+          <button id="spinBtn" class="spin-btn">لف العجلة الآن</button>
+          <button id="shareBtn" class="ghost-btn">مشاركة اللعبة</button>
+        </div>
+      </section>
+
+      <section class="glass-card section">
+        <div class="section-head">
+          <h2>✅ المهمات</h2>
+          <p>كل مهمة تكملها تعطيك نقاط إضافية</p>
+        </div>
+        <div id="tasksList" class="list-grid"></div>
+      </section>
+
+      <section class="glass-card section">
+        <div class="section-head">
+          <h2>🎁 الجوائز</h2>
+          <p>استبدل نقاطك بهدايا داخلية أو جوائز حقيقية</p>
+        </div>
+        <div id="giftsList" class="list-grid"></div>
+      </section>
+
+      <section class="glass-card section">
+        <div class="section-head">
+          <h2>🏆 المتصدرون</h2>
+          <p>أفضل اللاعبين حسب عدد النقاط</p>
+        </div>
+        <div id="leaderboardList" class="leaderboard-list"></div>
+      </section>
+    </main>
   </div>
 
-  <!-- ================= -->
-  <!-- 🔥 نظام المهام -->
-  <!-- ================= -->
-  <div class="tasks-section">
-    <h2>📋 أكمل المهام أولاً</h2>
-    <div id="tasksBox"></div>
-  </div>
+  <div id="toast" class="toast hidden"></div>
 
-  <!-- ================= -->
-  <!-- 🎰 عجلة الحظ -->
-  <!-- ================= -->
-  <div class="wheel-section">
-
-    <div class="wheel-container">
-      <canvas id="wheelCanvas" width="360" height="360"></canvas>
+  <div id="resultModal" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-icon">🎉</div>
+      <h3 id="modalTitle">مبروك</h3>
+      <p id="modalText">ربحت 100 نقطة</p>
+      <button id="closeModalBtn" class="primary-btn modal-btn">حسناً</button>
     </div>
-
-    <button id="spinBtn">🔥 لف العجلة</button>
-
-    <div id="resultBox">جاهز للفوز؟</div>
-
   </div>
 
-</div>
-
-<!-- Firebase -->
-<script type="module" src="firebase.js"></script>
-
-<!-- App -->
-<script type="module" src="app.js"></script>
-
+  <script src="app.js"></script>
 </body>
 </html>
