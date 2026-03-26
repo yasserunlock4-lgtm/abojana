@@ -411,8 +411,8 @@
 </div>
 
 <!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
 // ══════════════════════════════════════
@@ -429,10 +429,9 @@ const firebaseConfig = {
   measurementId: "G-23EYSF1BE0"
 };
 
-
-// Initialize Firebase
+// Initialize Firebase and connect to Realtime Database
 const app = firebase.initializeApp(firebaseConfig );
-const db = firebase.firestore();
+const db = firebase.database();
 
 
 // ══════════════════════════════════════
@@ -550,7 +549,6 @@ function spinWheel() {
   const prizeIndex = pickPrize();
   const total = WEIGHTS.reduce((a,b) => a+b, 0);
 
-  // Calculate target angle so prize lands under pointer (top = -π/2)
   let sliceStart = 0;
   for (let i = 0; i < prizeIndex; i++) sliceStart += (WEIGHTS[i]/total) * 2 * Math.PI;
   const sliceMid   = sliceStart + (WEIGHTS[prizeIndex]/total) * Math.PI;
@@ -577,7 +575,6 @@ function spinWheel() {
       currentAngle = finalAngle % (2 * Math.PI);
       spinning = false;
 
-      // Update state
       s.spins++;
       s.balance += PRIZES[prizeIndex];
       saveState(s);
@@ -603,7 +600,8 @@ function updateUI() {
   document.getElementById('withdrawAmount').textContent = s.balance.toLocaleString('ar-IQ') + ' دينار';
 
   const wBtn = document.getElementById('withdrawBtn');
-  if (s.balance >= WITHDRAW_MIN) {
+  if (s.balance >= WITHDRAW_MIN)
+{
     wBtn.style.display = 'block';
   } else {
     wBtn.style.display = 'none';
@@ -616,7 +614,7 @@ function updateUI() {
 }
 
 // ══════════════════════════════════════
-//  TASKS LOGIC (Firebase)
+//  TASKS LOGIC (Realtime Database)
 // ══════════════════════════════════════
 async function loadTasks() {
   const tasksList = document.getElementById('tasksList');
@@ -624,16 +622,17 @@ async function loadTasks() {
   const s = getState();
 
   try {
-    const snapshot = await db.collection('tasks').get();
-    if (snapshot.empty) {
+    const snapshot = await db.ref('tasks').once('value');
+    const tasks = snapshot.val();
+
+    if (!tasks) {
       tasksList.innerHTML = '<div class="loading">لا توجد مهام متاحة حالياً.</div>';
       return;
     }
 
     tasksList.innerHTML = ''; // Clear loading message
-    snapshot.forEach(doc => {
-      const task = doc.data();
-      const taskId = doc.id;
+    Object.keys(tasks).forEach(taskId => {
+      const task = tasks[taskId];
       const isCompleted = s.completedTasks.includes(taskId);
 
       const taskItem = document.createElement('a');
@@ -645,15 +644,12 @@ async function loadTasks() {
       taskItem.target = '_blank';
       taskItem.onclick = (e) => {
         if (!isCompleted) {
-          e.preventDefault(); // Prevent navigation to complete the task first
+          e.preventDefault();
           completeTask(taskId, task.reward, task.url);
         }
       };
 
-      // Icon mapping
-      const icons = {
-        ig: '📸', tg: '📢', yt: '▶️', tk: '🎵', fb: '👍', wa: '💬'
-      };
+      const icons = { ig: '📸', tg: '📢', yt: '▶️', tk: '🎵', fb: '👍', wa: '💬' };
       const iconEmoji = icons[task.icon] || '🎁';
 
       taskItem.innerHTML = `
