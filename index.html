@@ -256,11 +256,12 @@
       border-radius: 14px; padding: 13px 16px;
       text-decoration: none; color: inherit;
       transition: border-color .25s, transform .2s;
-      cursor: pointer;
     }
     .task-item:hover { border-color: rgba(245,197,24,0.35); transform: translateX(-3px); }
-    .task-item.completed { border-color: rgba(0,255,136,0.4); }
-    
+    .task-item.completed { opacity: 0.5; pointer-events: none; border-color: #00ff88; }
+    .task-item.completed .task-arrow::before { content: '✅'; color: #00ff88; }
+
+
     .task-icon {
       width: 42px; height: 42px; border-radius: 11px;
       display: flex; align-items: center; justify-content: center;
@@ -273,44 +274,10 @@
     .task-icon.fb { background: #1877f2; }
     .task-icon.wa { background: #25d366; }
 
-    .task-text { flex: 1; text-align: right; }
+    .task-text { flex: 1; }
     .task-name { font-size: 0.95rem; font-weight: 700; color: #eee; }
     .task-desc { font-size: 0.78rem; color: #666; margin-top: 1px; }
-    
-    .task-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .task-confirm-btn {
-      background: linear-gradient(135deg, #f5c518, #c99a00);
-      color: #000;
-      border: none;
-      border-radius: 20px;
-      padding: 6px 12px;
-      font-size: 0.75rem;
-      font-weight: 900;
-      font-family: 'Cairo', sans-serif;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: transform .2s;
-    }
-    .task-confirm-btn:hover {
-      transform: scale(1.05);
-    }
-
-    .task-item.completed .task-confirm-btn {
-      display: none; /* إخفاء زر التأكيد بعد الإكمال */
-    }
-    
     .task-arrow { color: #555; font-size: 0.9rem; }
-
-    .task-item.completed .task-arrow::before {
-      content: '🚀'; /* تغيير الأيقونة بعد الإكمال لتدل على التوجيه */
-      color: #00c853;
-      font-size: 1.1rem;
-    }
 
     /* Withdraw modal */
     .withdraw-info {
@@ -419,6 +386,7 @@
       <button class="modal-close" onclick="closeMod(null,'modalTasks')">✕</button>
     </div>
     <div class="tasks-list" id="tasksList">
+      <!-- سيتم ملء المهام هنا من Firebase -->
       <div class="loading">جاري تحميل المهام...</div>
     </div>
   </div>
@@ -441,7 +409,6 @@
     </div>
   </div>
 </div>
-
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -471,15 +438,13 @@ const db = firebase.database();
 //  CONFIG
 // ══════════════════════════════════════
 const PRIZES    = [10, 20, 30, 50, 100];
-const WEIGHTS   = [40, 25, 20, 10,   5];
+const WEIGHTS   = [40, 25, 20, 10,   5];   // احتمالية كل جائزة %
 const COLORS    = ['#b8860b','#1a6b3c','#8b0000','#1a237e','#6a0dad'];
 const MAX_SPINS = 5;
 const WITHDRAW_MIN = 200000;
-const FINAL_REDIRECT_URL = "https://google.com"; // 🚨🚨 غيّر هذا الرابط إلى الموقع النهائي الذي تريده
-
 
 // ══════════════════════════════════════
-//  STATE (localStorage )
+//  STATE (localStorage)
 // ══════════════════════════════════════
 function getState() {
   const today = new Date().toDateString();
@@ -487,7 +452,7 @@ function getState() {
   if (s.date !== today) {
     s.spins = 0;
     s.date = today;
-    s.completedTasks = [];
+    s.completedTasks = []; // Reset completed tasks daily
   }
   if (!s.balance) s.balance = 0;
   if (!s.completedTasks) s.completedTasks = [];
@@ -514,7 +479,7 @@ if (localStorage.getItem('gate_passed') === '1') {
 }
 
 // ══════════════════════════════════════
-//  WHEEL DRAW & SPIN LOGIC
+//  WHEEL DRAW
 // ══════════════════════════════════════
 const canvas = document.getElementById('wheelCanvas');
 const ctx    = canvas.getContext('2d');
@@ -526,78 +491,130 @@ function drawWheel(angle) {
   ctx.clearRect(0, 0, 270, 270);
   const total = WEIGHTS.reduce((a,b) => a+b, 0);
   let start = angle;
+
   PRIZES.forEach((prize, i) => {
     const slice = (WEIGHTS[i] / total) * 2 * Math.PI;
-    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, r, start, start + slice); ctx.closePath();
-    ctx.fillStyle = COLORS[i]; ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 2; ctx.stroke();
-    ctx.save(); ctx.translate(cx, cy); ctx.rotate(start + slice / 2);
-    ctx.textAlign = 'right'; ctx.fillStyle = '#fff'; ctx.font = `bold 15px Cairo, sans-serif`;
+    // segment
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, start + slice);
+    ctx.closePath();
+    ctx.fillStyle = COLORS[i];
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // label
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + slice / 2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#fff';
+    ctx.font = `bold 15px Cairo, sans-serif`;
     const label = prize === 100 ? '💎 100' : String(prize);
-    ctx.fillText(label, r - 14, 5); ctx.restore();
+    ctx.fillText(label, r - 14, 5);
+    ctx.restore();
+
     start += slice;
   });
 }
-initWheel();
 
+function initWheel() { drawWheel(currentAngle); }
+
+// ══════════════════════════════════════
+//  SPIN LOGIC
+// ══════════════════════════════════════
 function pickPrize() {
   const total = WEIGHTS.reduce((a,b) => a+b, 0);
   let rand = Math.random() * total;
-  for (let i = 0; i < PRIZES.length; i++) { rand -= WEIGHTS[i]; if (rand <= 0) return i; }
+  for (let i = 0; i < PRIZES.length; i++) {
+    rand -= WEIGHTS[i];
+    if (rand <= 0) return i;
+  }
   return 0;
 }
 
 function spinWheel() {
   if (spinning) return;
   const s = getState();
-  if (s.spins >= MAX_SPINS) { showToast('⛔ انتهت محاولاتك اليوم! تجديد غداً', '#ff4444'); return; }
+  if (s.spins >= MAX_SPINS) {
+    showToast('⛔ انتهت محاولاتك اليوم! تجديد غداً', '#ff4444');
+    return;
+  }
+
   spinning = true;
   document.getElementById('spinBtn').disabled = true;
+
   const prizeIndex = pickPrize();
   const total = WEIGHTS.reduce((a,b) => a+b, 0);
+
   let sliceStart = 0;
   for (let i = 0; i < prizeIndex; i++) sliceStart += (WEIGHTS[i]/total) * 2 * Math.PI;
-  const sliceMid = sliceStart + (WEIGHTS[prizeIndex]/total) * Math.PI;
+  const sliceMid   = sliceStart + (WEIGHTS[prizeIndex]/total) * Math.PI;
   const targetAngle = -Math.PI/2 - sliceMid;
-  const extraSpins = (5 + Math.floor(Math.random() * 4)) * 2 * Math.PI;
-  const finalAngle = currentAngle + extraSpins + (targetAngle - ((currentAngle) % (2*Math.PI)));
-  const duration = 4000, startTime = performance.now(), startAngle = currentAngle;
+
+  const extraSpins  = (5 + Math.floor(Math.random() * 4)) * 2 * Math.PI;
+  const finalAngle  = currentAngle + extraSpins + (targetAngle - ((currentAngle) % (2*Math.PI)));
+
+  const duration = 4000;
+  const startTime = performance.now();
+  const startAngle = currentAngle;
+
   function ease(t) { return t < 0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
+
   function animate(now) {
     const elapsed = now - startTime;
     const t = Math.min(elapsed / duration, 1);
     currentAngle = startAngle + (finalAngle - startAngle) * ease(t);
     drawWheel(currentAngle);
-    if (t < 1) { requestAnimationFrame(animate); }
-    else {
+
+    if (t < 1) {
+      requestAnimationFrame(animate);
+    } else {
       currentAngle = finalAngle % (2 * Math.PI);
       spinning = false;
-      s.spins++; s.balance += PRIZES[prizeIndex]; saveState(s);
+
+      s.spins++;
+      s.balance += PRIZES[prizeIndex];
+      saveState(s);
       updateUI();
+
       showToast(`🎉 ربحت ${PRIZES[prizeIndex]} دينار!`, '#f5c518');
       document.getElementById('spinBtn').disabled = false;
     }
   }
+
   requestAnimationFrame(animate);
 }
 
-// ════════════════════
 // ══════════════════════════════════════
 //  UI UPDATE
 // ══════════════════════════════════════
 function updateUI() {
   const s = getState();
   const remaining = Math.max(0, MAX_SPINS - s.spins);
+
   document.getElementById('balanceDisplay').textContent = s.balance.toLocaleString('ar-IQ');
-  document.getElementById('spinsDisplay').textContent = remaining;
+  document.getElementById('spinsDisplay').textContent   = remaining;
   document.getElementById('withdrawAmount').textContent = s.balance.toLocaleString('ar-IQ') + ' دينار';
+
   const wBtn = document.getElementById('withdrawBtn');
-  if (s.balance >= WITHDRAW_MIN) { wBtn.style.display = 'block'; } else { wBtn.style.display = 'none'; }
-  if (remaining === 0) { document.getElementById('spinBtn').disabled = true; document.getElementById('spinBtn').textContent = '⛔ انتهت محاولاتك اليوم'; }
+  if (s.balance >= WITHDRAW_MIN)
+{
+    wBtn.style.display = 'block';
+  } else {
+    wBtn.style.display = 'none';
+  }
+
+  if (remaining === 0) {
+    document.getElementById('spinBtn').disabled = true;
+    document.getElementById('spinBtn').textContent = '⛔ انتهت محاولاتك اليوم';
+  }
 }
 
 // ══════════════════════════════════════
-//  TASKS LOGIC (Realtime Database) - NEW LOGIC
+//  TASKS LOGIC (Realtime Database)
 // ══════════════════════════════════════
 async function loadTasks() {
   const tasksList = document.getElementById('tasksList');
@@ -607,54 +624,42 @@ async function loadTasks() {
   try {
     const snapshot = await db.ref('tasks').once('value');
     const tasks = snapshot.val();
-    if (!tasks) { tasksList.innerHTML = '<div class="loading">لا توجد مهام متاحة حالياً.</div>'; return; }
 
-    tasksList.innerHTML = '';
+    if (!tasks) {
+      tasksList.innerHTML = '<div class="loading">لا توجد مهام متاحة حالياً.</div>';
+      return;
+    }
+
+    tasksList.innerHTML = ''; // Clear loading message
     Object.keys(tasks).forEach(taskId => {
       const task = tasks[taskId];
       const isCompleted = s.completedTasks.includes(taskId);
 
-      const taskItem = document.createElement('div');
+      const taskItem = document.createElement('a');
       taskItem.className = 'task-item';
       if (isCompleted) {
         taskItem.classList.add('completed');
       }
-
-      // سلوك الضغط على عنصر المهمة
-      taskItem.onclick = () => {
-        if (isCompleted) {
-          // إذا كانت مكتملة، اذهب إلى الرابط النهائي
-          showToast('🚀 يتم توجيهك للموقع...', '#229ED9');
-          setTimeout(() => { window.location.href = FINAL_REDIRECT_URL; }, 1000);
-        } else {
-          // إذا لم تكن مكتملة، اذهب إلى رابط المهمة
-          window.open(task.url, '_blank');
+      taskItem.href = task.url;
+      taskItem.target = '_blank';
+      taskItem.onclick = (e) => {
+        if (!isCompleted) {
+          e.preventDefault();
+          completeTask(taskId, task.reward, task.url);
         }
       };
 
       const icons = { ig: '📸', tg: '📢', yt: '▶️', tk: '🎵', fb: '👍', wa: '💬' };
       const iconEmoji = icons[task.icon] || '🎁';
 
-      // بناء HTML الداخلي للمهمة
       taskItem.innerHTML = `
         <div class="task-icon ${task.icon}">${iconEmoji}</div>
         <div class="task-text">
-          <div class="task-name">${task.name}</div>
-          <div class="task-desc">${task.desc} (+${task.reward} دينار)</div>
+          <div class="task-name">${task.name} (+${task.reward} دينار)</div>
+          <div class="task-desc">${task.desc}</div>
         </div>
-        <div class="task-actions">
-          <button class="task-confirm-btn">تأكيد</button>
-          <div class="task-arrow">→</div>
-        </div>
+        <div class="task-arrow">←</div>
       `;
-
-      // إضافة وظيفة لزر التأكيد فقط
-      const confirmBtn = taskItem.querySelector('.task-confirm-btn');
-      confirmBtn.onclick = (e) => {
-        e.stopPropagation(); // منع الضغط على المهمة نفسها عند الضغط على الزر
-        completeTask(taskId, task.reward);
-      };
-
       tasksList.appendChild(taskItem);
     });
   } catch (error) {
@@ -663,43 +668,65 @@ async function loadTasks() {
   }
 }
 
-function completeTask(taskId, reward) {
+function completeTask(taskId, reward, url) {
   const s = getState();
-  if (s.completedTasks.includes(taskId)) return;
+  if (s.completedTasks.includes(taskId)) {
+    return; // Already completed
+  }
 
+  // Add reward and mark as completed
   s.balance += reward;
   s.completedTasks.push(taskId);
   saveState(s);
 
+  // Update UI
   updateUI();
-  showToast(`✅ تم التأكيد! +${reward} دينار`, '#00ff88');
-  loadTasks(); // أعد تحميل المهام لإظهار التغيير
+  showToast(`✅ اكتملت المهمة! +${reward} دينار`, '#00ff88');
+
+  // Reload tasks to show the completed state
+  loadTasks();
+
+  // Open the link after a short delay
+  setTimeout(() => {
+    window.open(url, '_blank');
+  }, 500);
 }
 
+
 // ══════════════════════════════════════
-//  MODALS, TOAST, COINS
+//  TOAST
 // ══════════════════════════════════════
 let toastTimer;
 function showToast(msg, color = '#f5c518') {
   const t = document.getElementById('toast');
-  t.innerHTML = msg;
-  t.style.borderColor = color; t.style.color = color;
+  t.innerHTML = msg; // Use innerHTML to render emojis correctly
+  t.style.borderColor = color;
+  t.style.color = color;
   t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
 }
 
+// ══════════════════════════════════════
+//  MODALS
+// ══════════════════════════════════════
 function openModal(id) {
   const modalId = id === 'tasks' ? 'modalTasks' : 'modalWithdraw';
   document.getElementById(modalId).classList.add('open');
-  if (id === 'tasks') { loadTasks(); }
+  if (id === 'tasks') {
+    loadTasks(); // Load tasks from Firebase when modal is opened
+  }
 }
-
 function closeMod(e, id) {
   const overlay = document.getElementById(id);
-  if (overlay && (!e || e.target === overlay)) { overlay.classList.remove('open'); }
+  if (!e || e.target === overlay) {
+    overlay.classList.remove('open');
+  }
 }
 
+// ══════════════════════════════════════
+//  FLOATING COINS
+// ══════════════════════════════════════
 function startCoins() {
   const emojis = ['🪙','💰','⭐','✨'];
   setInterval(() => {
