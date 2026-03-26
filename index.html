@@ -505,7 +505,7 @@ function doSpin(){
   spinning=true;
   document.getElementById('spinBtn').classList.add('dis');
   
-  // ✅ اختيار الجائزة بناءً على الأوزان
+  // ✅ اختيار الجائزة بناءً على الأوزان (طريقة صحيحة)
   const tot=WEIGHTS.reduce((a,b)=>a+b,0);
   let rnd=Math.random()*tot;
   let pi=0;
@@ -515,10 +515,17 @@ function doSpin(){
     if(rnd<=cumWeight){pi=i;break;}
   }
   
-  // ✅ حساب الزاوية المستهدفة بناءً على موضع الجائزة
-  const sl=(2*Math.PI)/PRIZES.length;
-  // الزاوية = عدد لفات كاملة + الزاوية الأساسية - موضع الجائزة
-  const target=(2*Math.PI*(6+Math.random()*3))+(Math.PI/2)-(pi*sl)-(sl/2);
+  // ✅ حساب الزاوية المستهدفة
+  // المؤشر يشير للأعلى (Math.PI/2)
+  // كل جائزة تحتل زاوية = 2π / عدد الجوائز
+  const sliceAngle=(2*Math.PI)/PRIZES.length;
+  // الزاوية الفعلية للجائزة المختارة
+  const prizeAngle=pi*sliceAngle;
+  // الزاوية المستهدفة = عدد لفات كاملة + (π/2 - زاوية الجائزة)
+  // π/2 لأن المؤشر في الأعلى
+  const rotations=6+Math.random()*3;
+  const target=2*Math.PI*rotations+(Math.PI/2)-prizeAngle;
+  
   const dur=4400+Math.random()*1200;
   let t0=null;
   const ease=x=>1-Math.pow(1-x,4);
