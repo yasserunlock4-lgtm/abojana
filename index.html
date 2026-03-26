@@ -133,8 +133,8 @@ canvas#wc{position:relative;z-index:2;border-radius:50%;display:block}
 .modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold3),var(--gold2),var(--gold3))}
 
 /* Result */
-.res-em{font-size:62px;display:block;margin-bottom:10px;animation:bncin .5s cubic-bezier(.34,1.56,.64,1) .15s both}
-@keyframes bncin{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.res-em{font-size:62px;display:block;margin-bottom:10px;animation:bncin .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes bncin{0%{transform:scale(0);opacity:0}50%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
 .res-ttl{font-size:20px;font-weight:900;margin-bottom:5px}
 .res-amt{font-size:40px;font-weight:900;background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:4px 0}
 .res-amt span{font-size:15px}
@@ -366,7 +366,7 @@ canvas#wc{position:relative;z-index:2;border-radius:50%;display:block}
     </div>
     <div class="inp-grp">
       <label>رقم الهاتف / الحساب</label>
-      <input type="text" id="wdAcc" placeholder="07XX XXX XXXX">
+      <input type="text" id="wdAcc" placeholder="أدخل رقم الحساب">
     </div>
     <button class="btn btn-green" onclick="submitWd()">💸 تأكيد طلب السحب</button>
     <button class="btn btn-ghost" onclick="closeOv('wdOv')">إلغاء</button>
@@ -540,8 +540,17 @@ function checkChTrigger(){
 
 function showResult(pr){
   document.getElementById('resEm').textContent=pr.e;
-  document.getElementById('resTtl').textContent=pr.v>0?'مبروك! 🎊':pr.extra==='free'?'🎁 لفة مجانية!':'حظاً أوفر 😊';
-  document.getElementById('resAmt').innerHTML=pr.v>0?`+<span>${fmt(pr.v)}</span> دينار عراقي`:`<span style="font-size:19px">${pr.n}</span>`;
+  // ✅ FIX: تحقق من القيمة أولاً، ثم من الجائزة المجانية
+  if(pr.v>0){
+    document.getElementById('resTtl').textContent='مبروك! 🎊';
+    document.getElementById('resAmt').innerHTML=`+<span>${fmt(pr.v)}</span> دينار عراقي`;
+  } else if(pr.extra==='free'){
+    document.getElementById('resTtl').textContent='🎁 لفة مجانية!';
+    document.getElementById('resAmt').innerHTML=`<span style="font-size:19px">${pr.n}</span>`;
+  } else {
+    document.getElementById('resTtl').textContent='حظاً أوفر 😊';
+    document.getElementById('resAmt').innerHTML=`<span style="font-size:19px">${pr.n}</span>`;
+  }
   document.getElementById('resTot').textContent=`رصيدك الكلي: ${fmt(S.bal)} دينار`;
   if(pr.v>0||pr.extra)spawnConf();
   showOv('resOv');
