@@ -1,8 +1,6 @@
-// Firebase CDN (بدون import)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// بياناتك (نفسها)
 const firebaseConfig = {
   apiKey: "AIzaSyDiCrZhKVpkYE3HUeeDkAo7xA9I88uZ1i0",
   authDomain: "abojana-3f0c2.firebaseapp.com",
@@ -10,15 +8,12 @@ const firebaseConfig = {
   projectId: "abojana-3f0c2",
   storageBucket: "abojana-3f0c2.firebasestorage.app",
   messagingSenderId: "819681544560",
-  appId: "1:819681544560:web:be2249a51d0c79ee21a7b5",
-  measurementId: "G-23EYSF1BE0"
+  appId: "1:819681544560:web:be2249a51d0c79ee21a7b5"
 };
 
-// تشغيل Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// نربطهم مع window حتى يستخدمهم app.js
 window.db = db;
 window.ref = ref;
 window.get = get;
