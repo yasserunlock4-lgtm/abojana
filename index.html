@@ -256,6 +256,7 @@
       border-radius: 14px; padding: 13px 16px;
       text-decoration: none; color: inherit;
       transition: border-color .25s, transform .2s;
+      cursor: pointer;
     }
     .task-item:hover { border-color: rgba(245,197,24,0.35); transform: translateX(-3px); }
     .task-item.completed { opacity: 0.5; pointer-events: none; border-color: #00ff88; }
@@ -305,6 +306,44 @@
       10%  { opacity: 0.5; }
       90%  { opacity: 0.2; }
       100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+    }
+
+    /* ══ Confirm Task Modal ══ */
+    .confirm-task-body {
+      padding: 10px 5px;
+      text-align: center;
+    }
+    .confirm-task-body p {
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    .confirm-task-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    .confirm-btn {
+      border: none;
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .2s;
+    }
+    .confirm-btn:hover {
+      transform: translateY(-2px);
+    }
+    .confirm-btn.yes {
+      background: linear-gradient(135deg, #00c853, #009624);
+      color: #fff;
+    }
+    .confirm-btn.no {
+      background: linear-gradient(135deg, #ff4444, #cc0000);
+      color: #fff;
     }
   </style>
 </head>
@@ -386,7 +425,6 @@
       <button class="modal-close" onclick="closeMod(null,'modalTasks')">✕</button>
     </div>
     <div class="tasks-list" id="tasksList">
-      <!-- سيتم ملء المهام هنا من Firebase -->
       <div class="loading">جاري تحميل المهام...</div>
     </div>
   </div>
@@ -409,6 +447,24 @@
     </div>
   </div>
 </div>
+
+<!-- ══ CONFIRM TASK MODAL ══ -->
+<div class="modal-overlay" id="modalConfirm" onclick="closeMod(event,'modalConfirm' )">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🤔 هل أكملت المهمة؟</div>
+      <button class="modal-close" onclick="closeMod(null,'modalConfirm')">✕</button>
+    </div>
+    <div class="confirm-task-body">
+      <p>بعد الضغط على "نعم"، ستحصل على المكافأة وسيتم توجيهك إلى الموقع النهائي.</p>
+      <div class="confirm-task-buttons">
+        <button class="confirm-btn yes" id="confirmYesBtn">نعم، أكملتها</button>
+        <button class="confirm-btn no" id="confirmNoBtn">لا، سأكملها الآن</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -438,13 +494,15 @@ const db = firebase.database();
 //  CONFIG
 // ══════════════════════════════════════
 const PRIZES    = [10, 20, 30, 50, 100];
-const WEIGHTS   = [40, 25, 20, 10,   5];   // احتمالية كل جائزة %
+const WEIGHTS   = [40, 25, 20, 10,   5];
 const COLORS    = ['#b8860b','#1a6b3c','#8b0000','#1a237e','#6a0dad'];
 const MAX_SPINS = 5;
 const WITHDRAW_MIN = 200000;
+const FINAL_REDIRECT_URL = "https://google.com"; // 🚨🚨 غيّر هذا الرابط إلى الموقع النهائي الذي تريده
+
 
 // ══════════════════════════════════════
-//  STATE (localStorage)
+//  STATE (localStorage )
 // ══════════════════════════════════════
 function getState() {
   const today = new Date().toDateString();
@@ -452,7 +510,7 @@ function getState() {
   if (s.date !== today) {
     s.spins = 0;
     s.date = today;
-    s.completedTasks = []; // Reset completed tasks daily
+    s.completedTasks = [];
   }
   if (!s.balance) s.balance = 0;
   if (!s.completedTasks) s.completedTasks = [];
@@ -494,7 +552,6 @@ function drawWheel(angle) {
 
   PRIZES.forEach((prize, i) => {
     const slice = (WEIGHTS[i] / total) * 2 * Math.PI;
-    // segment
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.arc(cx, cy, r, start, start + slice);
@@ -504,8 +561,6 @@ function drawWheel(angle) {
     ctx.strokeStyle = 'rgba(255,255,255,0.18)';
     ctx.lineWidth = 2;
     ctx.stroke();
-
-    // label
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(start + slice / 2);
@@ -515,7 +570,6 @@ function drawWheel(angle) {
     const label = prize === 100 ? '💎 100' : String(prize);
     ctx.fillText(label, r - 14, 5);
     ctx.restore();
-
     start += slice;
   });
 }
@@ -544,7 +598,8 @@ function spinWheel() {
   }
 
   spinning = true;
-  document.getElementById('spinBtn').disabled = true;
+  document.getElementById('spinBtn').
+disabled = true;
 
   const prizeIndex = pickPrize();
   const total = WEIGHTS.reduce((a,b) => a+b, 0);
@@ -600,8 +655,7 @@ function updateUI() {
   document.getElementById('withdrawAmount').textContent = s.balance.toLocaleString('ar-IQ') + ' دينار';
 
   const wBtn = document.getElementById('withdrawBtn');
-  if (s.balance >= WITHDRAW_MIN)
-{
+  if (s.balance >= WITHDRAW_MIN) {
     wBtn.style.display = 'block';
   } else {
     wBtn.style.display = 'none';
@@ -635,16 +689,14 @@ async function loadTasks() {
       const task = tasks[taskId];
       const isCompleted = s.completedTasks.includes(taskId);
 
-      const taskItem = document.createElement('a');
+      const taskItem = document.createElement('div'); // Changed to div
       taskItem.className = 'task-item';
       if (isCompleted) {
         taskItem.classList.add('completed');
       }
-      taskItem.href = task.url;
-      taskItem.target = '_blank';
-      taskItem.onclick = (e) => {
+      
+      taskItem.onclick = () => { // Changed from href to onclick
         if (!isCompleted) {
-          e.preventDefault();
           completeTask(taskId, task.reward, task.url);
         }
       };
@@ -658,7 +710,7 @@ async function loadTasks() {
           <div class="task-name">${task.name} (+${task.reward} دينار)</div>
           <div class="task-desc">${task.desc}</div>
         </div>
-        <div class="task-arrow">←</div>
+        <div class="task-arrow">→</div>
       `;
       tasksList.appendChild(taskItem);
     });
@@ -668,28 +720,51 @@ async function loadTasks() {
   }
 }
 
-function completeTask(taskId, reward, url) {
+function completeTask(taskId, reward, taskUrl) {
   const s = getState();
   if (s.completedTasks.includes(taskId)) {
-    return; // Already completed
+    return; // المهمة مكتملة بالفعل
   }
 
-  // Add reward and mark as completed
-  s.balance += reward;
-  s.completedTasks.push(taskId);
-  saveState(s);
+  // إظهار نافذة التأكيد
+  openModal('confirm');
 
-  // Update UI
-  updateUI();
-  showToast(`✅ اكتملت المهمة! +${reward} دينار`, '#00ff88');
+  // تحديد وظيفة الأزرار
+  const yesBtn = document.getElementById('confirmYesBtn');
+  const noBtn = document.getElementById('confirmNoBtn');
 
-  // Reload tasks to show the completed state
-  loadTasks();
+  // --- عند الضغط على "نعم" ---
+  yesBtn.onclick = () => {
+    // 1. أضف المكافأة واحفظ الحالة
+    s.balance += reward;
+    s.completedTasks.push(taskId);
+    saveState(s);
 
-  // Open the link after a short delay
-  setTimeout(() => {
-    window.open(url, '_blank');
-  }, 500);
+    // 2. حدث الواجهة
+    updateUI();
+    showToast(`✅ اكتملت المهمة! +${reward} دينار`, '#00ff88');
+    
+    // 3. أعد تحميل قائمة المهام لتظهر المهمة كمكتملة
+    loadTasks();
+
+    // 4. أغلق نافذة التأكيد
+    closeMod(null, 'modalConfirm');
+
+    // 5. حول المستخدم إلى الرابط النهائي بعد تأخير بسيط
+    showToast(`🚀 يتم توجيهك الآن...`, '#229ED9');
+    setTimeout(() => {
+      window.location.href = FINAL_REDIRECT_URL; // استخدم الرابط النهائي
+    }, 1500);
+  };
+
+  // --- عند الضغط على "لا" ---
+  noBtn.onclick = () => {
+    // 1. أغلق نافذة التأكيد
+    closeMod(null, 'modalConfirm');
+    
+    // 2. افتح رابط المهمة الأصلية ليكملها المستخدم
+    window.open(taskUrl, '_blank');
+  };
 }
 
 
@@ -711,15 +786,22 @@ function showToast(msg, color = '#f5c518') {
 //  MODALS
 // ══════════════════════════════════════
 function openModal(id) {
-  const modalId = id === 'tasks' ? 'modalTasks' : 'modalWithdraw';
-  document.getElementById(modalId).classList.add('open');
-  if (id === 'tasks') {
-    loadTasks(); // Load tasks from Firebase when modal is opened
+  const modalMap = {
+    'tasks': 'modalTasks',
+    'withdraw': 'modalWithdraw',
+    'confirm': 'modalConfirm'
+  };
+  const modalId = modalMap[id];
+  if (modalId) {
+    document.getElementById(modalId).classList.add('open');
+    if (id === 'tasks') {
+      loadTasks(); // Load tasks from Firebase when modal is opened
+    }
   }
 }
 function closeMod(e, id) {
   const overlay = document.getElementById(id);
-  if (!e || e.target === overlay) {
+  if (overlay && (!e || e.target === overlay)) {
     overlay.classList.remove('open');
   }
 }
