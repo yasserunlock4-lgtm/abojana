@@ -1,142 +1,41 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>أبو جنة × فوريو</title>
-  <meta name="theme-color" content="#1a0f2e" />
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>أبو جنة × فوريو</title>
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <div class="bg-glow glow-1"></div>
-  <div class="bg-glow glow-2"></div>
 
-  <div class="app">
-    <header class="hero card">
-      <div class="hero-top">
-        <div>
-          <h1>🔥 أبو جنة × فوريو</h1>
-          <p class="sub">اجمع نقاط، افتح صناديق، ونفّذ المهام اليومية</p>
-        </div>
-        <div class="badge-live">VIP</div>
-      </div>
+<div class="container">
 
-      <div class="stats-grid">
-        <div class="stat">
-          <span>النقاط</span>
-          <strong id="pointsValue">0</strong>
-        </div>
-        <div class="stat">
-          <span>الرصيد</span>
-          <strong id="balanceValue">0 د.ع</strong>
-        </div>
-        <div class="stat">
-          <span>الطاقة</span>
-          <strong id="energyValue">100/100</strong>
-        </div>
-      </div>
+  <h1>🔥 أبو جنة × فوريو 🔥</h1>
 
-      <div class="energy-wrap">
-        <div class="energy-bar">
-          <div class="energy-fill" id="energyFill"></div>
-        </div>
-        <small id="energyHint">الطاقة تتجدد تلقائياً</small>
-      </div>
-    </header>
-
-    <section class="actions-grid">
-      <button class="action card gold" id="dailyRewardBtn">
-        <span class="icon">🎁</span>
-        <div>
-          <b>الهدية اليومية</b>
-          <small>مرة كل 24 ساعة</small>
-        </div>
-      </button>
-
-      <button class="action card hot" id="hitBtn">
-        <span class="icon">👊</span>
-        <div>
-          <b>ضربة أبو جنة</b>
-          <small>مرة يومياً، ربح أو خسارة</small>
-        </div>
-      </button>
-
-      <button class="action card purple" id="boxBtn">
-        <span class="icon">🎁</span>
-        <div>
-          <b>صندوق الحظ</b>
-          <small>يستهلك 15 طاقة</small>
-        </div>
-      </button>
-
-      <button class="action card blue" id="referralBtn">
-        <span class="icon">📨</span>
-        <div>
-          <b>دعوة الأصدقاء</b>
-          <small>شارك رابط البوت</small>
-        </div>
-      </button>
-
-      <button class="action card green" id="convertBtn">
-        <span class="icon">💰</span>
-        <div>
-          <b>تحويل النقاط</b>
-          <small>كل 1000 نقطة = 10 د.ع</small>
-        </div>
-      </button>
-
-      <button class="action card red" id="withdrawBtn">
-        <span class="icon">💸</span>
-        <div>
-          <b>طلب سحب</b>
-          <small>الحد الأدنى 100,000 د.ع</small>
-        </div>
-      </button>
-    </section>
-
-    <section class="card">
-      <div class="section-head">
-        <h2>📋 المهام اليومية</h2>
-        <span class="tiny-badge" id="tasksStatus">0/0</span>
-      </div>
-      <div id="dailyTasks" class="list"></div>
-    </section>
-
-    <section class="card">
-      <div class="section-head">
-        <h2>📢 قنوات الاشتراك</h2>
-        <span class="tiny-badge" id="channelsBatchLabel">الدفعة 1</span>
-      </div>
-      <p class="muted">
-        أول 4 قنوات تظهر الآن، وبعد 24 ساعة تظهر 4 قنوات إضافية من Firebase.
-      </p>
-      <div id="channelsList" class="list"></div>
-    </section>
-
-    <section class="card">
-      <div class="section-head">
-        <h2>ℹ️ معلومات الحساب</h2>
-      </div>
-      <div class="info-grid">
-        <div class="info-item">
-          <span>معرف المستخدم</span>
-          <strong id="userIdValue">-</strong>
-        </div>
-        <div class="info-item">
-          <span>اسم المستخدم</span>
-          <strong id="userNameValue">-</strong>
-        </div>
-        <div class="info-item">
-          <span>رابط الإحالة</span>
-          <strong id="refLinkValue" class="ref-text">-</strong>
-        </div>
-      </div>
-    </section>
+  <div class="images">
+    <img src="https://i.imgur.com/1X6ZQ6X.png">
+    <img src="https://i.imgur.com/8Km9tLL.png">
   </div>
 
-  <div class="toast" id="toast"></div>
+  <div class="balance">
+    رصيدك: <span id="balance">0</span> دينار
+  </div>
 
-  <script type="module" src="app.js"></script>
+  <button id="spinBtn">🎰 لف العجلة</button>
+
+  <div id="result"></div>
+
+  <button id="withdrawBtn" style="display:none;">
+    💸 طلب سحب
+  </button>
+
+  <div id="tasks"></div>
+
+</div>
+
+<script src="firebase.js"></script>
+<script src="app.js"></script>
+
 </body>
 </html>
