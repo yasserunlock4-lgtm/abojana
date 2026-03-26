@@ -28,7 +28,12 @@
 
     h1{
       color:#ffd54a;
-      margin-bottom:10px;
+      margin-bottom:5px;
+    }
+
+    p{
+      opacity:0.8;
+      margin-bottom:15px;
     }
 
     .images{
@@ -48,8 +53,8 @@
       font-size:22px;
       margin:15px 0;
       background:rgba(255,255,255,.1);
-      padding:10px;
-      border-radius:10px;
+      padding:12px;
+      border-radius:12px;
     }
 
     button{
@@ -62,6 +67,8 @@
       font-size:18px;
       cursor:pointer;
       box-shadow:0 8px 20px rgba(0,0,0,.3);
+      width:90%;
+      max-width:300px;
     }
 
     button:active{
@@ -81,16 +88,31 @@
       border-radius:12px;
     }
 
-    a{
+    .task-box{
+      text-align:right;
+    }
+
+    .task-link{
       color:#ffd54a;
       display:block;
-      margin:5px;
+      margin:6px 0;
       text-decoration:none;
+    }
+
+    .task-btn{
+      background:#00ff99;
+      margin-top:10px;
     }
 
     #withdrawBtn{
       background:#00ff99;
       display:none;
+    }
+
+    .footer{
+      margin-top:20px;
+      font-size:12px;
+      opacity:0.6;
     }
   </style>
 </head>
@@ -110,7 +132,7 @@
 
   <!-- الرصيد -->
   <div class="balance">
-    رصيدك: <span id="balance">0</span> دينار
+    💰 رصيدك: <span id="balance">0</span> دينار
   </div>
 
   <!-- زر اللعب -->
@@ -121,16 +143,23 @@
 
   <!-- السحب -->
   <button id="withdrawBtn">
-    💸 طلب سحب
+    💸 طلب سحب الأرباح
   </button>
 
   <!-- المهام -->
   <div id="tasks"></div>
 
+  <div class="footer">
+    ⚡ مشروع أبو جنة الرسمي
+  </div>
+
 </div>
 
 <!-- Firebase -->
 <script type="module" src="firebase.js"></script>
+
+<!-- Telegram WebApp -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <!-- اللعبة -->
 <script src="app.js"></script>
