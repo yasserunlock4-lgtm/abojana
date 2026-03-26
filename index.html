@@ -503,8 +503,31 @@ function updateUI(){
 function fmt(n){ return n.toLocaleString('ar-IQ'); }
 
 /* ============ JOIN ============ */
-function openMainCh(){ window.open(MAIN_CH_URL,'_blank'); setTimeout(()=>{const b=document.getElementById('verBtn');b.style.borderColor='#22C55E';b.style.color='#22C55E';},1800); }
-function verifyMain(){ S.isSubbed=true;save();toast('✅ أهلاً بك! ابدأ بالدوران 🎉');setTimeout(showApp,700); }
+function openMainCh(){
+  window.open(MAIN_CH_URL,'_blank');
+  setTimeout(()=>{
+    const b=document.getElementById('verBtn');
+    if(b){
+      b.style.borderColor='#22C55E';
+      b.style.color='#22C55E';
+      b.textContent='✅ تم الاشتراك - اضغط هنا';
+    }
+  },1800);
+}
+
+function verifyMain(){
+  console.log('بدء التحقق من الاشتراك');
+  S.isSubbed=true;
+  S.streak=1;
+  S.lastDay=new Date().toDateString();
+  save();
+  console.log('تم حفظ البيانات');
+  toast('✅ أهلاً بك! ابدأ بالدوران 🎉');
+  setTimeout(()=>{
+    console.log('الانتقال للتطبيق');
+    showApp();
+  }, 800);
+}
 
 /* ============ WHEEL ============ */
 function drawWheel(rot){
