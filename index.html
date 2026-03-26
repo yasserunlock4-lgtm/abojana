@@ -376,45 +376,72 @@ canvas#wc{position:relative;z-index:2;border-radius:50%;display:block}
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
 <script>
+/* ============ FIREBASE CONFIG ============ */
+const firebaseConfig = {
+  apiKey: "AIzaSyDiCrZhKVpkYE3HUeeDkAo7xA9I88uZ1i0",
+  authDomain: "abojana-3f0c2.firebaseapp.com",
+  databaseURL: "https://abojana-3f0c2-default-rtdb.firebaseio.com",
+  projectId: "abojana-3f0c2",
+  storageBucket: "abojana-3f0c2.firebasestorage.app",
+  messagingSenderId: "819681544560",
+  appId: "1:819681544560:web:be2249a51d0c79ee21a7b5",
+  measurementId: "G-23EYSF1BE0"
+};
+
+const app = firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
 /* ============ CONFIG ============ */
-const MAIN_CH_URL = 'https://t.me/YOUR_MAIN_CHANNEL'; // ← غيّر
+const MAIN_CH_URL = 'https://t.me/YOUR_MAIN_CHANNEL';
 
-const CHANNELS = [
-  { name:'قناة أبو جنة الرسمية',  url:'https://t.me/ch1',  emoji:'👑' },
-  { name:'فور يو إنيرجي',          url:'https://t.me/ch2',  emoji:'⚡' },
-  { name:'جبس أبو جنة',            url:'https://t.me/ch3',  emoji:'🏗️' },
-  { name:'عروض وتخفيضات',         url:'https://t.me/ch4',  emoji:'🎁' },
-  { name:'أخبار الأعمال',          url:'https://t.me/ch5',  emoji:'💼' },
-  { name:'مجتمع أبو جنة',          url:'https://t.me/ch6',  emoji:'🤝' },
-  { name:'وصفات ومطبخ',           url:'https://t.me/ch7',  emoji:'🍳' },
-  { name:'رياضة وصحة',            url:'https://t.me/ch8',  emoji:'💪' },
-  { name:'ترفيه ومرح',             url:'https://t.me/ch9',  emoji:'🎭' },
-  { name:'قناة VIP المميزة',       url:'https://t.me/ch10', emoji:'💎' },
-];
+// Default data (will be replaced by Firebase)
+let CHANNELS = [];
+let PRIZES = [];
+let WEIGHTS = [];
+let TASKS = [];
 
-const PRIZES = [
-  { e:'💰', n:'50 دينار',   v:50,   c:'#16A34A', tc:'#fff' },
-  { e:'⭐', n:'100 دينار',  v:100,  c:'#2563EB', tc:'#fff' },
-  { e:'🔥', n:'200 دينار',  v:200,  c:'#EA580C', tc:'#fff' },
-  { e:'💎', n:'500 دينار',  v:500,  c:'#D4A843', tc:'#000' },
-  { e:'⚡', n:'750 دينار',  v:750,  c:'#C8FF00', tc:'#000' },
-  { e:'🏆', n:'1000 دينار', v:1000, c:'#DC2626', tc:'#fff' },
-  { e:'😅', n:'حظاً أوفر', v:0,    c:'#374151', tc:'#9CA3AF' },
-  { e:'🎁', n:'لفة مجانية',v:0,    extra:'free', c:'#7C3AED', tc:'#fff' },
-];
-const WEIGHTS = [30,24,17,10,7,4,5,3];
+// Load data from Firebase
+function loadFirebaseData() {
+  // Load channels
+  database.ref('config/channels').on('value', (snapshot) => {
+    if (snapshot.exists()) {
+      CHANNELS = snapshot.val();
+      console.log('Channels loaded from Firebase');
+    } else {
+      console.log('No channels data in Firebase');
+    }
+  });
 
-const TASKS = [
-  { id:'t1', e:'📱', n:'شارك البوت مع 3 أصدقاء', d:'أرسل الرابط لـ 3 أشخاص', r:50 },
-  { id:'t2', e:'👍', n:'لايك آخر منشور أبو جنة',  d:'افتح القناة وضع لايك',    r:50 },
-  { id:'t3', e:'💬', n:'اكتب تعليقاً إيجابياً',    d:'علّق على آخر منشور',      r:50 },
-  { id:'t4', e:'📸', n:'شارك ستوري عن البوت',     d:'ضع ستوري على حسابك',     r:50 },
-  { id:'t5', e:'🛒', n:'زيارة متجر أبو جنة',       d:'افتح المتجر الإلكتروني',  r:50 },
-  { id:'t6', e:'⚡', n:'اشتر فور يو إنيرجي',       d:'اشتر علبة وأرسل الإيصال', r:50 },
-  { id:'t7', e:'📲', n:'تابعنا على إنستغرام',      d:'اضغط متابعة على حسابنا', r:50 },
-  { id:'t8', e:'🌟', n:'قيّم البوت 5 نجوم',       d:'افتح تقييم التليغرام',     r:50 },
-];
+  // Load prizes
+  database.ref('config/prizes').on('value', (snapshot) => {
+    if (snapshot.exists()) {
+      PRIZES = snapshot.val();
+      console.log('Prizes loaded from Firebase');
+      drawWheel(0);
+      buildPrizesGrid();
+    }
+  });
+
+  // Load weights
+  database.ref('config/weights').on('value', (snapshot) => {
+    if (snapshot.exists()) {
+      WEIGHTS = snapshot.val();
+      console.log('Weights loaded from Firebase');
+    }
+  });
+
+  // Load tasks
+  database.ref('config/tasks').on('value', (snapshot) => {
+    if (snapshot.exists()) {
+      TASKS = snapshot.val();
+      console.log('Tasks loaded from Firebase');
+      buildTasks();
+    }
+  });
+}
 
 /* ============ STATE ============ */
 let S = {
@@ -442,11 +469,14 @@ function save(){ try{localStorage.setItem('aj3',JSON.stringify(S));}catch(e){} }
 /* ============ INIT ============ */
 window.addEventListener('load',()=>{
   try{ Telegram?.WebApp?.expand(); }catch(e){}
-  load();
-  buildPrizesGrid();
-  drawWheel(0);
-  buildTasks();
-  if(S.isSubbed) showApp();
+  loadFirebaseData();
+  setTimeout(()=>{
+    load();
+    buildPrizesGrid();
+    drawWheel(0);
+    buildTasks();
+    if(S.isSubbed) showApp();
+  }, 1000);
 });
 
 function showApp(){
