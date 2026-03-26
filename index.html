@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
   <title>أبو جنة | عجلة الحظ</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -133,100 +135,89 @@ canvas#wc{position:relative;z-index:2;border-radius:50%;display:block}
 .modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#3B82F6,#06B6D4,#A78BFA)}
 
 /* Result */
-.res-em{font-size:62px;display:block;margin-bottom:10px;animation:bncin .5s cubic-bezier(.34,1.56,.64,1)}
-@keyframes bncin{0%{transform:scale(0);opacity:0}50%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
-.res-ttl{font-size:20px;font-weight:900;margin-bottom:5px}
-.res-amt{font-size:40px;font-weight:900;background:linear-gradient(135deg,#3B82F6,#06B6D4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:4px 0}
-.res-amt span{font-size:15px}
-.res-tot{font-size:12px;color:var(--txt2);margin-bottom:20px}
+.res-em{font-size:62px;display:block;margin-bottom:10px}
+.res-ttl{font-size:20px;font-weight:900;margin-bottom:8px;color:var(--txt)}
+.res-amt{font-size:28px;font-weight:900;color:#3B82F6;margin-bottom:12px;line-height:1.2}
+.res-tot{font-size:12px;color:var(--txt2);margin-bottom:18px;font-weight:600}
 
-/* Channel */
-.ch-av{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#0CC,#006688);margin:0 auto 13px;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 4px 20px rgba(0,204,204,.22)}
-.ch-ttl{font-size:17px;font-weight:900;margin-bottom:6px}
-.ch-desc{font-size:12px;color:var(--txt2);line-height:1.6;margin-bottom:8px}
-.ch-dots{display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:12px;flex-wrap:wrap}
-.ch-dot{width:9px;height:9px;border-radius:50%;background:var(--border);transition:background .3s}
-.ch-dot.dn{background:var(--gold)}
-.ch-dot.cr{background:var(--gold2);box-shadow:0 0 7px var(--gold)}
-.ch-prog{font-size:11px;color:var(--txt2);margin-bottom:16px}
-
-/* Withdraw */
-.wd-bal{font-size:34px;font-weight:900;color:var(--gold2);margin:10px 0 4px}
-.wd-note{font-size:11px;color:var(--txt2);margin-bottom:16px;line-height:1.7}
-.inp-grp{text-align:right;margin-bottom:13px}
-.inp-grp label{font-size:11px;color:var(--txt2);font-weight:600;display:block;margin-bottom:5px}
-.inp-grp input,.inp-grp select{width:100%;background:#F0F2F5;border:2px solid var(--border);border-radius:11px;padding:12px 14px;font-family:'Cairo',sans-serif;font-size:13px;color:var(--txt);outline:none;transition:border-color .2s;appearance:none;direction:rtl}
-.inp-grp input:focus,.inp-grp select:focus{border-color:#3B82F6}
-
-/* Confetti */
-.conf-piece{position:absolute;width:7px;height:7px;border-radius:2px;animation:cffall 1.6s ease-out forwards;opacity:0}
-@keyframes cffall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(230px) rotate(400deg);opacity:0}}
-
-/* Toast */
-.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--card);border:2px solid var(--border);border-radius:11px;padding:10px 20px;font-size:13px;font-weight:600;color:var(--txt);z-index:300;opacity:0;transition:all .3s;white-space:nowrap;max-width:90vw}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* Channel Gate */
+.ch-av{font-size:48px;margin-bottom:10px}
+.ch-ttl{font-size:18px;font-weight:900;margin-bottom:8px;color:var(--txt)}
+.ch-desc{font-size:12px;color:var(--txt2);margin-bottom:12px;line-height:1.5}
+.ch-dots{display:flex;justify-content:center;gap:6px;margin:12px 0;flex-wrap:wrap}
+.ch-dot{width:8px;height:8px;border-radius:50%;background:#D0D5DC;transition:all .3s}
+.ch-dot.dn{background:#10B981}
+.ch-dot.cr{background:#3B82F6;transform:scale(1.3)}
+.ch-prog{font-size:11px;color:var(--txt2);margin:12px 0;font-weight:600}
 
 /* Buttons */
-.btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:14px;border-radius:13px;border:none;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
-.btn:active{transform:scale(.97)}
-.btn-gold{background:linear-gradient(135deg,#3B82F6 0%,#06B6D4 50%,#3B82F6 100%);background-size:200% 100%;color:#fff;box-shadow:0 4px 16px rgba(59,130,246,.3);animation:shim 3s ease infinite}
-@keyframes shim{0%{background-position:0%}50%{background-position:100%}100%{background-position:0%}}
-.btn-ghost{background:transparent;border:2px solid var(--border);color:var(--txt2);margin-top:8px}
-.btn-green{background:linear-gradient(135deg,#059669,#10B981);color:#fff;box-shadow:0 4px 16px rgba(16,185,129,.3)}
+.btn{border:none;border-radius:11px;padding:12px 16px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:block;width:100%;margin-top:10px}
+.btn-gold{background:linear-gradient(135deg,#FFD700,#FFC700);color:#000;box-shadow:0 4px 12px rgba(255,215,0,.3)}
+.btn-gold:active{transform:scale(.96)}
+.btn-ghost{background:transparent;border:2px solid var(--border);color:var(--txt);box-shadow:none}
+.btn-ghost:active{background:var(--bg3)}
+.btn-green{background:linear-gradient(135deg,#10B981,#059669);color:#fff;box-shadow:0 4px 12px rgba(16,185,129,.3)}
+.btn-green:active{transform:scale(.96)}
 
-/* Join screen */
-.join-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px}
-.join-card{background:var(--card);border:2px solid var(--border);border-radius:22px;padding:28px 20px;width:100%;position:relative;overflow:hidden}
-.join-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#3B82F6,#06B6D4,#A78BFA)}
-.join-av{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#06B6D4);margin:0 auto 13px;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 4px 26px rgba(59,130,246,.35)}
-.join-ttl{font-size:18px;font-weight:900;text-align:center;margin-bottom:6px}
-.join-desc{font-size:12px;color:var(--txt2);text-align:center;line-height:1.7;margin-bottom:18px}
-.steps{list-style:none;margin-bottom:20px;display:flex;flex-direction:column;gap:9px}
-.steps li{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--txt2)}
-.sn{width:21px;height:21px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--gold);flex-shrink:0;box-shadow:0 0 6px rgba(255,215,0,.2)}
+/* Inputs */
+.inp-grp{margin:12px 0;text-align:right}
+.inp-grp label{display:block;font-size:11px;font-weight:700;color:var(--txt2);margin-bottom:6px}
+.inp-grp input,.inp-grp select{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:9px;font-family:'Cairo',sans-serif;font-size:13px;background:var(--bg2);color:var(--txt);transition:border .2s}
+.inp-grp input:focus,.inp-grp select:focus{outline:none;border-color:#3B82F6}
+
+/* Withdraw */
+.wd-bal{font-size:24px;font-weight:900;color:#3B82F6;margin:12px 0}
+.wd-note{font-size:11px;color:var(--txt2);margin:12px 0;line-height:1.5}
+
+/* Confetti */
+.conf-piece{position:fixed;width:8px;height:8px;border-radius:50%;pointer-events:none;animation:conffall linear forwards}
+@keyframes conffall{to{transform:translateY(100vh) rotate(360deg);opacity:0}}
+
+/* Toast */
+.toast{position:fixed;bottom:calc(68px + var(--safe) + 12px);left:50%;transform:translateX(-50%);background:rgba(0,0,0,.9);color:#fff;padding:12px 20px;border-radius:9px;font-size:13px;font-weight:600;z-index:300;opacity:0;pointer-events:none;transition:opacity .3s;max-width:300px;text-align:center}
+.toast.show{opacity:1;pointer-events:all}
+
+/* JOIN SCREEN */
+.join-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:30px 20px;text-align:center;flex:1}
+.join-ico{font-size:72px;margin-bottom:10px}
+.join-ttl{font-size:24px;font-weight:900;color:var(--txt)}
+.join-desc{font-size:13px;color:var(--txt2);line-height:1.6;margin-bottom:10px}
+.join-steps{text-align:right;margin:20px 0;font-size:12px}
+.join-steps li{list-style:none;margin:8px 0;color:var(--txt2)}
+.join-steps .sn{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:linear-gradient(135deg,#3B82F6,#06B6D4);color:#fff;border-radius:50%;font-weight:700;margin-left:8px;font-size:11px}
+
+/* Loading */
+.loading{display:inline-block;width:20px;height:20px;border:3px solid rgba(59,130,246,.2);border-top-color:#3B82F6;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-<div class="app">
 
-  <!-- HERO with Abu Janna photo -->
+<div class="app">
+  <!-- HERO -->
   <div class="hero">
     <div class="hero-bg"></div>
-    <img class="hero-img" src="abujanna.png" alt="أبو جنة" onerror="this.style.display='none'">
     <div class="hero-brand">
-      <div class="hero-name">أبو جنة</div>
-      <div class="hero-sub">ABU JANNA · FOR YOU ENERGY</div>
+      <div class="hero-name">🎰 أبو جنة</div>
+      <div class="hero-sub">عجلة الحظ</div>
     </div>
   </div>
 
   <!-- TICKER -->
   <div class="ticker-wrap">
-    <div class="ticker" id="ticker">
-      <div class="ticker-item">🎉 محمد_ع ربح 500 دينار</div>
-      <div class="ticker-item">⚡ خالد_99 ربح 1000 دينار</div>
-      <div class="ticker-item">🏆 أبو_فهد وصل لـ 5000 دينار</div>
-      <div class="ticker-item">💰 سارة_k ربحت 250 دينار</div>
-      <div class="ticker-item">🔥 عمر_j سحب 2000 دينار</div>
-      <div class="ticker-item">💎 ريم_x ربحت 750 دينار</div>
-      <div class="ticker-item">🎉 محمد_ع ربح 500 دينار</div>
-      <div class="ticker-item">⚡ خالد_99 ربح 1000 دينار</div>
-      <div class="ticker-item">🏆 أبو_فهد وصل لـ 5000 دينار</div>
-      <div class="ticker-item">💰 سارة_k ربحت 250 دينار</div>
-      <div class="ticker-item">🔥 عمر_j سحب 2000 دينار</div>
-      <div class="ticker-item">💎 ريم_x ربحت 750 دينار</div>
-    </div>
+    <div class="ticker" id="ticker"></div>
   </div>
 
-  <!-- BALANCE (hidden until subscribed) -->
+  <!-- BALANCE -->
   <div class="bal-card" id="balCard" style="display:none">
     <div>
-      <div class="bal-lbl">رصيدك الحالي</div>
+      <div class="bal-lbl">رصيدك</div>
       <div class="bal-num" id="balNum">0</div>
       <div class="bal-cur">دينار عراقي</div>
     </div>
     <div class="bal-right">
-      <div class="streak-pill">🔥 <span id="streakN">0</span> يوم</div>
-      <button class="wd-btn" onclick="openWd()">💸 سحب</button>
+      <div class="streak-pill">🔥 <span id="streakN">0</span> يوم متتالي</div>
+      <button class="wd-btn" onclick="openWd()">💸 سحب الأرباح</button>
     </div>
   </div>
 
@@ -237,26 +228,24 @@ canvas#wc{position:relative;z-index:2;border-radius:50%;display:block}
     <div class="tab" onclick="goTab(this,'hist')">📜 السجل</div>
   </div>
 
-  <!-- ===== JOIN SCREEN ===== -->
-  <div id="joinScreen" style="flex:1;display:flex;flex-direction:column">
-    <div class="join-wrap">
-      <div class="join-card">
-        <div class="join-av">📢</div>
-        <div class="join-ttl">اشترك في قناة أبو جنة</div>
-        <div class="join-desc">للوصول لعجلة الحظ وربح الدنانير العراقية الحقيقية، اشترك في قناتنا أولاً</div>
-        <ul class="steps">
-          <li><div class="sn">١</div>اضغط زر الاشتراك</li>
-          <li><div class="sn">٢</div>اشترك في القناة الرسمية</li>
-          <li><div class="sn">٣</div>ارجع وتحقق من اشتراكك</li>
-          <li><div class="sn">٤</div>ابدأ بالدوران والربح 🎉</li>
-        </ul>
-        <button class="btn btn-gold" onclick="openMainCh()">📢 اشترك في القناة</button>
-        <button class="btn btn-ghost" id="verBtn" onclick="verifyMain()">✅ تأكيد الاشتراك</button>
-      </div>
+  <!-- JOIN SCREEN -->
+  <div class="screen act" id="joinScreen">
+    <div class="join-screen">
+      <div class="join-ico">👑</div>
+      <div class="join-ttl">أهلاً بك في أبو جنة!</div>
+      <div class="join-desc">اشترك في قناتنا الرسمية أولاً، ثم ابدأ بالدوران واكسب دنانير عراقية حقيقية!</div>
+      <ul class="join-steps">
+        <li><div class="sn">١</div>اضغط على زر الاشتراك أدناه</li>
+        <li><div class="sn">٢</div>انضم للقناة على التليغرام</li>
+        <li><div class="sn">٣</div>عد وأكد الاشتراك</li>
+        <li><div class="sn">٤</div>ابدأ بالدوران والربح 🎉</li>
+      </ul>
+      <button class="btn btn-gold" onclick="openMainCh()">📢 اشترك في القناة</button>
+      <button class="btn btn-ghost" id="verBtn" onclick="verifyMain()">✅ تأكيد الاشتراك</button>
     </div>
   </div>
 
-  <!-- ===== SPIN SCREEN ===== -->
+  <!-- SPIN SCREEN -->
   <div class="screen" id="spinScreen">
     <div class="wh-section">
       <div class="wh-lbl">دور العجلة واكسب <strong>دنانير عراقية حقيقية</strong> 💰</div>
@@ -280,7 +269,6 @@ canvas#wc{position:relative;z-index:2;border-radius:50%;display:block}
       </div>
     </div>
 
-    <!-- Progress to next 250 -->
     <div class="prog-box">
       <div class="prog-hd">
         <span>🎁 حتى المكافأة التالية</span>
@@ -294,7 +282,7 @@ canvas#wc{position:relative;z-index:2;border-radius:50%;display:block}
     <div class="prizes-mini" id="prizesGrid"></div>
   </div>
 
-  <!-- ===== TASKS SCREEN ===== -->
+  <!-- TASKS SCREEN -->
   <div class="screen" id="tasksScreen">
     <div class="section-hd" style="justify-content:space-between">
       <span>📋 المهام اليومية</span>
@@ -303,13 +291,13 @@ canvas#wc{position:relative;z-index:2;border-radius:50%;display:block}
     <div id="tasksList"></div>
   </div>
 
-  <!-- ===== HISTORY SCREEN ===== -->
+  <!-- HISTORY SCREEN -->
   <div class="screen" id="histScreen">
     <div class="section-hd">📜 سجل الأرباح</div>
     <div id="histList"></div>
   </div>
 
-</div><!-- /app -->
+</div>
 
 <!-- BNAV -->
 <div class="bnav" id="bnav" style="display:none">
@@ -376,12 +364,10 @@ canvas#wc{position:relative;z-index:2;border-radius:50%;display:block}
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
 <script>
 /* ============ FIREBASE CONFIG ============ */
 const firebaseConfig = {
-  apiKey: "AIzaSyDiCrZhKVpkYE3HUeeDkAo7xA9I88uZ1i0",
+  apiKey: "AIzaSyDqV9Z9Z9Z9Z9Z9Z9Z9Z9Z9Z9Z9Z9Z9Z9Z",
   authDomain: "abojana-3f0c2.firebaseapp.com",
   databaseURL: "https://abojana-3f0c2-default-rtdb.firebaseio.com",
   projectId: "abojana-3f0c2",
@@ -391,381 +377,510 @@ const firebaseConfig = {
   measurementId: "G-23EYSF1BE0"
 };
 
+// Initialize Firebase
 const app = firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
+const db = firebase.database(app);
 
 /* ============ CONFIG ============ */
 const MAIN_CH_URL = 'https://t.me/YOUR_MAIN_CHANNEL';
 
-// Default data (will be replaced by Firebase)
+// Default data structure
 let CHANNELS = [];
 let PRIZES = [];
-let WEIGHTS = [];
 let TASKS = [];
-
-// Load data from Firebase
-function loadFirebaseData() {
-  // Load channels
-  database.ref('config/channels').on('value', (snapshot) => {
-    if (snapshot.exists()) {
-      CHANNELS = snapshot.val();
-      console.log('Channels loaded from Firebase');
-    } else {
-      console.log('No channels data in Firebase');
-    }
-  });
-
-  // Load prizes
-  database.ref('config/prizes').on('value', (snapshot) => {
-    if (snapshot.exists()) {
-      PRIZES = snapshot.val();
-      console.log('Prizes loaded from Firebase');
-      drawWheel(0);
-      buildPrizesGrid();
-    }
-  });
-
-  // Load weights
-  database.ref('config/weights').on('value', (snapshot) => {
-    if (snapshot.exists()) {
-      WEIGHTS = snapshot.val();
-      console.log('Weights loaded from Firebase');
-    }
-  });
-
-  // Load tasks
-  database.ref('config/tasks').on('value', (snapshot) => {
-    if (snapshot.exists()) {
-      TASKS = snapshot.val();
-      console.log('Tasks loaded from Firebase');
-      buildTasks();
-    }
-  });
-}
+let WEIGHTS = [];
 
 /* ============ STATE ============ */
 let S = {
-  bal:0, spins:3, streak:0, lastDay:null,
-  hist:[], tasks:{}, chJoined:0, allChDone:false,
-  totalEarned:0, pendingCh:-1, isSubbed:false
+  bal: 0, spins: 3, streak: 0, lastDay: null,
+  hist: [], tasks: {}, chJoined: 0, allChDone: false,
+  totalEarned: 0, pendingCh: -1, isSubbed: false
 };
 
-function load(){
-  try{
-    const raw=localStorage.getItem('aj3');
-    if(raw) Object.assign(S,JSON.parse(raw));
-    const today=new Date().toDateString();
-    if(S.lastDay!==today){
-      const yd=new Date(); yd.setDate(yd.getDate()-1);
-      if(S.lastDay) S.streak=(S.lastDay===yd.toDateString())?S.streak+1:0;
-      S.spins=3; S.lastDay=today;
-      Object.keys(S.tasks).forEach(k=>{ if(S.tasks[k]==='daily') delete S.tasks[k]; });
+let spinning = false;
+let firebaseReady = false;
+
+/* ============ FIREBASE LISTENERS ============ */
+function initFirebaseListeners() {
+  // Listen to channels
+  db.ref('config/channels').on('value', (snapshot) => {
+    if (snapshot.exists()) {
+      CHANNELS = snapshot.val();
+      toast('✅ تم تحديث القنوات من Firebase');
+      if (S.isSubbed) buildUI();
+    }
+  }, (error) => {
+    console.error('خطأ في تحميل القنوات:', error);
+  });
+
+  // Listen to prizes
+  db.ref('config/prizes').on('value', (snapshot) => {
+    if (snapshot.exists()) {
+      PRIZES = snapshot.val();
+      toast('✅ تم تحديث الجوائز من Firebase');
+      if (S.isSubbed) {
+        buildPrizesGrid();
+        drawWheel(0);
+      }
+    }
+  }, (error) => {
+    console.error('خطأ في تحميل الجوائز:', error);
+  });
+
+  // Listen to weights
+  db.ref('config/weights').on('value', (snapshot) => {
+    if (snapshot.exists()) {
+      WEIGHTS = snapshot.val();
+      console.log('تم تحديث الأوزان:', WEIGHTS);
+    }
+  }, (error) => {
+    console.error('خطأ في تحميل الأوزان:', error);
+  });
+
+  // Listen to tasks
+  db.ref('config/tasks').on('value', (snapshot) => {
+    if (snapshot.exists()) {
+      TASKS = snapshot.val();
+      toast('✅ تم تحديث المهام من Firebase');
+      if (S.isSubbed) buildTasks();
+    }
+  }, (error) => {
+    console.error('خطأ في تحميل المهام:', error);
+  });
+
+  firebaseReady = true;
+}
+
+/* ============ LOAD & SAVE ============ */
+function load() {
+  try {
+    const raw = localStorage.getItem('aj3');
+    if (raw) Object.assign(S, JSON.parse(raw));
+    const today = new Date().toDateString();
+    if (S.lastDay !== today) {
+      const yd = new Date();
+      yd.setDate(yd.getDate() - 1);
+      if (S.lastDay) S.streak = (S.lastDay === yd.toDateString()) ? S.streak + 1 : 0;
+      S.spins = 3;
+      S.lastDay = today;
+      Object.keys(S.tasks).forEach(k => {
+        if (S.tasks[k] === 'daily') delete S.tasks[k];
+      });
       save();
     }
-  }catch(e){}
+  } catch (e) {
+    console.error('خطأ في التحميل:', e);
+  }
 }
-function save(){ try{localStorage.setItem('aj3',JSON.stringify(S));}catch(e){} }
+
+function save() {
+  try {
+    localStorage.setItem('aj3', JSON.stringify(S));
+  } catch (e) {
+    console.error('خطأ في الحفظ:', e);
+  }
+}
 
 /* ============ INIT ============ */
-window.addEventListener('load',()=>{
-  try{ Telegram?.WebApp?.expand(); }catch(e){}
-  loadFirebaseData();
-  setTimeout(()=>{
-    load();
-    buildPrizesGrid();
-    drawWheel(0);
-    buildTasks();
-    if(S.isSubbed) showApp();
-  }, 1000);
+window.addEventListener('load', () => {
+  try {
+    Telegram?.WebApp?.expand();
+  } catch (e) {}
+  
+  load();
+  initFirebaseListeners();
+  
+  // Wait for Firebase data to load
+  setTimeout(() => {
+    if (firebaseReady && CHANNELS.length > 0 && PRIZES.length > 0) {
+      buildPrizesGrid();
+      drawWheel(0);
+      buildTasks();
+      buildTicker();
+      if (S.isSubbed) showApp();
+    }
+  }, 1500);
 });
 
-function showApp(){
-  document.getElementById('joinScreen').style.display='none';
-  document.getElementById('spinScreen').classList.add('act');
-  document.getElementById('balCard').style.display='flex';
-  document.getElementById('tabsRow').style.display='flex';
-  document.getElementById('bnav').style.display='flex';
-  updateUI(); buildHist();
+function buildTicker() {
+  const ticker = document.getElementById('ticker');
+  ticker.innerHTML = PRIZES
+    .filter(p => p.v > 0)
+    .map(p => `<div class="ticker-item">${p.e} ${p.n}</div>`)
+    .join('');
 }
 
-function updateUI(){
-  document.getElementById('balNum').textContent=fmt(S.bal);
-  document.getElementById('wdBalShow').textContent=fmt(S.bal)+' دينار';
-  document.getElementById('spinsLeft').textContent=S.spins;
-  document.getElementById('streakN').textContent=S.streak;
-  document.getElementById('spinBtn').classList.toggle('dis',S.spins<=0);
-  document.getElementById('nextLbl').textContent=S.spins<=0?'⏰ تجدد كل يوم':'';
-  const mod=S.allChDone?250:Math.min(S.totalEarned%250,250);
-  const pct=S.allChDone?100:(mod/250)*100;
-  document.getElementById('pgFill').style.width=pct+'%';
-  document.getElementById('pgCur').textContent=mod;
+function buildUI() {
+  buildPrizesGrid();
+  buildTasks();
+  buildTicker();
+  drawWheel(0);
 }
-function fmt(n){ return n.toLocaleString('ar-IQ'); }
+
+function showApp() {
+  document.getElementById('joinScreen').style.display = 'none';
+  document.getElementById('spinScreen').classList.add('act');
+  document.getElementById('balCard').style.display = 'flex';
+  document.getElementById('tabsRow').style.display = 'flex';
+  document.getElementById('bnav').style.display = 'flex';
+  updateUI();
+  buildHist();
+}
+
+function updateUI() {
+  document.getElementById('balNum').textContent = fmt(S.bal);
+  document.getElementById('wdBalShow').textContent = fmt(S.bal) + ' دينار';
+  document.getElementById('spinsLeft').textContent = S.spins;
+  document.getElementById('streakN').textContent = S.streak;
+  document.getElementById('spinBtn').classList.toggle('dis', S.spins <= 0);
+  document.getElementById('nextLbl').textContent = S.spins <= 0 ? '⏰ تجدد كل يوم' : '';
+  const mod = S.allChDone ? 250 : Math.min(S.totalEarned % 250, 250);
+  const pct = S.allChDone ? 100 : (mod / 250) * 100;
+  document.getElementById('pgFill').style.width = pct + '%';
+  document.getElementById('pgCur').textContent = mod;
+}
+
+function fmt(n) {
+  return n.toLocaleString('ar-IQ');
+}
 
 /* ============ JOIN ============ */
-function openMainCh(){
-  window.open(MAIN_CH_URL,'_blank');
-  setTimeout(()=>{
-    const b=document.getElementById('verBtn');
-    if(b){
-      b.style.borderColor='#22C55E';
-      b.style.color='#22C55E';
-      b.textContent='✅ تم الاشتراك - اضغط هنا';
-    }
-  },1800);
+function openMainCh() {
+  window.open(MAIN_CH_URL, '_blank');
+  setTimeout(() => {
+    const b = document.getElementById('verBtn');
+    b.style.borderColor = '#22C55E';
+    b.style.color = '#22C55E';
+  }, 1800);
 }
 
-function verifyMain(){
-  console.log('بدء التحقق من الاشتراك');
-  S.isSubbed=true;
-  S.streak=1;
-  S.lastDay=new Date().toDateString();
+function verifyMain() {
+  S.isSubbed = true;
   save();
-  console.log('تم حفظ البيانات');
   toast('✅ أهلاً بك! ابدأ بالدوران 🎉');
-  setTimeout(()=>{
-    console.log('الانتقال للتطبيق');
-    showApp();
-  }, 800);
+  setTimeout(showApp, 700);
 }
 
 /* ============ WHEEL ============ */
-function drawWheel(rot){
-  const cv=document.getElementById('wc'), ctx=cv.getContext('2d');
-  const cx=144,cy=144,r=141, sl=(2*Math.PI)/PRIZES.length;
-  ctx.clearRect(0,0,288,288);
-  PRIZES.forEach((p,i)=>{
-    const s=rot+i*sl-Math.PI/2,e=s+sl;
-    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,s,e);ctx.closePath();
-    ctx.fillStyle=p.c;ctx.fill();
-    ctx.strokeStyle='rgba(0,0,0,.3)';ctx.lineWidth=1.5;ctx.stroke();
-    ctx.save();ctx.translate(cx,cy);ctx.rotate(s+sl/2);
-    ctx.font='17px serif';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText(p.e,r*.63,0);
-    ctx.fillStyle=p.tc;ctx.font='bold 9px Cairo,sans-serif';
-    ctx.fillText(p.v>0?p.v+' د.ع':p.n.slice(0,5),r*.36,0);
+function drawWheel(rot) {
+  const cv = document.getElementById('wc');
+  const ctx = cv.getContext('2d');
+  const cx = 144, cy = 144, r = 141, sl = (2 * Math.PI) / PRIZES.length;
+  ctx.clearRect(0, 0, 288, 288);
+  
+  PRIZES.forEach((p, i) => {
+    const s = rot + i * sl - Math.PI / 2, e = s + sl;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, s, e);
+    ctx.closePath();
+    ctx.fillStyle = p.c;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,.3)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(s + sl / 2);
+    ctx.font = '17px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(p.e, r * 0.63, 0);
+    ctx.fillStyle = p.tc;
+    ctx.font = 'bold 9px Cairo,sans-serif';
+    ctx.fillText(p.v > 0 ? p.v + ' د.ع' : p.n.slice(0, 5), r * 0.36, 0);
     ctx.restore();
   });
-  ctx.beginPath();ctx.arc(cx,cy,29,0,Math.PI*2);
-  ctx.fillStyle='#0A0E27';ctx.fill();
-  ctx.strokeStyle='#FFD700';ctx.lineWidth=2.5;ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.arc(cx, cy, 29, 0, Math.PI * 2);
+  ctx.fillStyle = '#0A0E27';
+  ctx.fill();
+  ctx.strokeStyle = '#FFD700';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
 }
 
-let spinning=false;
-function doSpin(){
-  if(spinning)return;
-  if(S.spins<=0){toast('⏰ لا توجد لفات متبقية اليوم');return;}
-  spinning=true;
+function doSpin() {
+  if (spinning) return;
+  if (S.spins <= 0) {
+    toast('⏰ لا توجد لفات متبقية اليوم');
+    return;
+  }
+  spinning = true;
   document.getElementById('spinBtn').classList.add('dis');
   
-  // ✅ اختيار الجائزة بناءً على الأوزان (طريقة صحيحة)
-  const tot=WEIGHTS.reduce((a,b)=>a+b,0);
-  let rnd=Math.random()*tot;
-  let pi=0;
-  let cumWeight=0;
-  for(let i=0;i<WEIGHTS.length;i++){
-    cumWeight+=WEIGHTS[i];
-    if(rnd<=cumWeight){pi=i;break;}
+  const tot = WEIGHTS.reduce((a, b) => a + b, 0);
+  let rnd = Math.random() * tot;
+  let pi = 0;
+  let cumWeight = 0;
+  for (let i = 0; i < WEIGHTS.length; i++) {
+    cumWeight += WEIGHTS[i];
+    if (rnd <= cumWeight) {
+      pi = i;
+      break;
+    }
   }
   
-  // ✅ حساب الزاوية المستهدفة
-  // المؤشر يشير للأعلى (Math.PI/2)
-  // كل جائزة تحتل زاوية = 2π / عدد الجوائز
-  const sliceAngle=(2*Math.PI)/PRIZES.length;
-  // الزاوية الفعلية للجائزة المختارة
-  const prizeAngle=pi*sliceAngle;
-  // الزاوية المستهدفة = عدد لفات كاملة + (π/2 - زاوية الجائزة)
-  // π/2 لأن المؤشر في الأعلى
-  const rotations=6+Math.random()*3;
-  const target=2*Math.PI*rotations+(Math.PI/2)-prizeAngle;
+  const sliceAngle = (2 * Math.PI) / PRIZES.length;
+  const prizeAngle = pi * sliceAngle;
+  const rotations = 6 + Math.random() * 3;
+  const target = 2 * Math.PI * rotations + (Math.PI / 2) - prizeAngle;
   
-  const dur=4400+Math.random()*1200;
-  let t0=null;
-  const ease=x=>1-Math.pow(1-x,4);
-  function frame(ts){
-    if(!t0)t0=ts;
-    const prog=Math.min((ts-t0)/dur,1);
-    drawWheel(target*ease(prog));
-    if(prog<1){requestAnimationFrame(frame);return;}
-    spinning=false;
-    const pr=PRIZES[pi];
+  const dur = 4400 + Math.random() * 1200;
+  let t0 = null;
+  const ease = x => 1 - Math.pow(1 - x, 4);
+  
+  function frame(ts) {
+    if (!t0) t0 = ts;
+    const prog = Math.min((ts - t0) / dur, 1);
+    drawWheel(target * ease(prog));
+    if (prog < 1) {
+      requestAnimationFrame(frame);
+      return;
+    }
+    spinning = false;
+    const pr = PRIZES[pi];
     S.spins--;
-    if(pr.extra==='free')S.spins++;
-    if(pr.v>0){S.bal+=pr.v;S.totalEarned+=pr.v;checkChTrigger();}
-    S.hist.unshift({e:pr.e,n:pr.n,v:pr.v,ts:new Date().toLocaleString('ar-IQ')});
-    save();updateUI();buildHist();
+    if (pr.extra === 'free') S.spins++;
+    if (pr.v > 0) {
+      S.bal += pr.v;
+      S.totalEarned += pr.v;
+      checkChTrigger();
+    }
+    S.hist.unshift({
+      e: pr.e,
+      n: pr.n,
+      v: pr.v,
+      ts: new Date().toLocaleString('ar-IQ')
+    });
+    save();
+    updateUI();
+    buildHist();
     showResult(pr);
   }
   requestAnimationFrame(frame);
 }
 
 /* ============ CHANNEL TRIGGER ============ */
-function checkChTrigger(){
-  if(S.allChDone)return;
-  const milestone=Math.floor(S.totalEarned/250);
-  if(milestone>S.chJoined&&S.chJoined<CHANNELS.length){
-    S.pendingCh=S.chJoined;save();
+function checkChTrigger() {
+  if (S.allChDone) return;
+  const milestone = Math.floor(S.totalEarned / 250);
+  if (milestone > S.chJoined && S.chJoined < CHANNELS.length) {
+    S.pendingCh = S.chJoined;
+    save();
   }
 }
 
-function showResult(pr){
-  document.getElementById('resEm').textContent=pr.e;
-  // ✅ FIX: تحقق من القيمة أولاً، ثم من الجائزة المجانية
-  if(pr.v>0){
-    document.getElementById('resTtl').textContent='مبروك! 🎊';
-    document.getElementById('resAmt').innerHTML=`+<span>${fmt(pr.v)}</span> دينار عراقي`;
-  } else if(pr.extra==='free'){
-    document.getElementById('resTtl').textContent='🎁 لفة مجانية!';
-    document.getElementById('resAmt').innerHTML=`<span style="font-size:19px">${pr.n}</span>`;
+function showResult(pr) {
+  document.getElementById('resEm').textContent = pr.e;
+  if (pr.v > 0) {
+    document.getElementById('resTtl').textContent = 'مبروك! 🎊';
+    document.getElementById('resAmt').innerHTML = `+<span>${fmt(pr.v)}</span> دينار عراقي`;
+  } else if (pr.extra === 'free') {
+    document.getElementById('resTtl').textContent = '🎁 لفة مجانية!';
+    document.getElementById('resAmt').innerHTML = `<span style="font-size:19px">${pr.n}</span>`;
   } else {
-    document.getElementById('resTtl').textContent='حظاً أوفر 😊';
-    document.getElementById('resAmt').innerHTML=`<span style="font-size:19px">${pr.n}</span>`;
+    document.getElementById('resTtl').textContent = 'حظاً أوفر 😊';
+    document.getElementById('resAmt').innerHTML = `<span style="font-size:19px">${pr.n}</span>`;
   }
-  document.getElementById('resTot').textContent=`رصيدك الكلي: ${fmt(S.bal)} دينار`;
-  if(pr.v>0||pr.extra)spawnConf();
+  document.getElementById('resTot').textContent = `رصيدك الكلي: ${fmt(S.bal)} دينار`;
+  if (pr.v > 0 || pr.extra) spawnConf();
   showOv('resOv');
 }
 
-function closeRes(){
+function closeRes() {
   closeOv('resOv');
-  document.getElementById('spinBtn').classList.toggle('dis',S.spins<=0);
-  if(S.pendingCh>=0&&!S.allChDone)setTimeout(openChGate,500);
+  document.getElementById('spinBtn').classList.toggle('dis', S.spins <= 0);
+  if (S.pendingCh >= 0 && !S.allChDone) setTimeout(openChGate, 500);
 }
 
 /* ============ CHANNEL GATE ============ */
-function openChGate(){
-  const idx=S.pendingCh;
-  if(idx<0||idx>=CHANNELS.length)return;
-  const ch=CHANNELS[idx];
-  document.getElementById('chAv').textContent=ch.emoji;
-  document.getElementById('chTtl').textContent=ch.name;
-  document.getElementById('chIdxShow').textContent=idx+1;
-  document.getElementById('chTotShow').textContent=CHANNELS.length;
-  document.getElementById('chLeft').textContent=CHANNELS.length-(idx+1);
-  const dots=document.getElementById('chDots');
-  dots.innerHTML=CHANNELS.map((_,i)=>`<div class="ch-dot ${i<idx?'dn':i===idx?'cr':''}"></div>`).join('');
-  document.getElementById('chJoinBtn').onclick=()=>window.open(ch.url,'_blank');
+function openChGate() {
+  const idx = S.pendingCh;
+  if (idx < 0 || idx >= CHANNELS.length) return;
+  const ch = CHANNELS[idx];
+  document.getElementById('chAv').textContent = ch.emoji;
+  document.getElementById('chTtl').textContent = ch.name;
+  document.getElementById('chIdxShow').textContent = idx + 1;
+  document.getElementById('chTotShow').textContent = CHANNELS.length;
+  document.getElementById('chLeft').textContent = CHANNELS.length - (idx + 1);
+  const dots = document.getElementById('chDots');
+  dots.innerHTML = CHANNELS.map((_, i) => `<div class="ch-dot ${i < idx ? 'dn' : i === idx ? 'cr' : ''}"></div>`).join('');
+  document.getElementById('chJoinBtn').onclick = () => window.open(ch.url, '_blank');
   showOv('chOv');
 }
 
-function doneChannel(){
+function doneChannel() {
   S.chJoined++;
-  if(S.chJoined>=CHANNELS.length){S.allChDone=true;}
-  S.pendingCh=-1;
-  save();updateUI();closeOv('chOv');
-  toast(S.allChDone?'🎉 انضممت لكل القنوات! لن نطلب ذلك مجدداً.':
-    `✅ رائع! ${S.chJoined} من ${CHANNELS.length} قنوات`);
+  if (S.chJoined >= CHANNELS.length) {
+    S.allChDone = true;
+  }
+  S.pendingCh = -1;
+  save();
+  updateUI();
+  closeOv('chOv');
+  toast(S.allChDone ? '🎉 انضممت لكل القنوات! لن نطلب ذلك مجدداً.' : `✅ رائع! ${S.chJoined} من ${CHANNELS.length} قنوات`);
 }
 
 /* ============ TASKS ============ */
-function buildTasks(){
-  document.getElementById('tasksList').innerHTML=TASKS.map(t=>{
-    const done=!!S.tasks[t.id];
-    return `<div class="task-item ${done?'done':''}">
+function buildTasks() {
+  document.getElementById('tasksList').innerHTML = TASKS.map(t => {
+    const done = !!S.tasks[t.id];
+    return `<div class="task-item ${done ? 'done' : ''}">
       <div class="task-ico">${t.e}</div>
       <div class="task-body">
         <div class="task-name">${t.n}</div>
         <div class="task-desc">${t.d}</div>
       </div>
       <div class="task-rhs">
-        <div class="task-rwd">+50 د.ع</div>
-        ${done?'<div style="font-size:20px">✅</div>':`<button class="task-btn" onclick="doTask('${t.id}','${t.e}','${t.n}')">ابدأ</button>`}
+        <div class="task-rwd">+${t.r || 50} د.ع</div>
+        ${done ? '<div style="font-size:20px">✅</div>' : `<button class="task-btn" onclick="doTask('${t.id}','${t.e}','${t.n}',${t.r || 50})">ابدأ</button>`}
       </div>
     </div>`;
   }).join('');
 }
 
-function doTask(id,e,n){
-  if(S.tasks[id])return;
-  S.tasks[id]=true;S.bal+=50;S.totalEarned+=50;
-  S.hist.unshift({e,n:'مهمة: '+n,v:50,ts:new Date().toLocaleString('ar-IQ')});
-  checkChTrigger();save();updateUI();buildTasks();buildHist();
-  toast('✅ أحسنت! ربحت 50 دينار 🎉');
-  if(S.pendingCh>=0&&!S.allChDone)setTimeout(openChGate,1100);
+function doTask(id, e, n, reward) {
+  if (S.tasks[id]) return;
+  S.tasks[id] = true;
+  S.bal += reward;
+  S.totalEarned += reward;
+  S.hist.unshift({
+    e,
+    n: 'مهمة: ' + n,
+    v: reward,
+    ts: new Date().toLocaleString('ar-IQ')
+  });
+  checkChTrigger();
+  save();
+  updateUI();
+  buildTasks();
+  buildHist();
+  toast('✅ أحسنت! ربحت ' + reward + ' دينار 🎉');
+  if (S.pendingCh >= 0 && !S.allChDone) setTimeout(openChGate, 1100);
 }
 
 /* ============ HISTORY ============ */
-function buildHist(){
-  const el=document.getElementById('histList');
-  if(!S.hist.length){
-    el.innerHTML='<div class="empty-st"><span>📜</span><div>لا توجد سجلات بعد</div><div>ابدأ بالدوران أو أنجز مهمة!</div></div>';
+function buildHist() {
+  const el = document.getElementById('histList');
+  if (!S.hist.length) {
+    el.innerHTML = '<div class="empty-st"><span>📜</span><div>لا توجد سجلات بعد</div><div>ابدأ بالدوران أو أنجز مهمة!</div></div>';
     return;
   }
-  el.innerHTML=S.hist.slice(0,30).map(h=>`
+  el.innerHTML = S.hist.slice(0, 30).map(h => `
     <div class="hist-item">
       <div class="hist-ico">${h.e}</div>
       <div class="hist-body">
         <div class="hist-nm">${h.n}</div>
         <div class="hist-dt">${h.ts}</div>
       </div>
-      <div class="hist-v ${h.v<0?'neg':''}">${h.v>0?'+'+fmt(h.v):h.v<0?fmt(h.v):'🎁'} ${h.v!==0?'د.ع':''}</div>
+      <div class="hist-v ${h.v < 0 ? 'neg' : ''}">${h.v > 0 ? '+' + fmt(h.v) : h.v < 0 ? fmt(h.v) : '🎁'} ${h.v !== 0 ? 'د.ع' : ''}</div>
     </div>`).join('');
 }
 
 /* ============ PRIZES ============ */
-function buildPrizesGrid(){
-  document.getElementById('prizesGrid').innerHTML=
-    PRIZES.filter(p=>p.v>0).map(p=>`<div class="pm-item"><div class="pm-e">${p.e}</div><div class="pm-v">${fmt(p.v)} د.ع</div></div>`).join('');
+function buildPrizesGrid() {
+  document.getElementById('prizesGrid').innerHTML = PRIZES
+    .filter(p => p.v > 0)
+    .map(p => `<div class="pm-item"><div class="pm-e">${p.e}</div><div class="pm-v">${fmt(p.v)} د.ع</div></div>`)
+    .join('');
 }
 
 /* ============ WITHDRAW ============ */
-function openWd(){ document.getElementById('wdBalShow').textContent=fmt(S.bal)+' دينار';showOv('wdOv'); }
-function submitWd(){
-  const amt=parseInt(document.getElementById('wdAmt').value);
-  const meth=document.getElementById('wdMeth').value;
-  const acc=document.getElementById('wdAcc').value.trim();
-  if(!amt||amt<1000){toast('⚠️ الحد الأدنى 1000 دينار');return;}
-  if(amt>S.bal){toast('⚠️ رصيدك غير كافٍ');return;}
-  if(!meth){toast('⚠️ اختر طريقة الدفع');return;}
-  if(!acc){toast('⚠️ أدخل رقم الحساب');return;}
-  S.bal-=amt;
-  S.hist.unshift({e:'💸',n:'سحب - '+meth,v:-amt,ts:new Date().toLocaleString('ar-IQ')});
-  save();updateUI();buildHist();closeOv('wdOv');
-  document.getElementById('wdAmt').value='';
-  document.getElementById('wdAcc').value='';
+function openWd() {
+  document.getElementById('wdBalShow').textContent = fmt(S.bal) + ' دينار';
+  showOv('wdOv');
+}
+
+function submitWd() {
+  const amt = parseInt(document.getElementById('wdAmt').value);
+  const meth = document.getElementById('wdMeth').value;
+  const acc = document.getElementById('wdAcc').value.trim();
+  if (!amt || amt < 1000) {
+    toast('⚠️ الحد الأدنى 1000 دينار');
+    return;
+  }
+  if (amt > S.bal) {
+    toast('⚠️ رصيدك غير كافٍ');
+    return;
+  }
+  if (!meth) {
+    toast('⚠️ اختر طريقة الدفع');
+    return;
+  }
+  if (!acc) {
+    toast('⚠️ أدخل رقم الحساب');
+    return;
+  }
+  S.bal -= amt;
+  S.hist.unshift({
+    e: '💸',
+    n: 'سحب - ' + meth,
+    v: -amt,
+    ts: new Date().toLocaleString('ar-IQ')
+  });
+  save();
+  updateUI();
+  buildHist();
+  closeOv('wdOv');
+  document.getElementById('wdAmt').value = '';
+  document.getElementById('wdAcc').value = '';
   toast('✅ طلب السحب أُرسل! سيُراجع خلال 24–48 ساعة');
 }
 
 /* ============ NAVIGATION ============ */
-function goTab(el,key){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('act'));
+function goTab(el, key) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('act'));
   el.classList.add('act');
-  document.querySelectorAll('.bni').forEach((b,i)=>b.classList.toggle('act',['spin','tasks','hist'][i]===key));
+  document.querySelectorAll('.bni').forEach((b, i) => b.classList.toggle('act', ['spin', 'tasks', 'hist'][i] === key));
   showScreen(key);
 }
-function goNav(el,key){
-  document.querySelectorAll('.bni').forEach(b=>b.classList.remove('act'));
+
+function goNav(el, key) {
+  document.querySelectorAll('.bni').forEach(b => b.classList.remove('act'));
   el.classList.add('act');
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('act',['spin','tasks','hist'][i]===key));
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('act', ['spin', 'tasks', 'hist'][i] === key));
   showScreen(key);
 }
-function showScreen(key){
-  const map={spin:'spinScreen',tasks:'tasksScreen',hist:'histScreen'};
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('act'));
+
+function showScreen(key) {
+  const map = { spin: 'spinScreen', tasks: 'tasksScreen', hist: 'histScreen' };
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('act'));
   document.getElementById(map[key]).classList.add('act');
-  if(key==='hist')buildHist();
-  if(key==='tasks')buildTasks();
+  if (key === 'hist') buildHist();
+  if (key === 'tasks') buildTasks();
 }
 
 /* ============ OVERLAYS ============ */
-function showOv(id){document.getElementById(id).classList.add('show');}
-function closeOv(id){document.getElementById(id).classList.remove('show');}
+function showOv(id) {
+  document.getElementById(id).classList.add('show');
+}
+
+function closeOv(id) {
+  document.getElementById(id).classList.remove('show');
+}
 
 /* ============ CONFETTI ============ */
-function spawnConf(){
-  const c=document.getElementById('confBox');c.innerHTML='';
-  const cols=['#FFD700','#FFC700','#FF9500','#10B981','#06B6D4','#8B5CF6','#EF4444'];
-  for(let i=0;i<34;i++){
-    const p=document.createElement('div');p.className='conf-piece';
-    p.style.cssText=`left:${Math.random()*100}%;background:${cols[i%cols.length]};animation-delay:${Math.random()*.5}s;animation-duration:${1.2+Math.random()*.9}s;`;
+function spawnConf() {
+  const c = document.getElementById('confBox');
+  c.innerHTML = '';
+  const cols = ['#FFD700', '#FFC700', '#FF9500', '#10B981', '#06B6D4', '#8B5CF6', '#EF4444'];
+  for (let i = 0; i < 34; i++) {
+    const p = document.createElement('div');
+    p.className = 'conf-piece';
+    p.style.cssText = `left:${Math.random() * 100}%;background:${cols[i % cols.length]};animation-delay:${Math.random() * 0.5}s;animation-duration:${1.2 + Math.random() * 0.9}s;`;
     c.appendChild(p);
   }
 }
 
 /* ============ TOAST ============ */
-function toast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;
-  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
 }
 </script>
 </body>
