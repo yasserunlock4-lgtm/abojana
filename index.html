@@ -76,19 +76,18 @@ canvas#wc { position: relative; z-index: 2; border-radius: 50%; display: block; 
 .screen.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.list-item { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 14px; backdrop-filter: blur(10px); transition: 0.3s; }
-.list-item:hover { border-color: var(--primary); transform: translateX(-4px); }
+.task-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 14px; backdrop-filter: blur(10px); transition: 0.3s; }
+.task-card:hover { border-color: var(--primary); transform: translateX(-4px); }
 
-.item-icon { width: 48px; height: 48px; border-radius: 14px; background: var(--glass); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
-.item-content { flex: 1; }
-.item-title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
-.item-desc { font-size: 11px; color: var(--text-muted); }
+.task-icon { width: 48px; height: 48px; border-radius: 14px; background: var(--glass); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.task-info { flex: 1; }
+.task-name { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.task-desc { font-size: 11px; color: var(--text-muted); }
 
-.item-action { text-align: left; }
-.reward-tag { font-size: 12px; font-weight: 900; color: var(--accent); margin-bottom: 6px; display: block; }
-.action-btn { background: var(--primary); border: none; border-radius: 10px; padding: 8px 16px; color: #fff; font-family: 'Cairo'; font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-.action-btn:active { transform: scale(0.95); }
-.action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.task-reward { text-align: left; }
+.reward-amount { font-size: 12px; font-weight: 900; color: var(--accent); margin-bottom: 6px; display: block; }
+.task-btn { background: var(--primary); border: none; border-radius: 10px; padding: 8px 16px; color: #fff; font-family: 'Cairo'; font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+.task-btn:active { transform: scale(0.95); }
 
 .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border-top: 1px solid var(--glass-border); display: flex; padding: 12px 16px calc(12px + var(--safe)); z-index: 100; justify-content: space-around; }
 .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); cursor: pointer; transition: 0.3s; position: relative; }
@@ -117,10 +116,6 @@ canvas#wc { position: relative; z-index: 2; border-radius: 50%; display: block; 
 .channel-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--glass-border); }
 .channel-item-title { font-weight: 700; margin-bottom: 4px; }
 .channel-item-desc { font-size: 12px; color: var(--text-muted); }
-
-.task-type-badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 8px; margin-bottom: 6px; font-weight: 700; }
-.task-type-telegram { background: rgba(0, 136, 204, 0.2); color: #0088cc; }
-.task-type-instagram { background: rgba(225, 48, 108, 0.2); color: #e1306c; }
 
 </style>
 </head>
@@ -172,7 +167,7 @@ canvas#wc { position: relative; z-index: 2; border-radius: 50%; display: block; 
 
   <div id="tasksScreen" class="screen">
     <h3 style="font-size: 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; padding-top: 10px;">✅ المهام المتاحة</h3>
-    <div id="tasksList" style="min-height: 200px;"></div>
+    <div id="tasksContainer"></div>
   </div>
 
   <div class="bottom-nav">
@@ -237,7 +232,6 @@ canvas#wc { position: relative; z-index: 2; border-radius: 50%; display: block; 
 <div id="toast" class="toast"></div>
 
 <script>
-// ============ FIREBASE CONFIG ============
 const firebaseConfig = {
   apiKey: "AIzaSyDiCrZhKVpkYE3HUeeDkAo7xA9I88uZ1i0",
   authDomain: "abojana-3f0c2.firebaseapp.com",
@@ -248,7 +242,6 @@ const firebaseConfig = {
   appId: "1:819681544560:web:be2249a51d0c79ee21a7b5"
 };
 
-// ============ GAME STATE ============
 let S = {
   bal: 0, spins: 5, level: 1, xp: 0, 
   totalEarned: 0, subscribedChannels: [],
@@ -276,7 +269,6 @@ let isSpinning = false;
 let wheelRotation = 0;
 let db = null;
 
-// ============ INITIALIZATION ============
 window.onload = function() {
   loadData();
   initWheel();
@@ -287,11 +279,47 @@ window.onload = function() {
       firebase.initializeApp(firebaseConfig);
     }
     db = firebase.database();
-    syncChannels();
-    syncInitChannels();
-    syncTasks();
+    
+    // Load initial channels
+    db.ref('initial_channels').once('value', function(snap) {
+      INIT_CHANNELS = [];
+      const data = snap.val();
+      if(data) {
+        Object.keys(data).forEach(function(id) {
+          INIT_CHANNELS.push(Object.assign({id: id}, data[id]));
+        });
+      }
+      if(!S.initialSubscribed) {
+        buildInitChannelsList();
+      }
+    });
+    
+    // Load tasks
+    db.ref('tasks').once('value', function(snap) {
+      TASKS = [];
+      const data = snap.val();
+      if(data) {
+        Object.keys(data).forEach(function(id) {
+          TASKS.push(Object.assign({id: id}, data[id]));
+        });
+      }
+      console.log('Tasks loaded:', TASKS);
+      renderTasks();
+    });
+    
+    // Load channels
+    db.ref('channels').once('value', function(snap) {
+      CHANNELS = [];
+      const data = snap.val();
+      if(data) {
+        Object.keys(data).forEach(function(id) {
+          CHANNELS.push(Object.assign({id: id}, data[id]));
+        });
+      }
+    });
+    
   } catch(e) {
-    console.error('Firebase init error:', e);
+    console.error('Firebase error:', e);
   }
   
   if(!S.initialSubscribed) {
@@ -310,9 +338,7 @@ function loadData() {
         p.lastSpinDate = today;
       }
       S = Object.assign({}, S, p);
-    } catch(e) {
-      console.error('Data parse error:', e);
-    }
+    } catch(e) {}
   }
 }
 
@@ -320,51 +346,6 @@ function saveData() {
   localStorage.setItem('abojana_tasks_data', JSON.stringify(S));
 }
 
-function syncChannels() {
-  if(!db) return;
-  db.ref('channels').on('value', function(snap) {
-    CHANNELS = [];
-    const data = snap.val();
-    if(data) {
-      Object.keys(data).forEach(function(id) {
-        CHANNELS.push(Object.assign({id: id}, data[id]));
-      });
-    }
-  });
-}
-
-function syncInitChannels() {
-  if(!db) return;
-  db.ref('initial_channels').on('value', function(snap) {
-    INIT_CHANNELS = [];
-    const data = snap.val();
-    if(data) {
-      Object.keys(data).forEach(function(id) {
-        INIT_CHANNELS.push(Object.assign({id: id}, data[id]));
-      });
-    }
-    if(!S.initialSubscribed) {
-      buildInitChannelsList();
-    }
-  });
-}
-
-function syncTasks() {
-  if(!db) return;
-  db.ref('tasks').on('value', function(snap) {
-    TASKS = [];
-    const data = snap.val();
-    if(data) {
-      Object.keys(data).forEach(function(id) {
-        TASKS.push(Object.assign({id: id}, data[id]));
-      });
-    }
-    console.log('Tasks synced:', TASKS.length);
-    buildTasksList();
-  });
-}
-
-// ============ UI CONTROLS ============
 function updateUI() {
   document.getElementById('balNum').textContent = S.bal.toLocaleString();
   document.getElementById('spinsNum').textContent = S.spins;
@@ -408,7 +389,6 @@ function toast(msg) {
   }
 }
 
-// ============ INITIAL CHANNELS ============
 function buildInitChannelsList() {
   const list = document.getElementById('initChannelsList');
   if(!list) return;
@@ -430,35 +410,29 @@ function subscribeToInitChannels() {
   toast('✅ تم الاشتراك! استمتع باللعبة');
 }
 
-// ============ TASKS ============
-function buildTasksList() {
-  const list = document.getElementById('tasksList');
-  if(!list) return;
+function renderTasks() {
+  const container = document.getElementById('tasksContainer');
+  if(!container) return;
   
-  if(TASKS.length === 0) {
-    list.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">' +
-      '<div style="font-size: 40px; margin-bottom: 10px;">📋</div>' +
-      '<p>جاري تحميل المهام...</p>' +
-    '</div>';
+  if(!TASKS || TASKS.length === 0) {
+    container.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: var(--text-muted);"><div style="font-size: 40px; margin-bottom: 10px;">📋</div><p>لا توجد مهام متاحة حالياً</p></div>';
     return;
   }
   
-  list.innerHTML = TASKS.map(function(t) {
-    const isDone = S.completedTasks[t.id];
-    const typeClass = t.type === 'instagram' ? 'task-type-instagram' : 'task-type-telegram';
-    const typeName = t.type === 'instagram' ? 'إنستغرام' : 'تيليجرام';
+  container.innerHTML = TASKS.map(function(task) {
+    const isDone = S.completedTasks[task.id];
+    const typeEmoji = task.type === 'instagram' ? '📸' : '📱';
     
-    return '<div class="list-item">' +
-      '<div class="item-icon">' + (t.emoji || '📱') + '</div>' +
-      '<div class="item-content">' +
-        '<div class="item-title">' + t.name + '</div>' +
-        '<div class="item-desc">' + t.description + '</div>' +
-        '<span class="task-type-badge ' + typeClass + '">' + typeName + '</span>' +
+    return '<div class="task-card">' +
+      '<div class="task-icon">' + (task.emoji || typeEmoji) + '</div>' +
+      '<div class="task-info">' +
+        '<div class="task-name">' + task.name + '</div>' +
+        '<div class="task-desc">' + task.description + '</div>' +
       '</div>' +
-      '<div class="item-action">' +
-        '<span class="reward-tag">+' + t.reward + ' د.ع</span>' +
+      '<div class="task-reward">' +
+        '<span class="reward-amount">+' + task.reward + ' د.ع</span>' +
         (isDone ? '<span style="color: var(--primary); font-size: 12px; font-weight: 900;">✅ تم</span>' : 
-        '<button class="action-btn" onclick="completeTask(\'' + t.id + '\', ' + t.reward + ', \'' + t.url + '\')">تنفيذ</button>') +
+        '<button class="task-btn" onclick="completeTask(\'' + task.id + '\', ' + task.reward + ', \'' + task.url + '\')">تنفيذ</button>') +
       '</div>' +
     '</div>';
   }).join('');
@@ -479,11 +453,10 @@ function completeTask(id, reward, url) {
     toast('✅ تم تنفيذ المهمة! ربحت ' + reward + ' دينار');
     saveData();
     updateUI();
-    buildTasksList();
+    renderTasks();
   }, 2000);
 }
 
-// ============ WHEEL LOGIC ============
 const canvas = document.getElementById('wc');
 const ctx = canvas ? canvas.getContext('2d') : null;
 
@@ -637,7 +610,6 @@ function verifyChannel() {
   }
 }
 
-// ============ WITHDRAW ============
 function processWithdraw() {
   const phone = document.getElementById('wdPhone').value;
   if(!phone || phone.length < 10) return toast('⚠️ أدخل رقم هاتف صحيح');
@@ -647,7 +619,6 @@ function processWithdraw() {
   closeOv('wdOv');
 }
 
-// ============ EFFECTS ============
 function spawnConfetti() {
   for(let i=0; i<40; i++) {
     const c = document.createElement('div');
