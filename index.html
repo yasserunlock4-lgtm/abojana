@@ -1,643 +1,142 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-  <title>أبو جنة | اللعبة الاحترافية 💎</title>
-  
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-<style>
-:root{
-  --primary: #6366f1; --primary-dark: #4f46e5;
-  --secondary: #ec4899; --accent: #f59e0b;
-  --bg: #0f172a; --card-bg: rgba(30, 41, 59, 0.7);
-  --text: #f8fafc; --text-muted: #94a3b8;
-  --gold: linear-gradient(135deg, #fbbf24, #d97706);
-  --glass: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --safe: env(safe-area-inset-bottom, 0px);
-}
-
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{min-height:100vh;background: var(--bg);font-family:'Cairo',sans-serif;color:var(--text);overflow-x:hidden}
-
-body::before {
-  content: ''; position: fixed; inset: 0;
-  background: radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-              radial-gradient(circle at 80% 70%, rgba(236, 72, 153, 0.15) 0%, transparent 50%);
-  z-index: -1;
-}
-
-.app{position:relative;z-index:1;max-width:430px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:calc(80px + var(--safe))}
-
-.header {
-  padding: 20px 16px; display: flex; justify-content: space-between; align-items: center;
-}
-.brand { display: flex; align-items: center; gap: 10px; }
-.brand-img { width: 45px; height: 45px; border-radius: 12px; background: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 0 20px rgba(251, 191, 36, 0.3); }
-.brand-name { font-size: 20px; font-weight: 900; background: var(--gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
-.level-badge { background: var(--glass); border: 1px solid var(--glass-border); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; backdrop-filter: blur(10px); }
-.level-badge span { color: var(--accent); }
-
-.stats-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 12px; margin: 0 16px 20px; }
-.stat-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 16px; backdrop-filter: blur(15px); position: relative; overflow: hidden; }
-
-.bal-label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
-.bal-value { font-size: 28px; font-weight: 900; color: #fff; margin: 4px 0; display: flex; align-items: baseline; gap: 4px; }
-.bal-value small { font-size: 12px; color: var(--text-muted); }
-
-.streak-box { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 12px; font-weight: 700; color: var(--accent); }
-
-.wd-btn { width: 100%; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border: none; border-radius: 14px; padding: 12px; color: #fff; font-family: 'Cairo'; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
-.wd-btn:active { transform: scale(0.96); }
-
-.wheel-section { position: relative; display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; }
-.wheel-container { position: relative; width: 310px; height: 310px; border-radius: 50%; padding: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); box-shadow: 0 0 40px rgba(0,0,0,0.3); }
-
-.wheel-glow { position: absolute; inset: -5px; border-radius: 50%; background: conic-gradient(from 0deg, var(--primary), var(--secondary), var(--accent), var(--primary)); animation: rotateGlow 4s linear infinite; opacity: 0.5; filter: blur(10px); }
-@keyframes rotateGlow { to { transform: rotate(360deg); } }
-
-canvas#wc { position: relative; z-index: 2; border-radius: 50%; display: block; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
-
-.wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); z-index: 10; font-size: 32px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5)); }
-.wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; width: 70px; height: 70px; border-radius: 50%; background: #fff; border: 4px solid var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 30px rgba(255,255,255,0.2); transition: 0.2s; }
-.wheel-center:active { transform: translate(-50%, -50%) scale(0.9); }
-.wheel-center span { font-size: 10px; font-weight: 900; color: var(--bg); line-height: 1.1; text-align: center; }
-
-.spins-badge { margin-top: 20px; background: var(--glass); padding: 8px 20px; border-radius: 30px; font-size: 14px; font-weight: 700; border: 1px solid var(--glass-border); }
-.spins-badge strong { color: var(--accent); font-size: 18px; margin: 0 4px; }
-
-.screen { display: none; padding: 0 16px; animation: fadeIn 0.4s ease; flex: 1; overflow-y: auto; }
-.screen.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-.task-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 20px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 14px; backdrop-filter: blur(10px); transition: 0.3s; }
-.task-card:hover { border-color: var(--primary); transform: translateX(-4px); }
-
-.task-icon { width: 48px; height: 48px; border-radius: 14px; background: var(--glass); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
-.task-info { flex: 1; }
-.task-name { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
-.task-desc { font-size: 11px; color: var(--text-muted); }
-
-.task-reward { text-align: left; }
-.reward-amount { font-size: 12px; font-weight: 900; color: var(--accent); margin-bottom: 6px; display: block; }
-.task-btn { background: var(--primary); border: none; border-radius: 10px; padding: 8px 16px; color: #fff; font-family: 'Cairo'; font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-.task-btn:active { transform: scale(0.95); }
-
-.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border-top: 1px solid var(--glass-border); display: flex; padding: 12px 16px calc(12px + var(--safe)); z-index: 100; justify-content: space-around; }
-.nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); cursor: pointer; transition: 0.3s; position: relative; }
-.nav-icon { font-size: 22px; opacity: 0.5; transition: 0.3s; }
-.nav-label { font-size: 10px; font-weight: 700; }
-.nav-item.active { color: #fff; }
-.nav-item.active .nav-icon { opacity: 1; transform: translateY(-4px); filter: drop-shadow(0 0 8px var(--primary)); }
-.nav-item.active::after { content: ''; position: absolute; top: -12px; width: 4px; height: 4px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 10px var(--primary); }
-
-.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: 0.3s; }
-.overlay.show { opacity: 1; pointer-events: all; }
-.modal { background: #1e293b; border: 1px solid var(--glass-border); border-radius: 32px; padding: 32px 24px; width: 100%; max-width: 360px; text-align: center; transform: scale(0.8); transition: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.overlay.show .modal { transform: scale(1); }
-
-.modal-icon { font-size: 64px; margin-bottom: 16px; display: block; }
-.modal-title { font-size: 24px; font-weight: 900; margin-bottom: 8px; }
-.modal-body { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
-.modal-btn { width: 100%; background: var(--primary); border: none; border-radius: 16px; padding: 14px; color: #fff; font-family: 'Cairo'; font-weight: 700; font-size: 16px; cursor: pointer; margin-bottom: 10px; }
-
-.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: rgba(255,255,255,0.95); color: #000; padding: 12px 24px; border-radius: 16px; font-size: 14px; font-weight: 700; z-index: 1000; transition: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-.toast.show { transform: translateX(-50%) translateY(0); }
-
-.confetti { position: fixed; width: 10px; height: 10px; background: #f00; z-index: 300; pointer-events: none; }
-
-.channel-list { max-height: 400px; overflow-y: auto; margin: 20px 0; }
-.channel-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--glass-border); }
-.channel-item-title { font-weight: 700; margin-bottom: 4px; }
-.channel-item-desc { font-size: 12px; color: var(--text-muted); }
-
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>أبو جنة × فوريو</title>
+  <meta name="theme-color" content="#1a0f2e" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="bg-glow glow-1"></div>
+  <div class="bg-glow glow-2"></div>
 
-<div class="app">
-  <div class="header">
-    <div class="brand">
-      <div class="brand-img">🎡</div>
-      <div class="brand-name">أبو جنة</div>
-    </div>
-    <div class="level-badge">المستوى <span id="levelNum">1</span> 🏆</div>
-  </div>
+  <div class="app">
+    <header class="hero card">
+      <div class="hero-top">
+        <div>
+          <h1>🔥 أبو جنة × فوريو</h1>
+          <p class="sub">اجمع نقاط، افتح صناديق، ونفّذ المهام اليومية</p>
+        </div>
+        <div class="badge-live">VIP</div>
+      </div>
 
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="bal-label">الرصيد الكلي</div>
-      <div class="bal-value"><span id="balNum">0</span> <small>د.ع</small></div>
-      <div class="streak-box">🔥 نشاطك: <span id="streakNum">0</span></div>
-    </div>
-    <div class="stat-card" style="display: flex; align-items: center;">
-      <button class="wd-btn" onclick="showOv('wdOv')">سحب 💸</button>
-    </div>
-  </div>
-
-  <div id="mainScreen" class="screen active" style="display: block;">
-    <div class="wheel-section">
-      <div class="wheel-container">
-        <div class="wheel-glow"></div>
-        <canvas id="wc" width="290" height="290"></canvas>
-        <div class="wheel-pointer">👇</div>
-        <div class="wheel-center" id="spinBtn" onclick="startSpin()">
-          <span>اضغط<br>للفوز</span>
+      <div class="stats-grid">
+        <div class="stat">
+          <span>النقاط</span>
+          <strong id="pointsValue">0</strong>
+        </div>
+        <div class="stat">
+          <span>الرصيد</span>
+          <strong id="balanceValue">0 د.ع</strong>
+        </div>
+        <div class="stat">
+          <span>الطاقة</span>
+          <strong id="energyValue">100/100</strong>
         </div>
       </div>
-      <div class="spins-badge">لديك <strong><span id="spinsNum">0</span></strong> لفات متبقية</div>
-    </div>
 
-    <div class="stat-card" style="margin-bottom: 20px;">
-      <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-        <span style="font-size: 12px; font-weight: 700;">التقدم نحو الجائزة الكبرى</span>
-        <span style="font-size: 12px; color: var(--accent);" id="progPct">0%</span>
+      <div class="energy-wrap">
+        <div class="energy-bar">
+          <div class="energy-fill" id="energyFill"></div>
+        </div>
+        <small id="energyHint">الطاقة تتجدد تلقائياً</small>
       </div>
-      <div style="height: 8px; background: var(--glass); border-radius: 10px; overflow: hidden;">
-        <div id="progFill" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: 0.5s;"></div>
+    </header>
+
+    <section class="actions-grid">
+      <button class="action card gold" id="dailyRewardBtn">
+        <span class="icon">🎁</span>
+        <div>
+          <b>الهدية اليومية</b>
+          <small>مرة كل 24 ساعة</small>
+        </div>
+      </button>
+
+      <button class="action card hot" id="hitBtn">
+        <span class="icon">👊</span>
+        <div>
+          <b>ضربة أبو جنة</b>
+          <small>مرة يومياً، ربح أو خسارة</small>
+        </div>
+      </button>
+
+      <button class="action card purple" id="boxBtn">
+        <span class="icon">🎁</span>
+        <div>
+          <b>صندوق الحظ</b>
+          <small>يستهلك 15 طاقة</small>
+        </div>
+      </button>
+
+      <button class="action card blue" id="referralBtn">
+        <span class="icon">📨</span>
+        <div>
+          <b>دعوة الأصدقاء</b>
+          <small>شارك رابط البوت</small>
+        </div>
+      </button>
+
+      <button class="action card green" id="convertBtn">
+        <span class="icon">💰</span>
+        <div>
+          <b>تحويل النقاط</b>
+          <small>كل 1000 نقطة = 10 د.ع</small>
+        </div>
+      </button>
+
+      <button class="action card red" id="withdrawBtn">
+        <span class="icon">💸</span>
+        <div>
+          <b>طلب سحب</b>
+          <small>الحد الأدنى 100,000 د.ع</small>
+        </div>
+      </button>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <h2>📋 المهام اليومية</h2>
+        <span class="tiny-badge" id="tasksStatus">0/0</span>
       </div>
-    </div>
+      <div id="dailyTasks" class="list"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <h2>📢 قنوات الاشتراك</h2>
+        <span class="tiny-badge" id="channelsBatchLabel">الدفعة 1</span>
+      </div>
+      <p class="muted">
+        أول 4 قنوات تظهر الآن، وبعد 24 ساعة تظهر 4 قنوات إضافية من Firebase.
+      </p>
+      <div id="channelsList" class="list"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <h2>ℹ️ معلومات الحساب</h2>
+      </div>
+      <div class="info-grid">
+        <div class="info-item">
+          <span>معرف المستخدم</span>
+          <strong id="userIdValue">-</strong>
+        </div>
+        <div class="info-item">
+          <span>اسم المستخدم</span>
+          <strong id="userNameValue">-</strong>
+        </div>
+        <div class="info-item">
+          <span>رابط الإحالة</span>
+          <strong id="refLinkValue" class="ref-text">-</strong>
+        </div>
+      </div>
+    </section>
   </div>
 
-  <div id="tasksScreen" class="screen">
-    <h3 style="font-size: 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; padding-top: 10px;">✅ المهام المتاحة</h3>
-    <div id="tasksContainer"></div>
-  </div>
+  <div class="toast" id="toast"></div>
 
-  <div class="bottom-nav">
-    <div class="nav-item active" onclick="switchScreen(this, 'main')">
-      <div class="nav-icon">🎡</div>
-      <div class="nav-label">الرئيسية</div>
-    </div>
-    <div class="nav-item" onclick="switchScreen(this, 'tasks')">
-      <div class="nav-icon">✅</div>
-      <div class="nav-label">المهام</div>
-    </div>
-    <div class="nav-item" onclick="switchScreen(this, 'stats')">
-      <div class="nav-icon">📊</div>
-      <div class="nav-label">الإحصائيات</div>
-    </div>
-  </div>
-</div>
-
-<!-- MODALS -->
-<div id="initChannelsOv" class="overlay show">
-  <div class="modal">
-    <span class="modal-icon">📱</span>
-    <h2 class="modal-title">قنوات مهمة</h2>
-    <p class="modal-body">يجب الاشتراك في هذه القنوات للمتابعة</p>
-    <div class="channel-list" id="initChannelsList"></div>
-    <button class="modal-btn" onclick="subscribeToInitChannels()">تم الاشتراك في جميع القنوات ✓</button>
-  </div>
-</div>
-
-<div id="resOv" class="overlay">
-  <div class="modal">
-    <span class="modal-icon" id="resEmoji">🎉</span>
-    <h2 class="modal-title" id="resTitle">مبروك!</h2>
-    <p class="modal-body" id="resBody">لقد فزت بـ 500 دينار عراقي</p>
-    <button class="modal-btn" onclick="closeOv('resOv')">استلام الجائزة ✨</button>
-  </div>
-</div>
-
-<div id="chOv" class="overlay">
-  <div class="modal">
-    <span class="modal-icon" id="chEmoji">📱</span>
-    <h2 class="modal-title" id="chTitle">قناة جديدة</h2>
-    <p class="modal-body">اشترك في هذه القناة لمتابعة المزيد من الجوائز!</p>
-    <button class="modal-btn" id="chLinkBtn" style="margin-bottom: 12px;">انضم الآن 🚀</button>
-    <button class="modal-btn" style="background: var(--glass); border: 1px solid var(--glass-border);" onclick="verifyChannel()">تم الانضمام ✓</button>
-  </div>
-</div>
-
-<div id="wdOv" class="overlay">
-  <div class="modal">
-    <h2 class="modal-title">سحب الأرباح 💸</h2>
-    <p class="modal-body">الحد الأدنى للسحب هو 10,000 دينار</p>
-    <div style="text-align: right; margin-bottom: 16px;">
-      <label style="font-size: 12px; margin-bottom: 6px; display: block;">رقم المحفظة</label>
-      <input type="text" id="wdPhone" style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--glass-border); background: var(--bg); color: #fff; font-family: 'Cairo';" placeholder="07XXXXXXXXX">
-    </div>
-    <button class="modal-btn" onclick="processWithdraw()">تأكيد الطلب</button>
-    <p style="font-size: 10px; color: var(--text-muted); margin-top: 12px; cursor: pointer;" onclick="closeOv('wdOv')">إلغاء</p>
-  </div>
-</div>
-
-<div id="toast" class="toast"></div>
-
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDiCrZhKVpkYE3HUeeDkAo7xA9I88uZ1i0",
-  authDomain: "abojana-3f0c2.firebaseapp.com",
-  databaseURL: "https://abojana-3f0c2-default-rtdb.firebaseio.com",
-  projectId: "abojana-3f0c2",
-  storageBucket: "abojana-3f0c2.firebasestorage.app",
-  messagingSenderId: "819681544560",
-  appId: "1:819681544560:web:be2249a51d0c79ee21a7b5"
-};
-
-let S = {
-  bal: 0, spins: 5, level: 1, xp: 0, 
-  totalEarned: 0, subscribedChannels: [],
-  completedTasks: {},
-  lastSpinDate: new Date().toDateString(),
-  initialSubscribed: false
-};
-
-let CHANNELS = [];
-let INIT_CHANNELS = [];
-let TASKS = [];
-
-const PRIZES = [
-  {e:'💰', n:'500 د.ع', v:500, w:10},
-  {e:'🎁', n:'1000 د.ع', v:1000, w:5},
-  {e:'⭐', n:'250 د.ع', v:250, w:20},
-  {e:'🎡', n:'لفة إضافية', v:0, extra:'spin', w:15},
-  {e:'💎', n:'5000 د.ع', v:5000, w:2},
-  {e:'🔥', n:'100 د.ع', v:100, w:30},
-  {e:'✨', n:'750 د.ع', v:750, w:10},
-  {e:'😅', n:'حظ أوفر', v:0, w:25}
-];
-
-let isSpinning = false;
-let wheelRotation = 0;
-let db = null;
-
-window.onload = function() {
-  loadData();
-  initWheel();
-  updateUI();
-  
-  try {
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-    db = firebase.database();
-    
-    // Load initial channels
-    db.ref('initial_channels').once('value', function(snap) {
-      INIT_CHANNELS = [];
-      const data = snap.val();
-      if(data) {
-        Object.keys(data).forEach(function(id) {
-          INIT_CHANNELS.push(Object.assign({id: id}, data[id]));
-        });
-      }
-      if(!S.initialSubscribed) {
-        buildInitChannelsList();
-      }
-    });
-    
-    // Load tasks
-    db.ref('tasks').once('value', function(snap) {
-      TASKS = [];
-      const data = snap.val();
-      if(data) {
-        Object.keys(data).forEach(function(id) {
-          TASKS.push(Object.assign({id: id}, data[id]));
-        });
-      }
-      console.log('Tasks loaded:', TASKS);
-      renderTasks();
-    });
-    
-    // Load channels
-    db.ref('channels').once('value', function(snap) {
-      CHANNELS = [];
-      const data = snap.val();
-      if(data) {
-        Object.keys(data).forEach(function(id) {
-          CHANNELS.push(Object.assign({id: id}, data[id]));
-        });
-      }
-    });
-    
-  } catch(e) {
-    console.error('Firebase error:', e);
-  }
-  
-  if(!S.initialSubscribed) {
-    showOv('initChannelsOv');
-  }
-};
-
-function loadData() {
-  const saved = localStorage.getItem('abojana_tasks_data');
-  if(saved) {
-    try {
-      const p = JSON.parse(saved);
-      const today = new Date().toDateString();
-      if(p.lastSpinDate !== today) {
-        p.spins = 5;
-        p.lastSpinDate = today;
-      }
-      S = Object.assign({}, S, p);
-    } catch(e) {}
-  }
-}
-
-function saveData() {
-  localStorage.setItem('abojana_tasks_data', JSON.stringify(S));
-}
-
-function updateUI() {
-  document.getElementById('balNum').textContent = S.bal.toLocaleString();
-  document.getElementById('spinsNum').textContent = S.spins;
-  document.getElementById('streakNum').textContent = S.totalEarned.toLocaleString();
-  document.getElementById('levelNum').textContent = S.level;
-  
-  const prog = Math.min(100, (S.xp % 1000) / 10);
-  document.getElementById('progPct').textContent = Math.floor(prog) + '%';
-  document.getElementById('progFill').style.width = prog + '%';
-}
-
-function switchScreen(el, screen) {
-  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
-  el.classList.add('active');
-  
-  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
-  
-  if(screen === 'main') {
-    document.getElementById('mainScreen').classList.add('active');
-  } else if(screen === 'tasks') {
-    document.getElementById('tasksScreen').classList.add('active');
-  }
-}
-
-function showOv(id) { 
-  const ov = document.getElementById(id);
-  if(ov) ov.classList.add('show'); 
-}
-
-function closeOv(id) { 
-  const ov = document.getElementById(id);
-  if(ov) ov.classList.remove('show'); 
-}
-
-function toast(msg) {
-  const t = document.getElementById('toast');
-  if(t) {
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(function() { t.classList.remove('show'); }, 3000);
-  }
-}
-
-function buildInitChannelsList() {
-  const list = document.getElementById('initChannelsList');
-  if(!list) return;
-  
-  list.innerHTML = INIT_CHANNELS.slice(0, 2).map(function(ch) {
-    return '<div class="channel-item">' +
-      '<div class="channel-item-title">' + (ch.emoji || '📱') + ' ' + ch.name + '</div>' +
-      '<div class="channel-item-desc">' + (ch.description || 'قناة مهمة') + '</div>' +
-      '<button class="modal-btn" style="margin-top: 8px; padding: 8px;" onclick="window.open(\'' + ch.url + '\', \'_blank\')">انضم</button>' +
-    '</div>';
-  }).join('');
-}
-
-function subscribeToInitChannels() {
-  S.initialSubscribed = true;
-  S.subscribedChannels = INIT_CHANNELS.slice(0, 2).map(function(ch) { return ch.id; });
-  saveData();
-  closeOv('initChannelsOv');
-  toast('✅ تم الاشتراك! استمتع باللعبة');
-}
-
-function renderTasks() {
-  const container = document.getElementById('tasksContainer');
-  if(!container) return;
-  
-  if(!TASKS || TASKS.length === 0) {
-    container.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: var(--text-muted);"><div style="font-size: 40px; margin-bottom: 10px;">📋</div><p>لا توجد مهام متاحة حالياً</p></div>';
-    return;
-  }
-  
-  container.innerHTML = TASKS.map(function(task) {
-    const isDone = S.completedTasks[task.id];
-    const typeEmoji = task.type === 'instagram' ? '📸' : '📱';
-    
-    return '<div class="task-card">' +
-      '<div class="task-icon">' + (task.emoji || typeEmoji) + '</div>' +
-      '<div class="task-info">' +
-        '<div class="task-name">' + task.name + '</div>' +
-        '<div class="task-desc">' + task.description + '</div>' +
-      '</div>' +
-      '<div class="task-reward">' +
-        '<span class="reward-amount">+' + task.reward + ' د.ع</span>' +
-        (isDone ? '<span style="color: var(--primary); font-size: 12px; font-weight: 900;">✅ تم</span>' : 
-        '<button class="task-btn" onclick="completeTask(\'' + task.id + '\', ' + task.reward + ', \'' + task.url + '\')">تنفيذ</button>') +
-      '</div>' +
-    '</div>';
-  }).join('');
-}
-
-function completeTask(id, reward, url) {
-  window.open(url, '_blank');
-  
-  setTimeout(function() {
-    S.completedTasks[id] = true;
-    S.bal += reward;
-    S.totalEarned += reward;
-    S.xp += Math.floor(reward / 10);
-    
-    checkLevelUp();
-    checkChannelTrigger();
-    
-    toast('✅ تم تنفيذ المهمة! ربحت ' + reward + ' دينار');
-    saveData();
-    updateUI();
-    renderTasks();
-  }, 2000);
-}
-
-const canvas = document.getElementById('wc');
-const ctx = canvas ? canvas.getContext('2d') : null;
-
-function initWheel() {
-  if(ctx) drawWheel(0);
-}
-
-function drawWheel(angle) {
-  if(!ctx) return;
-  
-  const size = 290;
-  const center = size / 2;
-  ctx.clearRect(0, 0, size, size);
-  
-  const sliceAngle = (Math.PI * 2) / PRIZES.length;
-  
-  PRIZES.forEach(function(p, i) {
-    const startAngle = i * sliceAngle + angle;
-    const endAngle = (i + 1) * sliceAngle + angle;
-    
-    ctx.beginPath();
-    ctx.moveTo(center, center);
-    ctx.arc(center, center, center - 10, startAngle, endAngle);
-    ctx.closePath();
-    
-    const grad = ctx.createRadialGradient(center, center, 0, center, center, center);
-    const colors = i % 2 === 0 ? ['#4f46e5', '#3730a3'] : ['#1e293b', '#0f172a'];
-    grad.addColorStop(0, colors[0]);
-    grad.addColorStop(1, colors[1]);
-    
-    ctx.fillStyle = grad;
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    
-    ctx.save();
-    ctx.translate(center, center);
-    ctx.rotate(startAngle + sliceAngle / 2);
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#fff";
-    
-    ctx.font = "bold 22px Cairo";
-    ctx.fillText(p.e, center - 35, -8);
-    
-    const amountText = p.n.split(' ')[0];
-    ctx.font = "bold 11px Cairo";
-    ctx.fillStyle = "rgba(255,255,255,0.95)";
-    ctx.fillText(amountText, center - 35, 8);
-    
-    ctx.restore();
-  });
-}
-
-function startSpin() {
-  if(isSpinning) return;
-  if(S.spins <= 0) return toast('❌ انتهت لفاتك اليوم!');
-  
-  isSpinning = true;
-  S.spins--;
-  updateUI();
-  
-  const totalWeight = PRIZES.reduce(function(a, b) { return a + b.w; }, 0);
-  let random = Math.random() * totalWeight;
-  let prizeIndex = 0;
-  for(let i=0; i<PRIZES.length; i++) {
-    random -= PRIZES[i].w;
-    if(random <= 0) { prizeIndex = i; break; }
-  }
-  
-  const targetPrize = PRIZES[prizeIndex];
-  const extraRotations = 8 + Math.random() * 5;
-  const sliceAngle = (Math.PI * 2) / PRIZES.length;
-  const targetAngle = (Math.PI * 2 * extraRotations) + (Math.PI * 1.5) - (prizeIndex * sliceAngle) - (sliceAngle / 2);
-  
-  const duration = 5000;
-  const startTime = performance.now();
-  
-  function animate(currentTime) {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const easeOut = 1 - Math.pow(1 - progress, 3);
-    
-    wheelRotation = targetAngle * easeOut;
-    drawWheel(wheelRotation);
-    
-    if(progress < 1) {
-      requestAnimationFrame(animate);
-    } else {
-      isSpinning = false;
-      finishSpin(targetPrize);
-    }
-  }
-  requestAnimationFrame(animate);
-}
-
-function finishSpin(p) {
-  if(p.v > 0) {
-    S.bal += p.v;
-    S.totalEarned += p.v;
-    S.xp += Math.floor(p.v / 10);
-  }
-  if(p.extra === 'spin') S.spins++;
-  
-  checkLevelUp();
-  checkChannelTrigger();
-  
-  document.getElementById('resEmoji').textContent = p.v > 0 ? '🎉' : '😅';
-  document.getElementById('resTitle').textContent = p.v > 0 ? 'مبروك الفوز!' : 'حظ أوفر';
-  document.getElementById('resBody').textContent = p.v > 0 ? 'لقد ربحت ' + p.n : 'لا تقلق، حاول مرة أخرى!';
-  
-  if(p.v > 500) spawnConfetti();
-  showOv('resOv');
-  saveData();
-  updateUI();
-}
-
-function checkLevelUp() {
-  const newLevel = Math.floor(S.xp / 1000) + 1;
-  if(newLevel > S.level) {
-    S.level = newLevel;
-    toast('🎊 مبروك! صعدت للمستوى ' + S.level);
-  }
-}
-
-function checkChannelTrigger() {
-  const milestones = Math.floor(S.totalEarned / 1000);
-  const currentSubscribed = S.subscribedChannels.length - 2;
-  
-  if(milestones > currentSubscribed && CHANNELS.length > currentSubscribed) {
-    const ch = CHANNELS[currentSubscribed];
-    document.getElementById('chEmoji').textContent = ch.emoji || '📱';
-    document.getElementById('chTitle').textContent = ch.name || 'قناة جديدة';
-    document.getElementById('chLinkBtn').onclick = function() { window.open(ch.url, '_blank'); };
-    setTimeout(function() { showOv('chOv'); }, 500);
-  }
-}
-
-function verifyChannel() {
-  const milestones = Math.floor(S.totalEarned / 1000);
-  const currentSubscribed = S.subscribedChannels.length - 2;
-  
-  if(currentSubscribed < CHANNELS.length) {
-    const ch = CHANNELS[currentSubscribed];
-    S.subscribedChannels.push(ch.id);
-    S.spins += 2;
-    closeOv('chOv');
-    toast('✅ تم التحقق! حصلت على لفتين إضافيتين');
-    saveData();
-    updateUI();
-  }
-}
-
-function processWithdraw() {
-  const phone = document.getElementById('wdPhone').value;
-  if(!phone || phone.length < 10) return toast('⚠️ أدخل رقم هاتف صحيح');
-  if(S.bal < 10000) return toast('❌ الرصيد أقل من 10,000');
-  
-  toast('⏳ جاري المعالجة...');
-  closeOv('wdOv');
-}
-
-function spawnConfetti() {
-  for(let i=0; i<40; i++) {
-    const c = document.createElement('div');
-    c.className = 'confetti';
-    c.style.left = Math.random() * 100 + 'vw';
-    c.style.top = '-10px';
-    c.style.backgroundColor = ['#6366f1', '#ec4899', '#f59e0b', '#10b981'][Math.floor(Math.random()*4)];
-    document.body.appendChild(c);
-    
-    const duration = 2000 + Math.random() * 2000;
-    c.animate([
-      { transform: 'translateY(0) rotate(0)', opacity: 1 },
-      { transform: 'translateY(100vh) rotate(720deg)', opacity: 0 }
-    ], { duration: duration, easing: 'ease-in' });
-    
-    setTimeout(function() { c.remove(); }, duration);
-  }
-}
-
-</script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
