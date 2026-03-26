@@ -504,10 +504,20 @@ function doSpin(){
   if(S.spins<=0){toast('⏰ لا توجد لفات متبقية اليوم');return;}
   spinning=true;
   document.getElementById('spinBtn').classList.add('dis');
+  
+  // ✅ اختيار الجائزة بناءً على الأوزان
   const tot=WEIGHTS.reduce((a,b)=>a+b,0);
-  let rnd=Math.random()*tot,pi=0;
-  for(let i=0;i<WEIGHTS.length;i++){rnd-=WEIGHTS[i];if(rnd<=0){pi=i;break;}}
+  let rnd=Math.random()*tot;
+  let pi=0;
+  let cumWeight=0;
+  for(let i=0;i<WEIGHTS.length;i++){
+    cumWeight+=WEIGHTS[i];
+    if(rnd<=cumWeight){pi=i;break;}
+  }
+  
+  // ✅ حساب الزاوية المستهدفة بناءً على موضع الجائزة
   const sl=(2*Math.PI)/PRIZES.length;
+  // الزاوية = عدد لفات كاملة + الزاوية الأساسية - موضع الجائزة
   const target=(2*Math.PI*(6+Math.random()*3))+(Math.PI/2)-(pi*sl)-(sl/2);
   const dur=4400+Math.random()*1200;
   let t0=null;
