@@ -171,8 +171,8 @@ canvas#wc { position: relative; z-index: 2; border-radius: 50%; display: block; 
   </div>
 
   <div id="tasksScreen" class="screen">
-    <h3 style="font-size: 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">✅ المهام المتاحة</h3>
-    <div id="tasksList"></div>
+    <h3 style="font-size: 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; padding-top: 10px;">✅ المهام المتاحة</h3>
+    <div id="tasksList" style="min-height: 200px;"></div>
   </div>
 
   <div class="bottom-nav">
@@ -278,8 +278,6 @@ let db = null;
 
 // ============ INITIALIZATION ============
 window.onload = function() {
-  console.log('App started');
-  
   loadData();
   initWheel();
   updateUI();
@@ -293,7 +291,7 @@ window.onload = function() {
     syncInitChannels();
     syncTasks();
   } catch(e) {
-    console.error('Firebase error:', e);
+    console.error('Firebase init error:', e);
   }
   
   if(!S.initialSubscribed) {
@@ -361,6 +359,7 @@ function syncTasks() {
         TASKS.push(Object.assign({id: id}, data[id]));
       });
     }
+    console.log('Tasks synced:', TASKS.length);
     buildTasksList();
   });
 }
@@ -435,6 +434,14 @@ function subscribeToInitChannels() {
 function buildTasksList() {
   const list = document.getElementById('tasksList');
   if(!list) return;
+  
+  if(TASKS.length === 0) {
+    list.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">' +
+      '<div style="font-size: 40px; margin-bottom: 10px;">📋</div>' +
+      '<p>جاري تحميل المهام...</p>' +
+    '</div>';
+    return;
+  }
   
   list.innerHTML = TASKS.map(function(t) {
     const isDone = S.completedTasks[t.id];
