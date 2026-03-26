@@ -1,203 +1,689 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>أبو جنة × فوريو VIP</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>أبو جنة | عجلة الحظ</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#D4A843;--gold2:#F5C842;--gold3:#A07820;
+  --bg:#080808;--bg2:#111;--bg3:#181818;--card:#131313;
+  --border:#252525;--border2:#303030;
+  --txt:#F0E8D5;--txt2:#7A6A4A;--txt3:#3A2A1A;
+  --green:#22C55E;--red:#FF4444;--energy:#C8FF00;
+  --safe:env(safe-area-inset-bottom,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100vh;background:var(--bg);font-family:'Cairo',sans-serif;color:var(--txt);overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 90% 40% at 50% 0%,rgba(212,168,67,.13) 0%,transparent 60%),radial-gradient(ellipse 50% 50% at 5% 50%,rgba(0,180,180,.04) 0%,transparent 50%),radial-gradient(ellipse 40% 40% at 95% 80%,rgba(200,255,0,.04) 0%,transparent 50%);pointer-events:none;z-index:0}
+.app{position:relative;z-index:1;max-width:430px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:calc(68px + var(--safe))}
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+/* HERO */
+.hero{position:relative;height:195px;overflow:hidden;flex-shrink:0}
+.hero-bg{position:absolute;inset:0;background:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.55) 55%,var(--bg) 100%)}
+.hero-img{position:absolute;bottom:0;right:50%;transform:translateX(50%);height:192px;object-fit:contain;filter:drop-shadow(0 0 28px rgba(212,168,67,.38))}
+.hero-brand{position:absolute;top:14px;left:0;right:0;text-align:center}
+.hero-name{font-size:26px;font-weight:900;background:linear-gradient(135deg,var(--gold2),var(--gold),var(--gold3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px}
+.hero-sub{font-size:10px;color:var(--txt2);letter-spacing:4px;text-transform:uppercase;margin-top:2px}
 
-  <style>
-    body {
-      margin:0;
-      font-family: Arial;
-      background: linear-gradient(135deg,#12051f,#24113f);
-      color:white;
-      text-align:center;
-    }
+/* BALANCE */
+.bal-card{margin:0 14px 10px;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:15px 17px;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden}
+.bal-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.bal-lbl{font-size:11px;color:var(--txt2);font-weight:600;margin-bottom:3px}
+.bal-num{font-size:30px;font-weight:900;color:var(--gold2);line-height:1}
+.bal-cur{font-size:12px;color:var(--txt2);margin-top:2px}
+.bal-right{display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+.streak-pill{background:linear-gradient(135deg,#B45309,#F97316);border-radius:9px;padding:4px 11px;font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;gap:4px}
+.wd-btn{background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;border-radius:9px;padding:7px 15px;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;color:#000;cursor:pointer;transition:transform .15s}
+.wd-btn:active{transform:scale(.95)}
 
-    .container {padding:20px; max-width:500px; margin:auto;}
+/* TICKER */
+.ticker-wrap{overflow:hidden;background:rgba(212,168,67,.05);border-top:1px solid rgba(212,168,67,.1);border-bottom:1px solid rgba(212,168,67,.1);padding:5px 0;margin-bottom:4px;flex-shrink:0}
+.ticker{display:flex;gap:40px;animation:tkmove 22s linear infinite;width:max-content}
+.ticker-item{font-size:11px;color:var(--gold);font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:6px}
+@keyframes tkmove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-    .btn {
-      background:#ffd54a;
-      color:#000;
-      padding:12px;
-      border:none;
-      border-radius:12px;
-      margin:6px;
-      font-weight:bold;
-      cursor:pointer;
-      width:100%;
-    }
+/* TABS */
+.tabs{display:flex;margin:8px 14px 0;background:var(--card);border:1px solid var(--border);border-radius:13px;padding:4px;gap:2px}
+.tab{flex:1;padding:9px 4px;text-align:center;font-size:11px;font-weight:700;color:var(--txt2);border-radius:9px;cursor:pointer;transition:all .2s;user-select:none}
+.tab.act{background:linear-gradient(135deg,var(--gold3),var(--gold));color:#000}
 
-    .hidden {display:none;}
+/* SCREENS */
+.screen{display:none;flex-direction:column;gap:11px;padding:11px 14px;flex:1}
+.screen.act{display:flex}
 
-    /* ===== عجلة احترافية ===== */
-    .wheel-container{
-      position:relative;
-      width:260px;
-      height:260px;
-      margin:20px auto;
-    }
+/* WHEEL */
+.wh-section{display:flex;flex-direction:column;align-items:center}
+.wh-lbl{font-size:13px;color:var(--txt2);font-weight:600;margin-bottom:14px;text-align:center}
+.wh-lbl strong{color:var(--gold2)}
+.wh-container{position:relative;width:288px;height:288px;margin:0 auto}
+.wh-ring{position:absolute;inset:-7px;border-radius:50%;background:conic-gradient(var(--gold3),var(--gold2),var(--gold),var(--gold3),var(--gold2),var(--gold),var(--gold3));animation:rrot 7s linear infinite;opacity:.5}
+.wh-mask{position:absolute;inset:-3px;border-radius:50%;background:var(--bg)}
+@keyframes rrot{to{transform:rotate(360deg)}}
+canvas#wc{position:relative;z-index:2;border-radius:50%;display:block}
+.wh-ptr{position:absolute;top:-11px;left:50%;transform:translateX(-50%);z-index:10;filter:drop-shadow(0 3px 8px rgba(212,168,67,.6))}
+.wh-ctr{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#181818,#232323);border:3px solid var(--gold);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;font-size:10px;font-weight:900;color:var(--gold2);cursor:pointer;box-shadow:0 0 18px rgba(212,168,67,.28),inset 0 1px 0 rgba(212,168,67,.2);transition:all .2s;text-align:center;line-height:1.2}
+.wh-ctr:active{transform:translate(-50%,-50%) scale(.93)}
+.wh-ctr.dis{opacity:.4;cursor:not-allowed}
 
-    #wheel{
-      width:100%;
-      height:100%;
-      border-radius:50%;
-      border:8px solid #fff;
-      transition:transform 5s ease-out;
-      box-shadow:0 20px 40px rgba(0,0,0,.5);
-      background: conic-gradient(
-        #ff4b7d 0deg 45deg,
-        #ffd54a 45deg 90deg,
-        #6ef3ff 90deg 135deg,
-        #9b5cff 135deg 180deg,
-        #00d68f 180deg 225deg,
-        #ff8a00 225deg 270deg,
-        #ff4b7d 270deg 315deg,
-        #ffd54a 315deg 360deg
-      );
-    }
+.spins-row{display:flex;justify-content:space-between;align-items:center;width:100%;padding:12px 0 0}
+.spins-txt{font-size:12px;color:var(--txt2)}
+.spins-num{font-size:20px;font-weight:900;color:var(--energy)}
 
-    .pointer{
-      position:absolute;
-      top:-10px;
-      left:50%;
-      transform:translateX(-50%);
-      width:0;height:0;
-      border-left:15px solid transparent;
-      border-right:15px solid transparent;
-      border-bottom:25px solid white;
-    }
+/* Progress */
+.prog-box{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:14px 15px}
+.prog-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.prog-hd span{font-size:12px;color:var(--txt2);font-weight:600}
+.prog-hd strong{font-size:12px;color:var(--gold2);font-weight:700}
+.prog-track{background:var(--bg3);border-radius:6px;height:6px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold2));border-radius:6px;transition:width .5s ease}
+.prog-note{font-size:10px;color:var(--txt2);text-align:center;margin-top:5px}
 
-    /* ===== مهمات ===== */
-    .task{
-      background:rgba(255,255,255,.1);
-      padding:10px;
-      border-radius:10px;
-      margin:10px 0;
-    }
+/* Prizes mini */
+.section-hd{font-size:13px;font-weight:700;color:var(--txt2);display:flex;align-items:center;gap:6px}
+.prizes-mini{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.pm-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 4px;text-align:center}
+.pm-e{font-size:18px}
+.pm-v{font-size:11px;font-weight:700;color:var(--gold2);margin-top:2px}
 
-    .task a{
-      display:block;
-      margin:5px 0;
-      color:#ffd54a;
-    }
+/* TASKS */
+.task-item{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:13px 14px;display:flex;align-items:center;gap:11px;transition:border-color .2s}
+.task-item.done{border-color:rgba(34,197,94,.25);opacity:.55}
+.task-ico{width:42px;height:42px;border-radius:11px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+.task-body{flex:1}
+.task-name{font-size:13px;font-weight:700;color:var(--txt)}
+.task-desc{font-size:11px;color:var(--txt2);margin-top:2px}
+.task-rhs{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.task-rwd{font-size:12px;font-weight:900;color:var(--energy)}
+.task-btn{background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;border-radius:8px;padding:6px 13px;font-family:'Cairo',sans-serif;font-size:11px;font-weight:700;color:#000;cursor:pointer;transition:transform .15s}
+.task-btn:active{transform:scale(.94)}
 
-  </style>
+/* HISTORY */
+.hist-item{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+.hist-ico{width:38px;height:38px;border-radius:9px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.hist-body{flex:1}
+.hist-nm{font-size:13px;font-weight:700;color:var(--txt)}
+.hist-dt{font-size:10px;color:var(--txt2);margin-top:2px}
+.hist-v{font-size:14px;font-weight:900;color:var(--gold2)}
+.hist-v.neg{color:var(--red)}
+.empty-st{display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--txt2);font-size:12px;padding:40px 0;text-align:center}
+.empty-st span{font-size:38px}
+
+/* BNAV */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(8,8,8,.96);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:8px 8px calc(8px + var(--safe));z-index:50}
+.bni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 4px;cursor:pointer;border-radius:10px;transition:background .15s}
+.bni:active{background:var(--border)}
+.bni-ico{font-size:21px;filter:grayscale(1) opacity(.3);transition:filter .2s}
+.bni-lbl{font-size:9px;color:var(--txt2);font-weight:700;transition:color .2s}
+.bni.act .bni-ico{filter:none}
+.bni.act .bni-lbl{color:var(--gold2)}
+
+/* OVERLAYS */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.87);backdrop-filter:blur(10px);z-index:200;display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;pointer-events:none;transition:opacity .3s}
+.overlay.show{opacity:1;pointer-events:all}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:26px;padding:30px 22px;width:100%;max-width:350px;text-align:center;position:relative;overflow:hidden;transform:scale(.8) translateY(22px);transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.overlay.show .modal{transform:scale(1) translateY(0)}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold3),var(--gold2),var(--gold3))}
+
+/* Result */
+.res-em{font-size:62px;display:block;margin-bottom:10px;animation:bncin .5s cubic-bezier(.34,1.56,.64,1) .15s both}
+@keyframes bncin{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.res-ttl{font-size:20px;font-weight:900;margin-bottom:5px}
+.res-amt{font-size:40px;font-weight:900;background:linear-gradient(135deg,var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:4px 0}
+.res-amt span{font-size:15px}
+.res-tot{font-size:12px;color:var(--txt2);margin-bottom:20px}
+
+/* Channel */
+.ch-av{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#0CC,#006688);margin:0 auto 13px;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 4px 20px rgba(0,204,204,.22)}
+.ch-ttl{font-size:17px;font-weight:900;margin-bottom:6px}
+.ch-desc{font-size:12px;color:var(--txt2);line-height:1.6;margin-bottom:8px}
+.ch-dots{display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:12px;flex-wrap:wrap}
+.ch-dot{width:9px;height:9px;border-radius:50%;background:var(--border);transition:background .3s}
+.ch-dot.dn{background:var(--gold)}
+.ch-dot.cr{background:var(--gold2);box-shadow:0 0 7px var(--gold)}
+.ch-prog{font-size:11px;color:var(--txt2);margin-bottom:16px}
+
+/* Withdraw */
+.wd-bal{font-size:34px;font-weight:900;color:var(--gold2);margin:10px 0 4px}
+.wd-note{font-size:11px;color:var(--txt2);margin-bottom:16px;line-height:1.7}
+.inp-grp{text-align:right;margin-bottom:13px}
+.inp-grp label{font-size:11px;color:var(--txt2);font-weight:600;display:block;margin-bottom:5px}
+.inp-grp input,.inp-grp select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:11px;padding:12px 14px;font-family:'Cairo',sans-serif;font-size:13px;color:var(--txt);outline:none;transition:border-color .2s;appearance:none;direction:rtl}
+.inp-grp input:focus,.inp-grp select:focus{border-color:var(--gold)}
+
+/* Confetti */
+.conf-piece{position:absolute;width:7px;height:7px;border-radius:2px;animation:cffall 1.6s ease-out forwards;opacity:0}
+@keyframes cffall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(230px) rotate(400deg);opacity:0}}
+
+/* Toast */
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--card);border:1px solid var(--border);border-radius:11px;padding:10px 20px;font-size:13px;font-weight:600;color:var(--txt);z-index:300;opacity:0;transition:all .3s;white-space:nowrap;max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Buttons */
+.btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:14px;border-radius:13px;border:none;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn:active{transform:scale(.97)}
+.btn-gold{background:linear-gradient(135deg,var(--gold3) 0%,var(--gold2) 50%,var(--gold3) 100%);background-size:200% 100%;color:#000;box-shadow:0 4px 16px rgba(212,168,67,.26);animation:shim 3s ease infinite}
+@keyframes shim{0%{background-position:0%}50%{background-position:100%}100%{background-position:0%}}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--txt2);margin-top:8px}
+.btn-green{background:linear-gradient(135deg,#15803d,#22c55e);color:#fff;box-shadow:0 4px 16px rgba(34,197,94,.22)}
+
+/* Join screen */
+.join-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px}
+.join-card{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:28px 20px;width:100%;position:relative;overflow:hidden}
+.join-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold3),var(--gold2),var(--gold3))}
+.join-av{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));margin:0 auto 13px;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 4px 26px rgba(212,168,67,.28)}
+.join-ttl{font-size:18px;font-weight:900;text-align:center;margin-bottom:6px}
+.join-desc{font-size:12px;color:var(--txt2);text-align:center;line-height:1.7;margin-bottom:18px}
+.steps{list-style:none;margin-bottom:20px;display:flex;flex-direction:column;gap:9px}
+.steps li{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--txt2)}
+.sn{width:21px;height:21px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--gold);flex-shrink:0}
+</style>
 </head>
 <body>
+<div class="app">
 
-<div class="container">
-  <h1>🔥 أبو جنة × فوريو VIP</h1>
-
-  <!-- الاشتراك -->
-  <div id="subscribeBox">
-    <p>اشترك بالقناة حتى تبدأ</p>
-    <a id="channelLink" href="#" target="_blank" class="btn">فتح القناة</a>
-    <button class="btn" onclick="checkSubscribe()">تحققت من الاشتراك</button>
+  <!-- HERO with Abu Janna photo -->
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <img class="hero-img" src="abujanna.png" alt="أبو جنة" onerror="this.style.display='none'">
+    <div class="hero-brand">
+      <div class="hero-name">أبو جنة</div>
+      <div class="hero-sub">ABU JANNA · FOR YOU ENERGY</div>
+    </div>
   </div>
 
-  <!-- اللعبة -->
-  <div id="gameBox" class="hidden">
-    <h2>نقاطك: <span id="points">0</span></h2>
+  <!-- TICKER -->
+  <div class="ticker-wrap">
+    <div class="ticker" id="ticker">
+      <div class="ticker-item">🎉 محمد_ع ربح 500 دينار</div>
+      <div class="ticker-item">⚡ خالد_99 ربح 1000 دينار</div>
+      <div class="ticker-item">🏆 أبو_فهد وصل لـ 5000 دينار</div>
+      <div class="ticker-item">💰 سارة_k ربحت 250 دينار</div>
+      <div class="ticker-item">🔥 عمر_j سحب 2000 دينار</div>
+      <div class="ticker-item">💎 ريم_x ربحت 750 دينار</div>
+      <div class="ticker-item">🎉 محمد_ع ربح 500 دينار</div>
+      <div class="ticker-item">⚡ خالد_99 ربح 1000 دينار</div>
+      <div class="ticker-item">🏆 أبو_فهد وصل لـ 5000 دينار</div>
+      <div class="ticker-item">💰 سارة_k ربحت 250 دينار</div>
+      <div class="ticker-item">🔥 عمر_j سحب 2000 دينار</div>
+      <div class="ticker-item">💎 ريم_x ربحت 750 دينار</div>
+    </div>
+  </div>
 
-    <div class="wheel-container">
-      <div class="pointer"></div>
-      <div id="wheel"></div>
+  <!-- BALANCE (hidden until subscribed) -->
+  <div class="bal-card" id="balCard" style="display:none">
+    <div>
+      <div class="bal-lbl">رصيدك الحالي</div>
+      <div class="bal-num" id="balNum">0</div>
+      <div class="bal-cur">دينار عراقي</div>
+    </div>
+    <div class="bal-right">
+      <div class="streak-pill">🔥 <span id="streakN">0</span> يوم</div>
+      <button class="wd-btn" onclick="openWd()">💸 سحب</button>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs" id="tabsRow" style="display:none">
+    <div class="tab act" onclick="goTab(this,'spin')">🎰 العجلة</div>
+    <div class="tab" onclick="goTab(this,'tasks')">📋 المهام</div>
+    <div class="tab" onclick="goTab(this,'hist')">📜 السجل</div>
+  </div>
+
+  <!-- ===== JOIN SCREEN ===== -->
+  <div id="joinScreen" style="flex:1;display:flex;flex-direction:column">
+    <div class="join-wrap">
+      <div class="join-card">
+        <div class="join-av">📢</div>
+        <div class="join-ttl">اشترك في قناة أبو جنة</div>
+        <div class="join-desc">للوصول لعجلة الحظ وربح الدنانير العراقية الحقيقية، اشترك في قناتنا أولاً</div>
+        <ul class="steps">
+          <li><div class="sn">١</div>اضغط زر الاشتراك</li>
+          <li><div class="sn">٢</div>اشترك في القناة الرسمية</li>
+          <li><div class="sn">٣</div>ارجع وتحقق من اشتراكك</li>
+          <li><div class="sn">٤</div>ابدأ بالدوران والربح 🎉</li>
+        </ul>
+        <button class="btn btn-gold" onclick="openMainCh()">📢 اشترك في القناة</button>
+        <button class="btn btn-ghost" id="verBtn" onclick="verifyMain()">✅ تأكيد الاشتراك</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SPIN SCREEN ===== -->
+  <div class="screen" id="spinScreen">
+    <div class="wh-section">
+      <div class="wh-lbl">دور العجلة واكسب <strong>دنانير عراقية حقيقية</strong> 💰</div>
+      <div class="wh-container">
+        <div class="wh-ring"></div>
+        <div class="wh-mask"></div>
+        <svg class="wh-ptr" width="28" height="32" viewBox="0 0 28 32">
+          <path d="M14 0L27 20H1L14 0Z" fill="#D4A843"/>
+          <path d="M14 4L24 18H4L14 4Z" fill="#F5C842"/>
+          <circle cx="14" cy="25" r="7" fill="#D4A843"/>
+          <circle cx="14" cy="25" r="4.5" fill="#F5C842"/>
+        </svg>
+        <canvas id="wc" width="288" height="288"></canvas>
+        <div class="wh-ctr" id="spinBtn" onclick="doSpin()">
+          <span>🎰</span><span>دور!</span>
+        </div>
+      </div>
+      <div class="spins-row">
+        <div class="spins-txt">لفات اليوم: <span class="spins-num" id="spinsLeft">3</span></div>
+        <div style="font-size:11px;color:var(--txt2)" id="nextLbl"></div>
+      </div>
     </div>
 
-    <button class="btn" onclick="spinWheel()">لف العجلة 🎰</button>
+    <!-- Progress to next 250 -->
+    <div class="prog-box">
+      <div class="prog-hd">
+        <span>🎁 حتى المكافأة التالية</span>
+        <strong><span id="pgCur">0</span> / 250 دينار</strong>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="pgFill" style="width:0%"></div></div>
+      <div class="prog-note">اجمع كل 250 دينار للحصول على قناة خاصة!</div>
+    </div>
 
-    <h3>📌 المهمات</h3>
-    <div id="tasks"></div>
+    <div class="section-hd">🎁 جدول الجوائز</div>
+    <div class="prizes-mini" id="prizesGrid"></div>
+  </div>
+
+  <!-- ===== TASKS SCREEN ===== -->
+  <div class="screen" id="tasksScreen">
+    <div class="section-hd" style="justify-content:space-between">
+      <span>📋 المهام اليومية</span>
+      <span style="font-size:11px;color:var(--energy);font-weight:700">كل مهمة = 50 دينار</span>
+    </div>
+    <div id="tasksList"></div>
+  </div>
+
+  <!-- ===== HISTORY SCREEN ===== -->
+  <div class="screen" id="histScreen">
+    <div class="section-hd">📜 سجل الأرباح</div>
+    <div id="histList"></div>
+  </div>
+
+</div><!-- /app -->
+
+<!-- BNAV -->
+<div class="bnav" id="bnav" style="display:none">
+  <div class="bni act" onclick="goNav(this,'spin')"><div class="bni-ico">🎰</div><div class="bni-lbl">العجلة</div></div>
+  <div class="bni" onclick="goNav(this,'tasks')"><div class="bni-ico">📋</div><div class="bni-lbl">المهام</div></div>
+  <div class="bni" onclick="goNav(this,'hist')"><div class="bni-ico">📜</div><div class="bni-lbl">السجل</div></div>
+</div>
+
+<!-- RESULT OVERLAY -->
+<div class="overlay" id="resOv">
+  <div class="modal">
+    <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden" id="confBox"></div>
+    <span class="res-em" id="resEm">🎉</span>
+    <div class="res-ttl" id="resTtl">مبروك!</div>
+    <div class="res-amt" id="resAmt">+<span>500</span> دينار</div>
+    <div class="res-tot" id="resTot">رصيدك: 0 دينار</div>
+    <button class="btn btn-gold" onclick="closeRes()">رائع! 🔥</button>
   </div>
 </div>
 
+<!-- CHANNEL GATE OVERLAY -->
+<div class="overlay" id="chOv">
+  <div class="modal">
+    <div class="ch-av" id="chAv">📢</div>
+    <div class="ch-ttl" id="chTtl">انضم للقناة</div>
+    <div class="ch-desc">لمتابعة الفوز وجمع الدنانير، انضم لهذه القناة المميزة الآن!</div>
+    <div class="ch-dots" id="chDots"></div>
+    <div class="ch-prog">قناة <span id="chIdxShow">1</span> من <span id="chTotShow">10</span> — فقط <span id="chLeft">9</span> متبقية!</div>
+    <button class="btn btn-gold" id="chJoinBtn">📢 انضم الآن</button>
+    <button class="btn btn-ghost" onclick="doneChannel()">✅ انضممت، تحقق</button>
+  </div>
+</div>
+
+<!-- WITHDRAW OVERLAY -->
+<div class="overlay" id="wdOv">
+  <div class="modal">
+    <div style="font-size:28px">💸</div>
+    <div style="font-size:17px;font-weight:900;margin-top:8px">سحب الأرباح</div>
+    <div class="wd-bal" id="wdBalShow">0 دينار</div>
+    <div class="wd-note">الحد الأدنى للسحب: 1,000 دينار عراقي<br>يُراجع طلبك خلال 24–48 ساعة</div>
+    <div class="inp-grp">
+      <label>مبلغ السحب (IQD)</label>
+      <input type="number" id="wdAmt" placeholder="أدخل المبلغ المطلوب">
+    </div>
+    <div class="inp-grp">
+      <label>طريقة الدفع</label>
+      <select id="wdMeth">
+        <option value="">اختر الطريقة</option>
+        <option value="zainCash">زين كاش</option>
+        <option value="asia">آسيا هواة</option>
+        <option value="mastercard">ماستر كارد</option>
+        <option value="bank">حوالة مصرفية</option>
+      </select>
+    </div>
+    <div class="inp-grp">
+      <label>رقم الهاتف / الحساب</label>
+      <input type="text" id="wdAcc" placeholder="07XX XXX XXXX">
+    </div>
+    <button class="btn btn-green" onclick="submitWd()">💸 تأكيد طلب السحب</button>
+    <button class="btn btn-ghost" onclick="closeOv('wdOv')">إلغاء</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDiCrZhKVpkYE3HUeeDkAo7xA9I88uZ1i0",
-    authDomain: "abojana-3f0c2.firebaseapp.com",
-    databaseURL: "https://abojana-3f0c2-default-rtdb.firebaseio.com",
-    projectId: "abojana-3f0c2",
-    storageBucket: "abojana-3f0c2.firebasestorage.app",
-    messagingSenderId: "819681544560",
-    appId: "1:819681544560:web:be2249a51d0c79ee21a7b5",
-  };
+/* ============ CONFIG ============ */
+const MAIN_CH_URL = 'https://t.me/YOUR_MAIN_CHANNEL'; // ← غيّر
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+const CHANNELS = [
+  { name:'قناة أبو جنة الرسمية',  url:'https://t.me/ch1',  emoji:'👑' },
+  { name:'فور يو إنيرجي',          url:'https://t.me/ch2',  emoji:'⚡' },
+  { name:'جبس أبو جنة',            url:'https://t.me/ch3',  emoji:'🏗️' },
+  { name:'عروض وتخفيضات',         url:'https://t.me/ch4',  emoji:'🎁' },
+  { name:'أخبار الأعمال',          url:'https://t.me/ch5',  emoji:'💼' },
+  { name:'مجتمع أبو جنة',          url:'https://t.me/ch6',  emoji:'🤝' },
+  { name:'وصفات ومطبخ',           url:'https://t.me/ch7',  emoji:'🍳' },
+  { name:'رياضة وصحة',            url:'https://t.me/ch8',  emoji:'💪' },
+  { name:'ترفيه ومرح',             url:'https://t.me/ch9',  emoji:'🎭' },
+  { name:'قناة VIP المميزة',       url:'https://t.me/ch10', emoji:'💎' },
+];
 
-  let userId = localStorage.getItem("uid") || Math.random().toString(36).substring(2);
-  localStorage.setItem("uid", userId);
+const PRIZES = [
+  { e:'💰', n:'50 دينار',   v:50,   c:'#16A34A', tc:'#fff' },
+  { e:'⭐', n:'100 دينار',  v:100,  c:'#2563EB', tc:'#fff' },
+  { e:'🔥', n:'200 دينار',  v:200,  c:'#EA580C', tc:'#fff' },
+  { e:'💎', n:'500 دينار',  v:500,  c:'#D4A843', tc:'#000' },
+  { e:'⚡', n:'750 دينار',  v:750,  c:'#C8FF00', tc:'#000' },
+  { e:'🏆', n:'1000 دينار', v:1000, c:'#DC2626', tc:'#fff' },
+  { e:'😅', n:'حظاً أوفر', v:0,    c:'#374151', tc:'#9CA3AF' },
+  { e:'🎁', n:'لفة مجانية',v:0,    extra:'free', c:'#7C3AED', tc:'#fff' },
+];
+const WEIGHTS = [30,24,17,10,7,4,5,3];
 
-  let points = 0;
-  let rotation = 0;
+const TASKS = [
+  { id:'t1', e:'📱', n:'شارك البوت مع 3 أصدقاء', d:'أرسل الرابط لـ 3 أشخاص', r:50 },
+  { id:'t2', e:'👍', n:'لايك آخر منشور أبو جنة',  d:'افتح القناة وضع لايك',    r:50 },
+  { id:'t3', e:'💬', n:'اكتب تعليقاً إيجابياً',    d:'علّق على آخر منشور',      r:50 },
+  { id:'t4', e:'📸', n:'شارك ستوري عن البوت',     d:'ضع ستوري على حسابك',     r:50 },
+  { id:'t5', e:'🛒', n:'زيارة متجر أبو جنة',       d:'افتح المتجر الإلكتروني',  r:50 },
+  { id:'t6', e:'⚡', n:'اشتر فور يو إنيرجي',       d:'اشتر علبة وأرسل الإيصال', r:50 },
+  { id:'t7', e:'📲', n:'تابعنا على إنستغرام',      d:'اضغط متابعة على حسابنا', r:50 },
+  { id:'t8', e:'🌟', n:'قيّم البوت 5 نجوم',       d:'افتح تقييم التليغرام',     r:50 },
+];
 
-  // تحميل النقاط
-  db.ref("users/" + userId).on("value", snap => {
-    if (snap.exists()) {
-      points = snap.val().points || 0;
-      document.getElementById("points").innerText = points;
+/* ============ STATE ============ */
+let S = {
+  bal:0, spins:3, streak:0, lastDay:null,
+  hist:[], tasks:{}, chJoined:0, allChDone:false,
+  totalEarned:0, pendingCh:-1, isSubbed:false
+};
+
+function load(){
+  try{
+    const raw=localStorage.getItem('aj3');
+    if(raw) Object.assign(S,JSON.parse(raw));
+    const today=new Date().toDateString();
+    if(S.lastDay!==today){
+      const yd=new Date(); yd.setDate(yd.getDate()-1);
+      if(S.lastDay) S.streak=(S.lastDay===yd.toDateString())?S.streak+1:0;
+      S.spins=3; S.lastDay=today;
+      Object.keys(S.tasks).forEach(k=>{ if(S.tasks[k]==='daily') delete S.tasks[k]; });
+      save();
     }
+  }catch(e){}
+}
+function save(){ try{localStorage.setItem('aj3',JSON.stringify(S));}catch(e){} }
+
+/* ============ INIT ============ */
+window.addEventListener('load',()=>{
+  try{ Telegram?.WebApp?.expand(); }catch(e){}
+  load();
+  buildPrizesGrid();
+  drawWheel(0);
+  buildTasks();
+  if(S.isSubbed) showApp();
+});
+
+function showApp(){
+  document.getElementById('joinScreen').style.display='none';
+  document.getElementById('spinScreen').classList.add('act');
+  document.getElementById('balCard').style.display='flex';
+  document.getElementById('tabsRow').style.display='flex';
+  document.getElementById('bnav').style.display='flex';
+  updateUI(); buildHist();
+}
+
+function updateUI(){
+  document.getElementById('balNum').textContent=fmt(S.bal);
+  document.getElementById('wdBalShow').textContent=fmt(S.bal)+' دينار';
+  document.getElementById('spinsLeft').textContent=S.spins;
+  document.getElementById('streakN').textContent=S.streak;
+  document.getElementById('spinBtn').classList.toggle('dis',S.spins<=0);
+  document.getElementById('nextLbl').textContent=S.spins<=0?'⏰ تجدد كل يوم':'';
+  const mod=S.allChDone?250:(S.totalEarned%250)||0;
+  const pct=S.allChDone?100:(mod/250)*100;
+  document.getElementById('pgFill').style.width=pct+'%';
+  document.getElementById('pgCur').textContent=mod;
+}
+function fmt(n){ return n.toLocaleString('ar-IQ'); }
+
+/* ============ JOIN ============ */
+function openMainCh(){ window.open(MAIN_CH_URL,'_blank'); setTimeout(()=>{const b=document.getElementById('verBtn');b.style.borderColor='#22C55E';b.style.color='#22C55E';},1800); }
+function verifyMain(){ S.isSubbed=true;save();toast('✅ أهلاً بك! ابدأ بالدوران 🎉');setTimeout(showApp,700); }
+
+/* ============ WHEEL ============ */
+function drawWheel(rot){
+  const cv=document.getElementById('wc'), ctx=cv.getContext('2d');
+  const cx=144,cy=144,r=141, sl=(2*Math.PI)/PRIZES.length;
+  ctx.clearRect(0,0,288,288);
+  PRIZES.forEach((p,i)=>{
+    const s=rot+i*sl-Math.PI/2,e=s+sl;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,s,e);ctx.closePath();
+    ctx.fillStyle=p.c;ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,.3)';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.save();ctx.translate(cx,cy);ctx.rotate(s+sl/2);
+    ctx.font='17px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(p.e,r*.63,0);
+    ctx.fillStyle=p.tc;ctx.font='bold 9px Cairo,sans-serif';
+    ctx.fillText(p.v>0?p.v+' د.ع':p.n.slice(0,5),r*.36,0);
+    ctx.restore();
   });
+  ctx.beginPath();ctx.arc(cx,cy,29,0,Math.PI*2);
+  ctx.fillStyle='#080808';ctx.fill();
+  ctx.strokeStyle='#D4A843';ctx.lineWidth=2.5;ctx.stroke();
+}
 
-  // القناة
-  db.ref("config/channelUrl").on("value", snap => {
-    if (snap.exists()) {
-      document.getElementById("channelLink").href = snap.val();
-    }
-  });
-
-  // المهمات
-  db.ref("tasks").on("value", snap => {
-    const tasks = snap.val() || {};
-    let html = "";
-
-    Object.keys(tasks).forEach(id => {
-      const t = tasks[id];
-      html += `
-        <div class="task">
-          <b>${t.title}</b>
-          <a href="${t.link}" target="_blank">فتح</a>
-          <button class="btn" onclick="claimTask('${id}', ${t.reward})">استلام ${t.reward} نقطة</button>
-        </div>
-      `;
-    });
-
-    document.getElementById("tasks").innerHTML = html;
-  });
-
-  function claimTask(id, reward){
-    points += reward;
-    db.ref("users/" + userId).set({ points });
-    alert("تم استلام " + reward + " نقطة 🔥");
+let spinning=false;
+function doSpin(){
+  if(spinning)return;
+  if(S.spins<=0){toast('⏰ لا توجد لفات متبقية اليوم');return;}
+  spinning=true;
+  document.getElementById('spinBtn').classList.add('dis');
+  const tot=WEIGHTS.reduce((a,b)=>a+b,0);
+  let rnd=Math.random()*tot,pi=0;
+  for(let i=0;i<WEIGHTS.length;i++){rnd-=WEIGHTS[i];if(rnd<=0){pi=i;break;}}
+  const sl=(2*Math.PI)/PRIZES.length;
+  const target=(2*Math.PI*(6+Math.random()*3))+(2*Math.PI)-(pi*sl)-(sl/2);
+  const dur=4400+Math.random()*1200;
+  let t0=null;
+  const ease=x=>1-Math.pow(1-x,4);
+  function frame(ts){
+    if(!t0)t0=ts;
+    const prog=Math.min((ts-t0)/dur,1);
+    drawWheel(target*ease(prog));
+    if(prog<1){requestAnimationFrame(frame);return;}
+    spinning=false;
+    const pr=PRIZES[pi];
+    S.spins--;
+    if(pr.extra==='free')S.spins++;
+    if(pr.v>0){S.bal+=pr.v;S.totalEarned+=pr.v;checkChTrigger();}
+    S.hist.unshift({e:pr.e,n:pr.n,v:pr.v,ts:new Date().toLocaleString('ar-IQ')});
+    save();updateUI();buildHist();
+    showResult(pr);
   }
+  requestAnimationFrame(frame);
+}
 
-  function checkSubscribe() {
-    document.getElementById("subscribeBox").classList.add("hidden");
-    document.getElementById("gameBox").classList.remove("hidden");
+/* ============ CHANNEL TRIGGER ============ */
+function checkChTrigger(){
+  if(S.allChDone)return;
+  const milestone=Math.floor(S.totalEarned/250);
+  if(milestone>S.chJoined&&S.chJoined<CHANNELS.length){
+    S.pendingCh=S.chJoined;save();
   }
+}
 
-  function spinWheel() {
-    let rewards = [20,40,60,80,100,150,200,300];
-    let index = Math.floor(Math.random() * rewards.length);
+function showResult(pr){
+  document.getElementById('resEm').textContent=pr.e;
+  document.getElementById('resTtl').textContent=pr.v>0?'مبروك! 🎊':pr.extra==='free'?'🎁 لفة مجانية!':'حظاً أوفر 😊';
+  document.getElementById('resAmt').innerHTML=pr.v>0?`+<span>${fmt(pr.v)}</span> دينار عراقي`:`<span style="font-size:19px">${pr.n}</span>`;
+  document.getElementById('resTot').textContent=`رصيدك الكلي: ${fmt(S.bal)} دينار`;
+  if(pr.v>0||pr.extra)spawnConf();
+  showOv('resOv');
+}
 
-    let deg = 360 * 5 + (index * 45);
-    rotation += deg;
+function closeRes(){
+  closeOv('resOv');
+  document.getElementById('spinBtn').classList.toggle('dis',S.spins<=0);
+  if(S.pendingCh>=0&&!S.allChDone)setTimeout(openChGate,500);
+}
 
-    document.getElementById("wheel").style.transform = `rotate(${rotation}deg)`;
+/* ============ CHANNEL GATE ============ */
+function openChGate(){
+  const idx=S.pendingCh;
+  if(idx<0||idx>=CHANNELS.length)return;
+  const ch=CHANNELS[idx];
+  document.getElementById('chAv').textContent=ch.emoji;
+  document.getElementById('chTtl').textContent=ch.name;
+  document.getElementById('chIdxShow').textContent=idx+1;
+  document.getElementById('chTotShow').textContent=CHANNELS.length;
+  document.getElementById('chLeft').textContent=CHANNELS.length-(idx+1);
+  const dots=document.getElementById('chDots');
+  dots.innerHTML=CHANNELS.map((_,i)=>`<div class="ch-dot ${i<idx?'dn':i===idx?'cr':''}"></div>`).join('');
+  document.getElementById('chJoinBtn').onclick=()=>window.open(ch.url,'_blank');
+  showOv('chOv');
+}
 
-    setTimeout(()=>{
-      let reward = rewards[index];
-      points += reward;
-      db.ref("users/" + userId).set({ points });
-      alert("ربحت " + reward + " نقطة 🎉");
-    },5000);
+function doneChannel(){
+  S.chJoined++;
+  if(S.chJoined>=CHANNELS.length){S.allChDone=true;}
+  S.pendingCh=-1;
+  save();updateUI();closeOv('chOv');
+  toast(S.allChDone?'🎉 انضممت لكل القنوات! لن نطلب ذلك مجدداً.':
+    `✅ رائع! ${S.chJoined} من ${CHANNELS.length} قنوات`);
+}
+
+/* ============ TASKS ============ */
+function buildTasks(){
+  document.getElementById('tasksList').innerHTML=TASKS.map(t=>{
+    const done=!!S.tasks[t.id];
+    return `<div class="task-item ${done?'done':''}">
+      <div class="task-ico">${t.e}</div>
+      <div class="task-body">
+        <div class="task-name">${t.n}</div>
+        <div class="task-desc">${t.d}</div>
+      </div>
+      <div class="task-rhs">
+        <div class="task-rwd">+50 د.ع</div>
+        ${done?'<div style="font-size:20px">✅</div>':`<button class="task-btn" onclick="doTask('${t.id}','${t.e}','${t.n}')">ابدأ</button>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function doTask(id,e,n){
+  if(S.tasks[id])return;
+  S.tasks[id]=true;S.bal+=50;S.totalEarned+=50;
+  S.hist.unshift({e,n:'مهمة: '+n,v:50,ts:new Date().toLocaleString('ar-IQ')});
+  checkChTrigger();save();updateUI();buildTasks();buildHist();
+  toast('✅ أحسنت! ربحت 50 دينار 🎉');
+  if(S.pendingCh>=0&&!S.allChDone)setTimeout(openChGate,1100);
+}
+
+/* ============ HISTORY ============ */
+function buildHist(){
+  const el=document.getElementById('histList');
+  if(!S.hist.length){
+    el.innerHTML='<div class="empty-st"><span>📜</span><div>لا توجد سجلات بعد</div><div>ابدأ بالدوران أو أنجز مهمة!</div></div>';
+    return;
   }
+  el.innerHTML=S.hist.slice(0,30).map(h=>`
+    <div class="hist-item">
+      <div class="hist-ico">${h.e}</div>
+      <div class="hist-body">
+        <div class="hist-nm">${h.n}</div>
+        <div class="hist-dt">${h.ts}</div>
+      </div>
+      <div class="hist-v ${h.v<0?'neg':''}">${h.v>0?'+'+fmt(h.v):h.v<0?fmt(h.v):'🎁'} ${h.v!==0?'د.ع':''}</div>
+    </div>`).join('');
+}
+
+/* ============ PRIZES ============ */
+function buildPrizesGrid(){
+  document.getElementById('prizesGrid').innerHTML=
+    PRIZES.filter(p=>p.v>0).map(p=>`<div class="pm-item"><div class="pm-e">${p.e}</div><div class="pm-v">${fmt(p.v)} د.ع</div></div>`).join('');
+}
+
+/* ============ WITHDRAW ============ */
+function openWd(){ document.getElementById('wdBalShow').textContent=fmt(S.bal)+' دينار';showOv('wdOv'); }
+function submitWd(){
+  const amt=parseInt(document.getElementById('wdAmt').value);
+  const meth=document.getElementById('wdMeth').value;
+  const acc=document.getElementById('wdAcc').value.trim();
+  if(!amt||amt<1000){toast('⚠️ الحد الأدنى 1000 دينار');return;}
+  if(amt>S.bal){toast('⚠️ رصيدك غير كافٍ');return;}
+  if(!meth){toast('⚠️ اختر طريقة الدفع');return;}
+  if(!acc){toast('⚠️ أدخل رقم الحساب');return;}
+  S.bal-=amt;
+  S.hist.unshift({e:'💸',n:'سحب - '+meth,v:-amt,ts:new Date().toLocaleString('ar-IQ')});
+  save();updateUI();buildHist();closeOv('wdOv');
+  document.getElementById('wdAmt').value='';
+  document.getElementById('wdAcc').value='';
+  toast('✅ طلب السحب أُرسل! سيُراجع خلال 24–48 ساعة');
+}
+
+/* ============ NAVIGATION ============ */
+function goTab(el,key){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('act'));
+  el.classList.add('act');
+  document.querySelectorAll('.bni').forEach((b,i)=>b.classList.toggle('act',['spin','tasks','hist'][i]===key));
+  showScreen(key);
+}
+function goNav(el,key){
+  document.querySelectorAll('.bni').forEach(b=>b.classList.remove('act'));
+  el.classList.add('act');
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('act',['spin','tasks','hist'][i]===key));
+  showScreen(key);
+}
+function showScreen(key){
+  const map={spin:'spinScreen',tasks:'tasksScreen',hist:'histScreen'};
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('act'));
+  document.getElementById(map[key]).classList.add('act');
+  if(key==='hist')buildHist();
+  if(key==='tasks')buildTasks();
+}
+
+/* ============ OVERLAYS ============ */
+function showOv(id){document.getElementById(id).classList.add('show');}
+function closeOv(id){document.getElementById(id).classList.remove('show');}
+
+/* ============ CONFETTI ============ */
+function spawnConf(){
+  const c=document.getElementById('confBox');c.innerHTML='';
+  const cols=['#D4A843','#F5C842','#C8FF00','#22C55E','#06B6D4','#8B5CF6','#FF6B6B'];
+  for(let i=0;i<34;i++){
+    const p=document.createElement('div');p.className='conf-piece';
+    p.style.cssText=`left:${Math.random()*100}%;background:${cols[i%cols.length]};animation-delay:${Math.random()*.5}s;animation-duration:${1.2+Math.random()*.9}s;`;
+    c.appendChild(p);
+  }
+}
+
+/* ============ TOAST ============ */
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);
+}
 </script>
-
 </body>
 </html>
