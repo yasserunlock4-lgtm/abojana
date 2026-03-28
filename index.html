@@ -65,18 +65,53 @@
       color: #fff; text-decoration: none;
       padding: 8px 18px; border-radius: 30px;
       font-size: 0.85rem; font-weight: 700;
+      transition: background .35s, transform .2s;
+    }
+    .channel-btn.clicked {
+      background: linear-gradient(135deg, #00c853, #009624);
+      pointer-events: none;
     }
 
+    /* tick badge */
+    .channel-card { position: relative; }
+    .tick-badge {
+      position: absolute; top: -11px; left: -11px;
+      width: 28px; height: 28px;
+      background: #00c853; border-radius: 50%;
+      border: 2.5px solid #0a0a0f;
+      display: none; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 900;
+    }
+    .channel-card.done .tick-badge { display: flex; }
+    .channel-card.done { border-color: rgba(0,200,83,0.45); }
+
+    .gate-hint {
+      font-size: 0.82rem; color: #555; margin-top: -10px; margin-bottom: 16px;
+      transition: color .4s;
+    }
+    .gate-hint.all-done { color: #00c853; }
+
     .gate-check-btn {
-      background: linear-gradient(135deg, #f5c518, #c99a00);
-      color: #000; border: none;
+      background: #222;
+      color: #555; border: 1.5px solid #333;
       padding: 14px 38px; border-radius: 50px;
       font-size: 1.05rem; font-weight: 900;
-      font-family: 'Cairo', sans-serif; cursor: pointer;
-      box-shadow: 0 4px 20px rgba(245,197,24,0.4);
-      transition: transform .2s, box-shadow .2s;
+      font-family: 'Cairo', sans-serif; cursor: not-allowed;
+      transition: all .35s;
+      opacity: 0.55;
     }
-    .gate-check-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(245,197,24,0.6); }
+    .gate-check-btn.ready {
+      background: linear-gradient(135deg, #f5c518, #c99a00);
+      color: #000; border-color: transparent; cursor: pointer;
+      box-shadow: 0 4px 22px rgba(245,197,24,0.45);
+      opacity: 1;
+      animation: readyPulse 1.6s ease-in-out infinite;
+    }
+    .gate-check-btn.ready:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(245,197,24,0.7); }
+    @keyframes readyPulse {
+      0%,100% { box-shadow: 0 4px 22px rgba(245,197,24,0.45); }
+      50%      { box-shadow: 0 4px 40px rgba(245,197,24,0.8); }
+    }
 
     /* ══ MAIN ══ */
     #main { display: none; flex-direction: column; align-items: center; }
@@ -311,26 +346,35 @@
 <!-- ══ GATE ══ -->
 <div class="page" id="gate">
   <div class="gate-title">🔐 قبل البدء...</div>
-  <p class="gate-sub">اشترك في القناتين للوصول إلى البوت</p>
+  <p class="gate-sub">اشترك في القناتين للوصول للبوت</p>
 
   <div class="channels-wrap">
-    <div class="channel-card">
+    <div class="channel-card" id="card1">
+      <div class="tick-badge">✓</div>
       <img class="channel-logo" alt="القناة 1"
         src="CHANNEL_1_LOGO_URL"
         onerror="this.src='https://placehold.co/64x64/229ED9/fff?text=📢'" />
       <div class="channel-name">اسم القناة الأولى</div>
-      <a class="channel-btn" href="https://t.me/YOUR_CHANNEL_1" target="_blank">اشترك</a>
+      <a class="channel-btn" id="btn1"
+         href="https://t.me/YOUR_CHANNEL_1"
+         target="_blank"
+         onclick="markClicked(1)">📢 اشترك</a>
     </div>
-    <div class="channel-card">
+    <div class="channel-card" id="card2">
+      <div class="tick-badge">✓</div>
       <img class="channel-logo" alt="القناة 2"
         src="CHANNEL_2_LOGO_URL"
         onerror="this.src='https://placehold.co/64x64/f5c518/000?text=📢'" />
       <div class="channel-name">اسم القناة الثانية</div>
-      <a class="channel-btn" href="https://t.me/YOUR_CHANNEL_2" target="_blank">اشترك</a>
+      <a class="channel-btn" id="btn2"
+         href="https://t.me/YOUR_CHANNEL_2"
+         target="_blank"
+         onclick="markClicked(2)">📢 اشترك</a>
     </div>
   </div>
 
-  <button class="gate-check-btn" onclick="unlockMain()">✅ اشتركت — ادخل</button>
+  <p class="gate-hint" id="gateHint">⬆️ اضغط على الاشتراك في القناتين أولاً</p>
+  <button class="gate-check-btn" id="enterBtn" onclick="unlockMain()" disabled>✅ ادخل البوت</button>
 </div>
 
 <!-- ══ MAIN ══ -->
@@ -488,7 +532,35 @@ function saveState(s) { localStorage.setItem('abuJanna', JSON.stringify(s)); }
 // ══════════════════════════════════════
 //  GATE
 // ══════════════════════════════════════
+const clicked = { 1: false, 2: false };
+
+function markClicked(n) {
+  // تأخير بسيط حتى يفتح الرابط أولاً
+  setTimeout(() => {
+    clicked[n] = true;
+    document.getElementById('card' + n).classList.add('done');
+    const btn = document.getElementById('btn' + n);
+    btn.classList.add('clicked');
+    btn.textContent = '✓ تم';
+    checkBothClicked();
+  }, 500);
+}
+
+function checkBothClicked() {
+  const hint    = document.getElementById('gateHint');
+  const enterBtn = document.getElementById('enterBtn');
+  if (clicked[1] && clicked[2]) {
+    enterBtn.classList.add('ready');
+    enterBtn.disabled = false;
+    hint.textContent = '✅ رائع! الآن اضغط على ادخل البوت';
+    hint.classList.add('all-done');
+  } else if (clicked[1] || clicked[2]) {
+    hint.textContent = '👆 اشترك في القناة الثانية أيضاً';
+  }
+}
+
 function unlockMain() {
+  if (!clicked[1] || !clicked[2]) return;
   localStorage.setItem('gate_passed','1');
   document.getElementById('gate').style.display  = 'none';
   document.getElementById('main').style.display  = 'flex';
@@ -564,7 +636,7 @@ function spinWheel() {
   if (spinning) return;
   const s = getState();
   if (s.spins >= MAX_SPINS) {
-    showToast('⛔ الوقت لم ينتهي ', '#ff4444');
+    showToast('⛔ انتهت محاولاتك اليوم! تجديد غداً', '#ff4444');
     return;
   }
 
