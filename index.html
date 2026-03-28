@@ -260,6 +260,37 @@
     .task-arrow { color: #555; font-size: 0.9rem; }
     .tasks-empty { color: #555; font-size: 0.9rem; padding: 20px 0; }
 
+    /* task reward badge */
+    .task-reward {
+      display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0;
+    }
+    .reward-badge {
+      background: rgba(245,197,24,0.15); color: #f5c518;
+      border: 1px solid rgba(245,197,24,0.3);
+      border-radius: 20px; padding: 3px 10px;
+      font-size: 0.78rem; font-weight: 800; white-space: nowrap;
+    }
+    .done-badge {
+      background: rgba(0,200,83,0.15); color: #00c853;
+      border: 1px solid rgba(0,200,83,0.3);
+      border-radius: 20px; padding: 3px 10px;
+      font-size: 0.78rem; font-weight: 800; display: none;
+    }
+
+    /* completed task state */
+    .task-item.completed {
+      border-color: rgba(0,200,83,0.3);
+      background: rgba(0,200,83,0.05);
+      pointer-events: none;
+    }
+    .task-item.completed .task-name { color: #aaa; }
+    .task-item.completed .done-badge { display: block; }
+    .task-item.completed .reward-badge { display: none; }
+    .task-item.completed .task-arrow { display: none; }
+
+    /* task click ripple */
+    .task-item { cursor: pointer; }
+
     .withdraw-info { text-align: center; padding: 10px 0; }
     .withdraw-info .big-num { font-size: 2rem; font-weight: 900; color: #f5c518; margin: 10px 0; }
     .withdraw-info p { color: #888; font-size: 0.95rem; margin-bottom: 16px; }
@@ -402,7 +433,9 @@ async function loadFromFirebase() {
     ]);
 
     const channels = chSnap.exists()  ? Object.values(chSnap.val())  : [];
-    const tasks    = taskSnap.exists() ? Object.values(taskSnap.val()) : [];
+    const rawTasks = taskSnap.exists() ? taskSnap.val() : {};
+    // حفظ الـ key كـ id داخل كل مهمة
+    const tasks = Object.entries(rawTasks).map(([k,v]) => ({ id: k, ...v }));
 
     window._fbChannels = channels;
     window._fbTasks    = tasks.filter(t => t.active !== false);
@@ -445,9 +478,10 @@ const WITHDRAW_MIN = 200000;
 // ════════════════════════════════
 function getState() {
   let s = JSON.parse(localStorage.getItem('abuJanna') || '{}');
-  if (!s.balance)   s.balance   = 0;
-  if (!s.spins)     s.spins     = 0;
-  if (!s.resetTime) s.resetTime = 0;
+  if (!s.balance)          s.balance          = 0;
+  if (!s.spins)            s.spins            = 0;
+  if (!s.resetTime)        s.resetTime        = 0;
+  if (!s.completedTasks)   s.completedTasks   = {};
   if (Date.now() >= s.resetTime + COOLDOWN_MS) {
     s.spins = 0; s.resetTime = Date.now();
   }
@@ -555,22 +589,56 @@ function buildTasks() {
     list.innerHTML = '<div class="tasks-empty">لا توجد مهام حالياً</div>';
     return;
   }
+
+  const s = getState();
+  const done = s.completedTasks || {};
+
   tasks.forEach(t => {
-    const iconClass = ICON_MAP[t.icon] || 'icon-default';
-    const emoji     = EMOJI_MAP[t.icon] || '🔗';
-    const a = document.createElement('a');
-    a.className = 'task-item';
-    a.href      = t.link || '#';
-    a.target    = '_blank';
-    a.innerHTML = `
+    const iconClass  = ICON_MAP[t.icon]  || 'icon-default';
+    const emoji      = EMOJI_MAP[t.icon] || '🔗';
+    const reward     = t.reward !== undefined ? t.reward : 10;
+    const isDone     = !!done[t.id];
+
+    const el = document.createElement('div');
+    el.className = 'task-item' + (isDone ? ' completed' : '');
+    el.innerHTML = `
       <div class="task-icon ${iconClass}">${emoji}</div>
       <div class="task-text">
         <div class="task-name">${t.name}</div>
         <div class="task-desc">${t.desc || ''}</div>
       </div>
+      <div class="task-reward">
+        <span class="reward-badge">+${reward} دينار</span>
+        <span class="done-badge">✓ تم</span>
+      </div>
       <div class="task-arrow">←</div>`;
-    list.appendChild(a);
+
+    if (!isDone) {
+      el.addEventListener('click', () => completeTask(t, el));
+    }
+    list.appendChild(el);
   });
+}
+
+function completeTask(t, el) {
+  // فتح الرابط
+  if (t.link) window.open(t.link, '_blank');
+
+  // تأخير قصير ثم احتساب المكافأة
+  setTimeout(() => {
+    const s      = getState();
+    const done   = s.completedTasks || {};
+    if (done[t.id]) return; // تم مسبقاً
+    done[t.id]   = true;
+    const reward = t.reward !== undefined ? t.reward : 10;
+    s.completedTasks = done;
+    s.balance   += reward;
+    saveState(s);
+    updateUI();
+    el.classList.add('completed');
+    el.style.pointerEvents = 'none';
+    showToast(`✅ أكملت مهمة! ربحت ${reward} دينار 🎉`);
+  }, 800);
 }
 
 // ════════════════════════════════
