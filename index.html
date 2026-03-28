@@ -564,7 +564,7 @@ function spinWheel() {
   if (spinning) return;
   const s = getState();
   if (s.spins >= MAX_SPINS) {
-    showToast('⛔ انتهت محاولاتك اليوم! تجديد غداً', '#ff4444');
+    showToast('⛔ الوقت لم ينتهي ', '#ff4444');
     return;
   }
 
