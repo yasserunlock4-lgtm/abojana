@@ -402,64 +402,85 @@
   </div>
 </div>
 
-<!-- ── Firebase SDK ── -->
-<script type="module">
-import { initializeApp }         from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+<script>
+// ════════════════════════════════════════════════════════════════
+//  وضع التشغيل — غيّر USE_FIREBASE حسب الحاجة:
+//    true  = يجيب البيانات من Firebase (الوضع الطبيعي)
+//    false = بيانات ثابتة بدون انترنت (للمراجعة / التجربة)
+// ════════════════════════════════════════════════════════════════
+const USE_FIREBASE = false;
 
-// ════════════════════════════════
-//  Firebase config
-// ════════════════════════════════
-const firebaseConfig = {
-  apiKey:            "AIzaSyDiCrZhKVpkYE3HUeeDkAo7xA9I88uZ1i0",
-  authDomain:        "abojana-3f0c2.firebaseapp.com",
-  databaseURL:       "https://abojana-3f0c2-default-rtdb.firebaseio.com",
-  projectId:         "abojana-3f0c2",
-  storageBucket:     "abojana-3f0c2.firebasestorage.app",
-  messagingSenderId: "819681544560",
-  appId:             "1:819681544560:web:be2249a51d0c79ee21a7b5",
-};
-const app = initializeApp(firebaseConfig);
-const db  = getDatabase(app);
+// ── بيانات ثابتة (تُستخدم عند USE_FIREBASE = false) ──
+const STATIC_CHANNELS = [
+  { name: "قناة أبو جنة الرسمية",  logo: "", link: "https://t.me/YOUR_CHANNEL_1" },
+  { name: "قناة مشروب 4U",          logo: "", link: "https://t.me/YOUR_CHANNEL_2" },
+];
 
-// ════════════════════════════════
-//  Fetch channels + tasks
-// ════════════════════════════════
-async function loadFromFirebase() {
-  try {
-    const [chSnap, taskSnap] = await Promise.all([
-      get(ref(db, 'gate_channels')),
-      get(ref(db, 'tasks')),
-    ]);
-
-    const channels = chSnap.exists()  ? Object.values(chSnap.val())  : [];
-    const rawTasks = taskSnap.exists() ? taskSnap.val() : {};
-    // حفظ الـ key كـ id داخل كل مهمة
-    const tasks = Object.entries(rawTasks).map(([k,v]) => ({ id: k, ...v }));
-
-    window._fbChannels = channels;
-    window._fbTasks    = tasks.filter(t => t.active !== false);
-  } catch (e) {
-    console.warn('Firebase error:', e);
-    window._fbChannels = [];
-    window._fbTasks    = [];
-  }
-}
+const STATIC_TASKS = [
+  { id:"task_ig", name:"تابع حساب الانستقرام", desc:"@your_instagram", icon:"ig", link:"https://instagram.com/YOUR_USERNAME", reward:10,  active:true },
+  { id:"task_tg", name:"اشترك في قناة تيليغرام", desc:"@your_channel",  icon:"tg", link:"https://t.me/YOUR_CHANNEL",          reward:20,  active:true },
+  { id:"task_yt", name:"اشترك في يوتيوب",        desc:"@your_youtube",  icon:"yt", link:"https://youtube.com/@YOUR_CHANNEL",  reward:15,  active:true },
+  { id:"task_tk", name:"تابع في تيك توك",         desc:"@your_tiktok",  icon:"tk", link:"https://tiktok.com/@YOUR_USERNAME",  reward:10,  active:true },
+  { id:"task_fb", name:"تابع صفحة الفيسبوك",     desc:"صفحة أبو جنة", icon:"fb", link:"https://facebook.com/YOUR_PAGE",    reward:10,  active:true },
+  { id:"task_wa", name:"تواصل على واتساب",        desc:"للدعم والاستفسار", icon:"wa", link:"https://wa.me/YOUR_NUMBER",      reward:10,  active:true },
+  { id:"task_x",  name:"تابع على تويتر X",        desc:"@your_twitter", icon:"x",  link:"https://x.com/YOUR_USERNAME",      reward:10,  active:true },
+];
 
 // ════════════════════════════════
 //  Boot
 // ════════════════════════════════
-await loadFromFirebase();
+async function boot() {
+  if (USE_FIREBASE) {
+    // جلب من Firebase
+    try {
+      const { initializeApp }         = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js");
+      const { getDatabase, ref, get } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js");
+      const app = initializeApp({
+        apiKey:            "AIzaSyDiCrZhKVpkYE3HUeeDkAo7xA9I88uZ1i0",
+        authDomain:        "abojana-3f0c2.firebaseapp.com",
+        databaseURL:       "https://abojana-3f0c2-default-rtdb.firebaseio.com",
+        projectId:         "abojana-3f0c2",
+        storageBucket:     "abojana-3f0c2.firebasestorage.app",
+        messagingSenderId: "819681544560",
+        appId:             "1:819681544560:web:be2249a51d0c79ee21a7b5",
+      });
+      const db = getDatabase(app);
+      const [chSnap, taskSnap] = await Promise.all([
+        get(ref(db, 'gate_channels')),
+        get(ref(db, 'tasks')),
+      ]);
+      const channels = chSnap.exists()  ? Object.values(chSnap.val()) : [];
+      const rawTasks = taskSnap.exists() ? taskSnap.val() : {};
+      const tasks    = Object.entries(rawTasks).map(([k,v]) => ({ id: k, ...v }));
+      window._fbChannels = channels;
+      window._fbTasks    = tasks.filter(t => t.active !== false);
+    } catch(e) {
+      console.warn('Firebase error, using static data:', e);
+      window._fbChannels = STATIC_CHANNELS;
+      window._fbTasks    = STATIC_TASKS.filter(t => t.active !== false);
+    }
+  } else {
+    // بيانات ثابتة — بدون Firebase
+    window._fbChannels = STATIC_CHANNELS;
+    window._fbTasks    = STATIC_TASKS.filter(t => t.active !== false);
+  }
 
-document.getElementById('loading').style.display = 'none';
+  document.getElementById('loading').style.display = 'none';
 
-if (localStorage.getItem('gate_passed') === '1') {
-  document.getElementById('main').style.display = 'flex';
-  window._startApp();
-} else {
-  document.getElementById('gate').style.display = 'flex';
-  window._buildGate();
+  // Gate: true = تجاوز الاشتراك، false = إظهاره
+  const SKIP_GATE = true;
+
+  if (SKIP_GATE || localStorage.getItem('gate_passed') === '1') {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('main').style.display = 'flex';
+    window._startApp();
+  } else {
+    document.getElementById('gate').style.display = 'flex';
+    window._buildGate();
+  }
 }
+
+boot();
 </script>
 
 <script>
