@@ -37,6 +37,78 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     #loading p { color: #666; font-size: 0.95rem; }
 
+    /* ── SHARE GATE (NEW) ── */
+    #shareGate { display: none; flex-direction: column; align-items: center; }
+    .share-gate-title { font-size: 1.6rem; font-weight: 900; color: #f5c518; margin-bottom: 8px; }
+    .share-gate-sub   { color: #888; font-size: 0.95rem; margin-bottom: 32px; line-height: 1.6; }
+
+    .share-options {
+      display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px;
+    }
+    .share-option {
+      background: #13131e; border: 2px solid rgba(245,197,24,0.25);
+      border-radius: 16px; padding: 16px 18px;
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer; transition: all .3s;
+      position: relative;
+    }
+    .share-option:hover { border-color: #f5c518; background: rgba(245,197,24,0.05); }
+    .share-option.completed { border-color: rgba(0,200,83,0.6); background: rgba(0,200,83,0.08); }
+
+    .share-icon {
+      width: 50px; height: 50px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; flex-shrink: 0;
+      background: rgba(245,197,24,0.1);
+    }
+    .share-option.completed .share-icon { background: rgba(0,200,83,0.15); }
+
+    .share-text { flex: 1; text-align: right; }
+    .share-name { font-size: 0.95rem; font-weight: 700; color: #eee; }
+    .share-desc { font-size: 0.8rem; color: #666; margin-top: 3px; }
+
+    .share-check {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(245,197,24,0.2); border: 2px solid rgba(245,197,24,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; color: #f5c518; flex-shrink: 0;
+      transition: all .3s;
+    }
+    .share-option.completed .share-check {
+      background: #00c853; border-color: #00c853; color: #fff;
+    }
+
+    .share-progress {
+      width: 100%; height: 8px; background: rgba(255,255,255,0.08);
+      border-radius: 10px; margin-bottom: 24px; overflow: hidden;
+    }
+    .share-progress-bar {
+      height: 100%; background: linear-gradient(90deg, #f5c518, #00ff88);
+      border-radius: 10px; transition: width .4s ease;
+    }
+
+    .share-hint {
+      font-size: 0.85rem; color: #555; margin-bottom: 20px; transition: color .4s;
+    }
+    .share-hint.all-done { color: #00c853; font-weight: 700; }
+
+    .share-continue-btn {
+      width: 100%; max-width: 300px; padding: 14px 38px;
+      background: #222; color: #555; border: 1.5px solid #333;
+      border-radius: 50px; font-size: 1.05rem; font-weight: 900;
+      font-family: 'Cairo', sans-serif; cursor: not-allowed;
+      transition: all .35s; opacity: 0.55;
+    }
+    .share-continue-btn.ready {
+      background: linear-gradient(135deg,#f5c518,#c99a00);
+      color: #000; border-color: transparent; cursor: pointer; opacity: 1;
+      animation: readyPulse 1.6s ease-in-out infinite;
+    }
+    @keyframes readyPulse {
+      0%,100% { box-shadow: 0 4px 22px rgba(245,197,24,0.45); }
+      50%      { box-shadow: 0 4px 40px rgba(245,197,24,0.8); }
+    }
+
     /* ── GATE ── */
     #gate { display: none; flex-direction: column; align-items: center; }
     .gate-title { font-size: 1.5rem; font-weight: 900; color: #f5c518; margin-bottom: 6px; }
@@ -92,10 +164,6 @@
       background: linear-gradient(135deg,#f5c518,#c99a00);
       color: #000; border-color: transparent; cursor: pointer; opacity: 1;
       animation: readyPulse 1.6s ease-in-out infinite;
-    }
-    @keyframes readyPulse {
-      0%,100% { box-shadow: 0 4px 22px rgba(245,197,24,0.45); }
-      50%      { box-shadow: 0 4px 40px rgba(245,197,24,0.8); }
     }
 
     /* ── MAIN ── */
@@ -247,260 +315,340 @@
     }
     .icon-ig { background: linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); }
     .icon-tg { background: linear-gradient(135deg,#2AABEE,#229ED9); }
-    .icon-yt { background: #ff0000; }
-    .icon-tk { background: #010101; border: 1px solid #333; }
-    .icon-fb { background: #1877f2; }
-    .icon-wa { background: #25d366; }
-    .icon-x  { background: #000; border: 1px solid #333; }
-    .icon-default { background: #333; }
+    .icon-yt { background: linear-gradient(135deg,#ff0000,#cc0000); }
+    .icon-tk { background: linear-gradient(135deg,#25f4ee,#192734); }
+    .icon-fb { background: linear-gradient(135deg,#1877f2,#0a66c2); }
+    .icon-wa { background: linear-gradient(135deg,#25d366,#128c7e); }
+    .icon-x  { background: linear-gradient(135deg,#000,#555); }
+    .icon-default { background: linear-gradient(135deg,#f5c518,#c99a00); }
 
-    .task-text { flex: 1; }
-    .task-name { font-size: 0.95rem; font-weight: 700; color: #eee; }
-    .task-desc { font-size: 0.78rem; color: #666; margin-top: 1px; }
-    .task-arrow { color: #555; font-size: 0.9rem; }
-    .tasks-empty { color: #555; font-size: 0.9rem; padding: 20px 0; }
+    .task-text { flex: 1; text-align: right; }
+    .task-name { font-size: 0.9rem; font-weight: 700; color: #eee; }
+    .task-desc { font-size: 0.75rem; color: #666; margin-top: 2px; }
 
-    /* task reward badge */
     .task-reward {
-      display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0;
+      display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
+      flex-shrink: 0;
     }
     .reward-badge {
-      background: rgba(245,197,24,0.15); color: #f5c518;
-      border: 1px solid rgba(245,197,24,0.3);
-      border-radius: 20px; padding: 3px 10px;
-      font-size: 0.78rem; font-weight: 800; white-space: nowrap;
+      font-size: 0.8rem; font-weight: 700; color: #00ff88;
+      background: rgba(0,255,136,0.1); padding: 4px 10px;
+      border-radius: 20px;
     }
     .done-badge {
-      background: rgba(0,200,83,0.15); color: #00c853;
-      border: 1px solid rgba(0,200,83,0.3);
-      border-radius: 20px; padding: 3px 10px;
-      font-size: 0.78rem; font-weight: 800; display: none;
+      font-size: 0.75rem; color: #00c853; font-weight: 700;
+      display: none;
     }
-
-    /* completed task state */
-    .task-item.completed {
-      border-color: rgba(0,200,83,0.3);
-      background: rgba(0,200,83,0.05);
-      pointer-events: none;
-    }
-    .task-item.completed .task-name { color: #aaa; }
-    .task-item.completed .done-badge { display: block; }
     .task-item.completed .reward-badge { display: none; }
-    .task-item.completed .task-arrow { display: none; }
+    .task-item.completed .done-badge { display: block; }
 
-    /* task click ripple */
-    .task-item { cursor: pointer; }
+    .task-arrow { color: #555; font-size: 1rem; flex-shrink: 0; }
 
-    .withdraw-info { text-align: center; padding: 10px 0; }
-    .withdraw-info .big-num { font-size: 2rem; font-weight: 900; color: #f5c518; margin: 10px 0; }
-    .withdraw-info p { color: #888; font-size: 0.95rem; margin-bottom: 16px; }
-    .owner-btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: linear-gradient(135deg,#229ED9,#1a7ab8);
-      color: #fff; text-decoration: none;
-      padding: 12px 28px; border-radius: 40px;
-      font-size: 1rem; font-weight: 800;
+    .tasks-empty {
+      text-align: center; padding: 40px 20px;
+      color: #555; font-size: 0.95rem;
     }
 
     /* Coins */
     .coin {
-      position: fixed; font-size: 1.1rem; pointer-events: none; opacity: 0;
-      animation: fall linear infinite;
+      position: fixed; font-size: 2rem;
+      animation: coinFall linear forwards;
+      pointer-events: none; z-index: -1;
     }
-    @keyframes fall {
-      0%   { opacity: 0; transform: translateY(-30px) rotate(0deg); }
-      10%  { opacity: 0.5; }
-      90%  { opacity: 0.2; }
-      100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+    @keyframes coinFall {
+      0%   { bottom: 100vh; opacity: 1; }
+      100% { bottom: -50px; opacity: 0; }
+    }
+
+    @media (max-width: 480px) {
+      .title { font-size: 2rem; }
+      .channel-card { width: 160px; }
+      .share-option { padding: 14px 14px; }
     }
   </style>
 </head>
 <body>
-
-<!-- ── LOADING ── -->
-<div class="page" id="loading">
-  <div class="loader"></div>
-  <p>جاري التحميل...</p>
-</div>
-
-<!-- ── GATE ── -->
-<div class="page" id="gate">
-  <div class="gate-title">🔐 قبل البدء...</div>
-  <p class="gate-sub">اشترك في القناتين للوصول للبوت</p>
-  <div class="channels-wrap" id="channelsWrap"></div>
-  <p class="gate-hint" id="gateHint">⬆️ اضغط على الاشتراك في القناتين أولاً</p>
-  <button class="gate-check-btn" id="enterBtn" onclick="unlockMain()" disabled>✅ ادخل البوت</button>
-</div>
-
-<!-- ── MAIN ── -->
-<div class="page" id="main">
-  <div class="logos">
-    <img class="logo-img" alt="أبو جنة"
-      src="ABU_JANNA_IMAGE_URL"
-      onerror="this.src='https://placehold.co/88x88/f5c518/000?text=أبو+جنة'" />
-    <img class="logo-img" alt="4U Energy"
-      src="ENERGY_DRINK_IMAGE_URL"
-      onerror="this.src='https://placehold.co/88x88/00b4ff/fff?text=4U'" />
-  </div>
-
-  <h1 class="title">🎰 أبو جنة</h1>
-  <p class="tagline">صاحب جبس أبو مشروب طاقة <span>4U</span></p>
-
-  <div class="balance-box">
-    <span>💰</span>
-    <span class="balance-label">رصيدك:</span>
-    <span class="balance-amount" id="balanceDisplay">0</span>
-    <span style="color:#888;font-size:.85rem">دينار</span>
-  </div>
-
-  <div class="spins-left">
-    المحاولات المتبقية: <span id="spinsDisplay">5</span> / 5<br>
-    <span id="countdownLine" style="display:none">⏳ تجديد بعد: <span class="countdown" id="countdownDisplay">--:--:--</span></span>
-  </div>
-
-  <div class="wheel-wrap" onclick="doSpin()">
-    <div class="pointer">▼</div>
-    <div class="wheel-ring"></div>
-    <canvas id="wheelCanvas" width="270" height="270"></canvas>
-    <div class="center-dot">🌟</div>
-  </div>
-
-  <button class="spin-btn" id="spinBtn" onclick="doSpin()">🎡 ادر العجلة!</button>
-  <button class="tasks-btn" onclick="openModal('modalTasks')">🎁 مهام إضافية — ربح أكثر!</button>
-  <button class="withdraw-btn" id="withdrawBtn" onclick="openModal('modalWithdraw')">💸 سحب الأرباح</button>
-</div>
-
-<!-- ── TOAST ── -->
-<div class="toast" id="toast"></div>
-
-<!-- ── TASKS MODAL ── -->
-<div class="modal-overlay" id="modalTasks" onclick="closeMod(event,'modalTasks')">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">🎁 مهام إضافية</div>
-      <button class="modal-close" onclick="closeMod(null,'modalTasks')">✕</button>
+  <div class="page">
+    <!-- LOADING -->
+    <div id="loading">
+      <div class="loader"></div>
+      <p>جاري التحميل...</p>
     </div>
-    <div class="tasks-list" id="tasksList">
-      <div class="tasks-empty">⏳ جاري تحميل المهام...</div>
-    </div>
-  </div>
-</div>
 
-<!-- ── WITHDRAW MODAL ── -->
-<div class="modal-overlay" id="modalWithdraw" onclick="closeMod(event,'modalWithdraw')">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">💸 سحب الأرباح</div>
-      <button class="modal-close" onclick="closeMod(null,'modalWithdraw')">✕</button>
+    <!-- SHARE GATE (NEW) -->
+    <div id="shareGate">
+      <h1 class="share-gate-title">🎁 شارك البوت!</h1>
+      <p class="share-gate-sub">شارك البوت مع أصدقائك لفتح عجلة الحظ والبدء في الربح 🚀</p>
+
+      <div class="share-progress">
+        <div class="share-progress-bar" id="shareProgressBar" style="width: 0%"></div>
+      </div>
+
+      <div class="share-options" id="shareOptions"></div>
+
+      <p class="share-hint" id="shareHint">👆 شارك البوت على وسائل التواصل</p>
+
+      <button class="share-continue-btn" id="shareContinueBtn" onclick="unlockFromShare()" disabled>
+        ✅ متابعة
+      </button>
     </div>
-    <div class="withdraw-info">
-      <div>🎉 تهانينا! رصيدك الحالي:</div>
-      <div class="big-num" id="withdrawAmount">0 دينار</div>
-      <p>راسل أبو جنة مباشرة على تيليغرام لإتمام عملية السحب</p>
-      <a class="owner-btn" href="https://t.me/YOUR_OWNER_USERNAME" target="_blank">📲 راسل أبو جنة</a>
+
+    <!-- GATE -->
+    <div id="gate">
+      <h1 class="gate-title">📢 اشترك في القنوات</h1>
+      <p class="gate-sub">اشترك في القنوات أدناه للمتابعة</p>
+      <div class="channels-wrap" id="channelsWrap"></div>
+      <p class="gate-hint" id="gateHint">👆 اشترك في جميع القنوات</p>
+      <button class="gate-check-btn" id="enterBtn" onclick="unlockMain()" disabled>ادخل البوت</button>
+    </div>
+
+    <!-- MAIN -->
+    <div id="main">
+      <div class="logos">
+        <img class="logo-img" alt="Logo" src="https://placehold.co/88x88/f5c518/000?text=🎰" />
+      </div>
+      <h1 class="title">أبو جنة</h1>
+      <p class="tagline">عجلة الحظ | ربح <span>💰</span></p>
+
+      <div class="balance-box">
+        <span class="balance-label">رصيدك:</span>
+        <span class="balance-amount" id="balanceDisplay">0</span>
+        <span class="balance-label">دينار</span>
+      </div>
+
+      <p class="spins-left">
+        🎡 محاولات متبقية: <span id="spinsDisplay">5</span> / 5
+        <br/>
+        <span class="countdown" id="countdownLine" style="display:none;">
+          ⏳ تجديد العداد خلال: <span id="countdownDisplay">00:00:00</span>
+        </span>
+      </p>
+
+      <div class="wheel-wrap">
+        <div class="pointer">🎯</div>
+        <canvas id="wheelCanvas" width="270" height="270"></canvas>
+        <div class="wheel-ring"></div>
+        <div class="center-dot">🎰</div>
+      </div>
+
+      <button class="spin-btn" id="spinBtn" onclick="doSpin()">🎡 ادر العجلة!</button>
+      <button class="tasks-btn" onclick="openModal('tasksModal')">📋 المهام</button>
+      <button class="withdraw-btn" id="withdrawBtn" onclick="openModal('withdrawModal')">
+        💸 سحب <span id="withdrawAmount">0 دينار</span>
+      </button>
     </div>
   </div>
-</div>
 
-<!-- ── Firebase SDK ── -->
-<script type="module">
-import { initializeApp }         from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+  <!-- TASKS MODAL -->
+  <div class="modal-overlay" id="tasksModal" onclick="closeMod(event, 'tasksModal')">
+    <div class="modal">
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeMod(null, 'tasksModal')">✕</button>
+        <h2 class="modal-title">📋 المهام</h2>
+      </div>
+      <div class="tasks-list" id="tasksList"></div>
+    </div>
+  </div>
 
-// ════════════════════════════════
-//  Firebase config
-// ════════════════════════════════
-const firebaseConfig = {
-  apiKey:            "AIzaSyDiCrZhKVpkYE3HUeeDkAo7xA9I88uZ1i0",
-  authDomain:        "abojana-3f0c2.firebaseapp.com",
-  databaseURL:       "https://abojana-3f0c2-default-rtdb.firebaseio.com",
-  projectId:         "abojana-3f0c2",
-  storageBucket:     "abojana-3f0c2.firebasestorage.app",
-  messagingSenderId: "819681544560",
-  appId:             "1:819681544560:web:be2249a51d0c79ee21a7b5",
-};
-const app = initializeApp(firebaseConfig);
-const db  = getDatabase(app);
+  <!-- WITHDRAW MODAL -->
+  <div class="modal-overlay" id="withdrawModal" onclick="closeMod(event, 'withdrawModal')">
+    <div class="modal">
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeMod(null, 'withdrawModal')">✕</button>
+        <h2 class="modal-title">💸 سحب الأموال</h2>
+      </div>
+      <div style="text-align: right; line-height: 1.8; color: #aaa; font-size: 0.9rem;">
+        <p>الحد الأدنى للسحب: <strong style="color: #f5c518;">50 دينار</strong></p>
+        <p style="margin-top: 16px; color: #666;">سيتم تحويل أموالك خلال 24 ساعة 🚀</p>
+      </div>
+    </div>
+  </div>
 
-// ════════════════════════════════
-//  Fetch channels + tasks
-// ════════════════════════════════
-async function loadFromFirebase() {
-  try {
-    const [chSnap, taskSnap] = await Promise.all([
-      get(ref(db, 'gate_channels')),
-      get(ref(db, 'tasks')),
-    ]);
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
 
-    const channels = chSnap.exists()  ? Object.values(chSnap.val())  : [];
-    const rawTasks = taskSnap.exists() ? taskSnap.val() : {};
-    // حفظ الـ key كـ id داخل كل مهمة
-    const tasks = Object.entries(rawTasks).map(([k,v]) => ({ id: k, ...v }));
-
-    window._fbChannels = channels;
-    window._fbTasks    = tasks.filter(t => t.active !== false);
-  } catch (e) {
-    console.warn('Firebase error:', e);
-    window._fbChannels = [];
-    window._fbTasks    = [];
-  }
-}
-
-// ════════════════════════════════
-//  Boot
-// ════════════════════════════════
-await loadFromFirebase();
-
-document.getElementById('loading').style.display = 'none';
-
-if (localStorage.getItem('gate_passed') === '1') {
-  document.getElementById('main').style.display = 'flex';
-  window._startApp();
-} else {
-  document.getElementById('gate').style.display = 'flex';
-  window._buildGate();
-}
-</script>
-
-<script>
+  <script>
 // ════════════════════════════════
 //  CONFIG
 // ════════════════════════════════
-const PRIZES       = [10, 20, 30, 50, 100];
-const WEIGHTS      = [40, 25, 20, 10,   5];
-const COLORS       = ['#b8860b','#1a6b3c','#8b0000','#1a237e','#6a0dad'];
-const MAX_SPINS    = 5;
-const COOLDOWN_MS  = 5 * 60 * 60 * 1000;
-const WITHDRAW_MIN = 200000;
+const PRIZES = [10, 20, 50, 100, 15, 30, 25, 5];
+const WEIGHTS = [20, 15, 8, 2, 18, 12, 10, 25];
+const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2'];
+const MAX_SPINS = 5;
+const COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 ساعات
+const WITHDRAW_MIN = 50;
+
+// Share Gate Configuration
+const SHARE_PLATFORMS = [
+  { id: 'telegram', name: 'تيليجرام', icon: '📢', desc: 'شارك على تيليجرام' },
+  { id: 'whatsapp', name: 'واتس آب', icon: '💬', desc: 'شارك على واتس آب' },
+  { id: 'twitter', name: 'تويتر', icon: '✖️', desc: 'شارك على تويتر' },
+];
 
 // ════════════════════════════════
-//  STATE
+//  STATE MANAGEMENT
 // ════════════════════════════════
 function getState() {
-  let s = JSON.parse(localStorage.getItem('abuJanna') || '{}');
-  if (!s.balance)          s.balance          = 0;
-  if (!s.spins)            s.spins            = 0;
-  if (!s.resetTime)        s.resetTime        = 0;
-  if (!s.completedTasks)   s.completedTasks   = {};
-  if (Date.now() >= s.resetTime + COOLDOWN_MS) {
-    s.spins = 0; s.resetTime = Date.now();
-  }
-  return s;
+  const s = localStorage.getItem('wheelState');
+  if (!s) return { balance: 0, spins: 0, resetTime: Date.now(), completedTasks: {}, shareCompleted: {} };
+  return JSON.parse(s);
 }
-function saveState(s) { localStorage.setItem('abuJanna', JSON.stringify(s)); }
+
+function saveState(s) {
+  localStorage.setItem('wheelState', JSON.stringify(s));
+}
 
 // ════════════════════════════════
-//  GATE — build from Firebase
+//  INITIALIZATION
 // ════════════════════════════════
-const clicked = {};
+window.addEventListener('DOMContentLoaded', () => {
+  const s = getState();
+  const now = Date.now();
 
-window._buildGate = function() {
+  // تحديث العداد إذا انقضت فترة الانتظار
+  if (now >= s.resetTime + COOLDOWN_MS) {
+    s.spins = 0;
+    s.resetTime = now;
+    saveState(s);
+  }
+
+  // التحقق من بوابة المشاركة
+  const shareGatePassed = localStorage.getItem('shareGate_passed');
+  if (!shareGatePassed) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('shareGate').style.display = 'flex';
+    buildShareGate();
+  } else {
+    // التحقق من بوابة الاشتراك في القنوات
+    const gatePassed = localStorage.getItem('gate_passed');
+    if (!gatePassed && (window._fbChannels && window._fbChannels.length > 0)) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('gate').style.display = 'flex';
+      buildGate();
+    } else {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('main').style.display = 'flex';
+      _startApp();
+    }
+  }
+});
+
+// ════════════════════════════════
+//  SHARE GATE SYSTEM
+// ════════════════════════════════
+let shareCompleted = {};
+
+function buildShareGate() {
+  const s = getState();
+  shareCompleted = s.shareCompleted || {};
+
+  const container = document.getElementById('shareOptions');
+  container.innerHTML = '';
+
+  SHARE_PLATFORMS.forEach(platform => {
+    const isCompleted = !!shareCompleted[platform.id];
+    const option = document.createElement('div');
+    option.className = 'share-option' + (isCompleted ? ' completed' : '');
+    option.innerHTML = `
+      <div class="share-icon">${platform.icon}</div>
+      <div class="share-text">
+        <div class="share-name">${platform.name}</div>
+        <div class="share-desc">${platform.desc}</div>
+      </div>
+      <div class="share-check">${isCompleted ? '✓' : ''}</div>
+    `;
+
+    if (!isCompleted) {
+      option.style.cursor = 'pointer';
+      option.addEventListener('click', () => shareBot(platform.id, option));
+    }
+
+    container.appendChild(option);
+  });
+
+  updateShareProgress();
+}
+
+function shareBot(platformId, element) {
+  const shareText = encodeURIComponent('🎰 انضم إلى عجلة الحظ وربح أموال حقيقية! 💰 https://your-bot-url.com');
+  const shareUrls = {
+    telegram: `https://t.me/share/url?url=https://your-bot-url.com&text=${shareText}`,
+    whatsapp: `https://wa.me/?text=${shareText}`,
+    twitter: `https://twitter.com/intent/tweet?text=${shareText}`,
+  };
+
+  if (shareUrls[platformId]) {
+    window.open(shareUrls[platformId], '_blank', 'width=600,height=400');
+  }
+
+  // تأخير قصير ثم تحديث الحالة
+  setTimeout(() => {
+    shareCompleted[platformId] = true;
+    const s = getState();
+    s.shareCompleted = shareCompleted;
+    saveState(s);
+
+    element.classList.add('completed');
+    element.style.cursor = 'default';
+    element.querySelector('.share-check').textContent = '✓';
+
+    updateShareProgress();
+    showToast(`✅ شكراً على المشاركة! 🎉`);
+  }, 1500);
+}
+
+function updateShareProgress() {
+  const completed = Object.values(shareCompleted).filter(Boolean).length;
+  const total = SHARE_PLATFORMS.length;
+  const percentage = (completed / total) * 100;
+
+  document.getElementById('shareProgressBar').style.width = percentage + '%';
+
+  const hint = document.getElementById('shareHint');
+  const btn = document.getElementById('shareContinueBtn');
+
+  if (completed === total) {
+    hint.textContent = '✅ رائع! اضغط متابعة للدخول';
+    hint.classList.add('all-done');
+    btn.classList.add('ready');
+    btn.disabled = false;
+  } else {
+    hint.textContent = `👆 شارك البوت (${completed}/${total})`;
+    hint.classList.remove('all-done');
+    btn.classList.remove('ready');
+    btn.disabled = true;
+  }
+}
+
+window.unlockFromShare = function() {
+  const completed = Object.values(shareCompleted).filter(Boolean).length;
+  if (completed !== SHARE_PLATFORMS.length) return;
+
+  localStorage.setItem('shareGate_passed', '1');
+  document.getElementById('shareGate').style.display = 'none';
+
+  // التحقق من بوابة الاشتراك في القنوات
+  const gatePassed = localStorage.getItem('gate_passed');
+  if (!gatePassed && (window._fbChannels && window._fbChannels.length > 0)) {
+    document.getElementById('gate').style.display = 'flex';
+    buildGate();
+  } else {
+    document.getElementById('main').style.display = 'flex';
+    _startApp();
+  }
+};
+
+// ════════════════════════════════
+//  CHANNEL GATE SYSTEM
+// ════════════════════════════════
+let clicked = {};
+
+function buildGate() {
   const channels = window._fbChannels || [];
-  const wrap     = document.getElementById('channelsWrap');
+  const wrap = document.getElementById('channelsWrap');
   wrap.innerHTML = '';
 
   if (channels.length === 0) {
-    // لا توجد قنوات → ادخل مباشرة
     unlockMain();
     return;
   }
@@ -521,7 +669,7 @@ window._buildGate = function() {
          onclick="markClicked(${i}, ${channels.length})">📢 اشترك</a>`;
     wrap.appendChild(card);
   });
-};
+}
 
 window.markClicked = function(i, total) {
   setTimeout(() => {
@@ -621,14 +769,12 @@ function buildTasks() {
 }
 
 function completeTask(t, el) {
-  // فتح الرابط
   if (t.link) window.open(t.link, '_blank');
 
-  // تأخير قصير ثم احتساب المكافأة
   setTimeout(() => {
     const s      = getState();
     const done   = s.completedTasks || {};
-    if (done[t.id]) return; // تم مسبقاً
+    if (done[t.id]) return;
     done[t.id]   = true;
     const reward = t.reward !== undefined ? t.reward : 10;
     s.completedTasks = done;
@@ -767,6 +913,6 @@ function startCoins() {
     setTimeout(()=>c.remove(),14000);
   },1000);
 }
-</script>
+  </script>
 </body>
 </html>
