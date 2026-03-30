@@ -101,7 +101,12 @@
     /* ── MAIN ── */
     #main { display: none; flex-direction: column; align-items: center; }
 
-
+    .logos { display: flex; justify-content: center; gap: 20px; margin-bottom: 16px; }
+    .logo-img {
+      width: 88px; height: 88px; border-radius: 18px;
+      object-fit: cover; border: 3px solid #f5c518;
+      box-shadow: 0 0 22px rgba(245,197,24,0.5);
+    }
     .title {
       font-size: 2.5rem; font-weight: 900;
       background: linear-gradient(135deg,#ffe97a,#f5c518,#ff8800);
@@ -329,6 +334,15 @@
 
 <!-- ── MAIN ── -->
 <div class="page" id="main">
+  <div class="logos">
+    <img class="logo-img" alt="أبو جنة"
+      src="ABU_JANNA_IMAGE_URL"
+      onerror="this.src='https://placehold.co/88x88/f5c518/000?text=أبو+جنة'" />
+    <img class="logo-img" alt="4U Energy"
+      src="ENERGY_DRINK_IMAGE_URL"
+      onerror="this.src='https://placehold.co/88x88/00b4ff/fff?text=4U'" />
+  </div>
+
   <h1 class="title">🎰 أبو جنة</h1>
   <p class="tagline">صاحب جبس أبو مشروب طاقة <span>4U</span></p>
 
@@ -388,85 +402,64 @@
   </div>
 </div>
 
-<script>
-// ════════════════════════════════════════════════════════════════
-//  وضع التشغيل — غيّر USE_FIREBASE حسب الحاجة:
-//    true  = يجيب البيانات من Firebase (الوضع الطبيعي)
-//    false = بيانات ثابتة بدون انترنت (للمراجعة / التجربة)
-// ════════════════════════════════════════════════════════════════
-const USE_FIREBASE = false;
+<!-- ── Firebase SDK ── -->
+<script type="module">
+import { initializeApp }         from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
 
-// ── بيانات ثابتة (تُستخدم عند USE_FIREBASE = false) ──
-const STATIC_CHANNELS = [
-  { name: "قناة أبو جنة الرسمية",  logo: "", link: "https://t.me/YOUR_CHANNEL_1" },
-  { name: "قناة مشروب 4U",          logo: "", link: "https://t.me/YOUR_CHANNEL_2" },
-];
+// ════════════════════════════════
+//  Firebase config
+// ════════════════════════════════
+const firebaseConfig = {
+  apiKey:            "AIzaSyDiCrZhKVpkYE3HUeeDkAo7xA9I88uZ1i0",
+  authDomain:        "abojana-3f0c2.firebaseapp.com",
+  databaseURL:       "https://abojana-3f0c2-default-rtdb.firebaseio.com",
+  projectId:         "abojana-3f0c2",
+  storageBucket:     "abojana-3f0c2.firebasestorage.app",
+  messagingSenderId: "819681544560",
+  appId:             "1:819681544560:web:be2249a51d0c79ee21a7b5",
+};
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
 
-const STATIC_TASKS = [
-  { id:"task_ig", name:"تابع حساب الانستقرام", desc:"@your_instagram", icon:"ig", link:"https://instagram.com/YOUR_USERNAME", reward:10,  active:true },
-  { id:"task_tg", name:"اشترك في قناة تيليغرام", desc:"@your_channel",  icon:"tg", link:"https://t.me/YOUR_CHANNEL",          reward:20,  active:true },
-  { id:"task_yt", name:"اشترك في يوتيوب",        desc:"@your_youtube",  icon:"yt", link:"https://youtube.com/@YOUR_CHANNEL",  reward:15,  active:true },
-  { id:"task_tk", name:"تابع في تيك توك",         desc:"@your_tiktok",  icon:"tk", link:"https://tiktok.com/@YOUR_USERNAME",  reward:10,  active:true },
-  { id:"task_fb", name:"تابع صفحة الفيسبوك",     desc:"صفحة أبو جنة", icon:"fb", link:"https://facebook.com/YOUR_PAGE",    reward:10,  active:true },
-  { id:"task_wa", name:"تواصل على واتساب",        desc:"للدعم والاستفسار", icon:"wa", link:"https://wa.me/YOUR_NUMBER",      reward:10,  active:true },
-  { id:"task_x",  name:"تابع على تويتر X",        desc:"@your_twitter", icon:"x",  link:"https://x.com/YOUR_USERNAME",      reward:10,  active:true },
-];
+// ════════════════════════════════
+//  Fetch channels + tasks
+// ════════════════════════════════
+async function loadFromFirebase() {
+  try {
+    const [chSnap, taskSnap] = await Promise.all([
+      get(ref(db, 'gate_channels')),
+      get(ref(db, 'tasks')),
+    ]);
+
+    const channels = chSnap.exists()  ? Object.values(chSnap.val())  : [];
+    const rawTasks = taskSnap.exists() ? taskSnap.val() : {};
+    // حفظ الـ key كـ id داخل كل مهمة
+    const tasks = Object.entries(rawTasks).map(([k,v]) => ({ id: k, ...v }));
+
+    window._fbChannels = channels;
+    window._fbTasks    = tasks.filter(t => t.active !== false);
+  } catch (e) {
+    console.warn('Firebase error:', e);
+    window._fbChannels = [];
+    window._fbTasks    = [];
+  }
+}
 
 // ════════════════════════════════
 //  Boot
 // ════════════════════════════════
-async function boot() {
-  if (USE_FIREBASE) {
-    // جلب من Firebase
-    try {
-      const { initializeApp }         = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js");
-      const { getDatabase, ref, get } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js");
-      const app = initializeApp({
-        apiKey:            "AIzaSyDiCrZhKVpkYE3HUeeDkAo7xA9I88uZ1i0",
-        authDomain:        "abojana-3f0c2.firebaseapp.com",
-        databaseURL:       "https://abojana-3f0c2-default-rtdb.firebaseio.com",
-        projectId:         "abojana-3f0c2",
-        storageBucket:     "abojana-3f0c2.firebasestorage.app",
-        messagingSenderId: "819681544560",
-        appId:             "1:819681544560:web:be2249a51d0c79ee21a7b5",
-      });
-      const db = getDatabase(app);
-      const [chSnap, taskSnap] = await Promise.all([
-        get(ref(db, 'gate_channels')),
-        get(ref(db, 'tasks')),
-      ]);
-      const channels = chSnap.exists()  ? Object.values(chSnap.val()) : [];
-      const rawTasks = taskSnap.exists() ? taskSnap.val() : {};
-      const tasks    = Object.entries(rawTasks).map(([k,v]) => ({ id: k, ...v }));
-      window._fbChannels = channels;
-      window._fbTasks    = tasks.filter(t => t.active !== false);
-    } catch(e) {
-      console.warn('Firebase error, using static data:', e);
-      window._fbChannels = STATIC_CHANNELS;
-      window._fbTasks    = STATIC_TASKS.filter(t => t.active !== false);
-    }
-  } else {
-    // بيانات ثابتة — بدون Firebase
-    window._fbChannels = STATIC_CHANNELS;
-    window._fbTasks    = STATIC_TASKS.filter(t => t.active !== false);
-  }
+await loadFromFirebase();
 
-  document.getElementById('loading').style.display = 'none';
+document.getElementById('loading').style.display = 'none';
 
-  // Gate: true = تجاوز الاشتراك، false = إظهاره
-  const SKIP_GATE = true;
-
-  if (SKIP_GATE || localStorage.getItem('gate_passed') === '1') {
-    document.getElementById('gate').style.display = 'none';
-    document.getElementById('main').style.display = 'flex';
-    window._startApp();
-  } else {
-    document.getElementById('gate').style.display = 'flex';
-    window._buildGate();
-  }
+if (localStorage.getItem('gate_passed') === '1') {
+  document.getElementById('main').style.display = 'flex';
+  window._startApp();
+} else {
+  document.getElementById('gate').style.display = 'flex';
+  window._buildGate();
 }
-
-boot();
 </script>
 
 <script>
