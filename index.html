@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>أبو جنة 🎰 | عجلة الحظ</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <!-- Adsgram Script -->
+  <script async src="https://adsgram.js.org/show.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -590,6 +592,18 @@ window.unlockMain = function() {
 };
 
 // ════════════════════════════════
+//  ADSGRAM ADS
+// ════════════════════════════════
+const ADSGRAM_BLOCK_ID = 'int-26345';
+let spinCountForAds = 0;
+
+window.showAdsgramAd = function() {
+  if (typeof Adsgram !== 'undefined' && Adsgram.show) {
+    Adsgram.show({ blockId: ADSGRAM_BLOCK_ID });
+  }
+};
+
+// ════════════════════════════════
 //  APP START
 // ════════════════════════════════
 window._startApp = function() {
@@ -598,6 +612,8 @@ window._startApp = function() {
   buildTasks();
   startCoins();
   setInterval(tickCountdown, 1000);
+  // عرض إعلان عند دخول البوت
+  setTimeout(() => showAdsgramAd(), 1000);
 };
 
 // ════════════════════════════════
@@ -738,9 +754,14 @@ window.doSpin = function() {
     curAngle = finalAng % (2*Math.PI);
     spinning = false;
     s.spins++; s.balance += PRIZES[prizeIdx]; saveState(s);
+    spinCountForAds++;
     updateUI();
     showToast(`🎉 ربحت ${PRIZES[prizeIdx]} دينار!`);
     document.getElementById('spinBtn').disabled = false;
+    // عرض إعلان بعد كل دورتين
+    if (spinCountForAds % 2 === 0) {
+      setTimeout(() => showAdsgramAd(), 800);
+    }
     if (s.spins >= 5 && !localStorage.getItem('shared_passed')) {
       setTimeout(() => openModal('modalShare'), 1500);
     }
@@ -813,7 +834,6 @@ const sharedPlatforms = { fb: false, tg: false, wa: false };
 const MY_SHARE_URL  = "https://t.me/Kzkkkk19bot"; // رابط البوت الخاص بك
 const MY_SHARE_TEXT = "جرب حظك مع أبو جنة! 🎰"; // ضع نص الرسالة هنا
 
-  
 window.doShare = function(platform) {
   const url = MY_SHARE_URL;
   const text = MY_SHARE_TEXT;
