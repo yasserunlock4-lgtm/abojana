@@ -5,8 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>أبو جنة 🎰 | عجلة الحظ</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  
   <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  
+  <!-- AdsGram SDK -->
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -467,6 +472,28 @@ if (localStorage.getItem('gate_passed') === '1') {
 
 <script>
 // ════════════════════════════════
+//  ADSGRAM CONFIG
+// ════════════════════════════════
+const ADSGRAM_BLOCK_ID = "int-26345";
+let adController = null;
+
+function initAds() {
+  if (window.Adsgram) {
+    adController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
+  }
+}
+
+function showAd() {
+  if (adController) {
+    adController.show().then((result) => {
+      console.log("Ad finished/closed", result);
+    }).catch((err) => {
+      console.warn("Ad error", err);
+    });
+  }
+}
+
+// ════════════════════════════════
 //  CONFIG
 // ════════════════════════════════
 const PRIZES       = [10, 20, 30, 50, 100];
@@ -477,12 +504,9 @@ const COOLDOWN_MS  = 5 * 60 * 60 * 1000;
 const WITHDRAW_MIN = 200000;
 
 // ════════════════════════════════
-//  STATE - FIXED TO BE USER-SPECIFIC
+//  STATE - USER-SPECIFIC
 // ════════════════════════════════
-
-// وظيفة للحصول على مفتاح التخزين الفريد للمستخدم
 function getStorageKey() {
-  // محاولة الحصول على معرف المستخدم من Telegram Web App
   let userId = "guest";
   if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
     userId = window.Telegram.WebApp.initDataUnsafe.user.id;
@@ -495,10 +519,10 @@ function getState() {
   let s = JSON.parse(localStorage.getItem(key) || '{}');
   if (!s.balance)          s.balance          = 0;
   if (!s.spins)            s.spins            = 0;
+  if (!s.totalSpinsSession) s.totalSpinsSession = 0; // لتعقب عدد اللفات في الجلسة الحالية للإعلانات
   if (!s.resetTime)        s.resetTime        = 0;
   if (!s.completedTasks)   s.completedTasks   = {};
   
-  // التحقق من انتهاء وقت الانتظار
   if (Date.now() >= s.resetTime + COOLDOWN_MS) {
     s.spins = 0; 
     s.resetTime = Date.now();
@@ -512,7 +536,7 @@ function saveState(s) {
 }
 
 // ════════════════════════════════
-//  GATE — build from Firebase
+//  GATE
 // ════════════════════════════════
 const clicked = {};
 
@@ -583,6 +607,8 @@ window.unlockMain = function() {
 //  APP START
 // ════════════════════════════════
 window._startApp = function() {
+  initAds(); // تهيئة الإعلانات
+  showAd();  // إظهار إعلان عند الدخول
   initWheel();
   updateUI();
   buildTasks();
@@ -728,10 +754,11 @@ window.doSpin = function() {
     if (t < 1) { requestAnimationFrame(anim); return; }
     curAngle = finalAng % (2*Math.PI);
     spinning = false;
+    
     s.spins++; 
+    s.totalSpinsSession = (s.totalSpinsSession || 0) + 1;
     s.balance += PRIZES[prizeIdx]; 
     
-    // إذا وصل للحد الأقصى، نبدأ وقت التبريد
     if (s.spins >= MAX_SPINS) {
         s.resetTime = Date.now();
     }
@@ -740,6 +767,11 @@ window.doSpin = function() {
     updateUI();
     showToast(`🎉 ربحت ${PRIZES[prizeIdx]} دينار!`);
     document.getElementById('spinBtn').disabled = false;
+    
+    // إظهار إعلان بعد كل لفتين
+    if (s.totalSpinsSession % 2 === 0) {
+      setTimeout(showAd, 1000);
+    }
     
     const sharedKey = 'shared_passed_' + (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'guest');
     if (s.spins >= 5 && !localStorage.getItem(sharedKey)) {
@@ -788,7 +820,6 @@ function tickCountdown() {
   
   const ms = Math.max(0, s.resetTime + COOLDOWN_MS - Date.now());
   if (ms === 0) { 
-    // إعادة تعيين اللفات تلقائياً عند انتهاء الوقت
     s.spins = 0;
     saveState(s);
     updateUI(); 
