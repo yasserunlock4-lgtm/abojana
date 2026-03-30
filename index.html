@@ -371,7 +371,38 @@
 </div>
 
 <!-- ── TOAST ── -->
-<div class="toast" id="toast"></div>
+  <div class="toast" id="toast"></div>
+
+<!-- ── SHARE MODAL ── -->
+<div class="modal-overlay" id="modalShare">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📢 شارك البوت للاستمرار</div>
+    </div>
+    <div class="withdraw-info">
+      <p>لقد استنفدت 5 محاولات! شارك البوت مع أصدقائك في فيسبوك وتلغرام وواتساب لفتح المزيد من المحاولات.</p>
+      <div class="tasks-list">
+        <a class="task-item" href="#" onclick="doShare('fb')">
+          <div class="task-icon icon-fb">👍</div>
+          <div class="task-text"><div class="task-name">مشاركة على فيسبوك</div></div>
+          <div class="task-arrow">←</div>
+        </a>
+        <a class="task-item" href="#" onclick="doShare('tg')">
+          <div class="task-icon icon-tg">📢</div>
+          <div class="task-text"><div class="task-name">مشاركة على تلغرام</div></div>
+          <div class="task-arrow">←</div>
+        </a>
+        <a class="task-item" href="#" onclick="doShare('wa')">
+          <div class="task-icon icon-wa">💬</div>
+          <div class="task-text"><div class="task-name">مشاركة على واتساب</div></div>
+          <div class="task-arrow">←</div>
+        </a>
+      </div>
+      <div id="shareStatus" style="margin-top:15px; font-size:0.85rem; color:#888;">يجب الضغط على جميع الروابط للمتابعة</div>
+      <button class="gate-check-btn" id="continueBtn" onclick="closeShareModal()" style="margin-top:20px; width:100%;" disabled>✅ استمرار</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── TASKS MODAL ── -->
 <div class="modal-overlay" id="modalTasks" onclick="closeMod(event,'modalTasks')">
@@ -710,6 +741,9 @@ window.doSpin = function() {
     updateUI();
     showToast(`🎉 ربحت ${PRIZES[prizeIdx]} دينار!`);
     document.getElementById('spinBtn').disabled = false;
+    if (s.spins >= 5 && !localStorage.getItem('shared_passed')) {
+      setTimeout(() => openModal('modalShare'), 1500);
+    }
   })(performance.now());
 };
 
@@ -718,6 +752,9 @@ window.doSpin = function() {
 // ════════════════════════════════
 function updateUI() {
   const s = getState();
+  if (s.spins >= 5 && !localStorage.getItem('shared_passed')) {
+    openModal('modalShare');
+  }
   const rem = Math.max(0, MAX_SPINS - s.spins);
   document.getElementById('balanceDisplay').textContent = s.balance.toLocaleString('ar-IQ');
   document.getElementById('spinsDisplay').textContent   = rem;
@@ -767,6 +804,39 @@ function startCoins() {
     setTimeout(()=>c.remove(),14000);
   },1000);
 }
+
+const sharedPlatforms = { fb: false, tg: false, wa: false };
+window.doShare = function(platform) {
+  const url = window.location.href;
+  const text = "جرب حظك مع أبو جنة! 🎰";
+  let shareUrl = "";
+  
+  if (platform === 'fb') shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+  if (platform === 'tg') shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+  if (platform === 'wa') shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + url)}`;
+  
+  window.open(shareUrl, '_blank');
+  
+  sharedPlatforms[platform] = true;
+  const doneCount = Object.values(sharedPlatforms).filter(Boolean).length;
+  const status = document.getElementById('shareStatus');
+  const btn = document.getElementById('continueBtn');
+  
+  if (doneCount === 3) {
+    status.textContent = "✅ رائع! يمكنك الآن الاستمرار";
+    status.style.color = "#00c853";
+    btn.disabled = false;
+    btn.classList.add('ready');
+  } else {
+    status.textContent = `بقي ${3 - doneCount} منصات للمشاركة`;
+  }
+};
+
+window.closeShareModal = function() {
+  localStorage.setItem('shared_passed', '1');
+  document.getElementById('modalShare').classList.remove('open');
+  showToast("✅ شكراً لك! يمكنك الاستمرار الآن");
+};
 </script>
 </body>
 </html>
