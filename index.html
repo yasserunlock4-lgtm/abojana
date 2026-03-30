@@ -806,9 +806,16 @@ function startCoins() {
 }
 
 const sharedPlatforms = { fb: false, tg: false, wa: false };
+
+// ════════════════════════════════
+//  إعدادات المشاركة (يمكنك تعديلها هنا)
+// ════════════════════════════════
+const MY_SHARE_URL  = window.location.href; // ضع رابطك هنا بدلاً من window.location.href
+const MY_SHARE_TEXT = "جرب حظك مع أبو جنة! 🎰"; // ضع نص الرسالة هنا
+
 window.doShare = function(platform) {
-  const url = window.location.href;
-  const text = "جرب حظك مع أبو جنة! 🎰";
+  const url = MY_SHARE_URL;
+  const text = MY_SHARE_TEXT;
   let shareUrl = "";
   
   if (platform === 'fb') shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
