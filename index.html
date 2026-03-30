@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>أبو جنة 🎰 | عجلة الحظ</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
-  <!-- Adsgram Script -->
-  <script async src="https://adsgram.js.org/show.js"></script>
+  <!-- Telegram Web App SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -249,156 +249,136 @@
     }
     .icon-ig { background: linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); }
     .icon-tg { background: linear-gradient(135deg,#2AABEE,#229ED9); }
-    .icon-yt { background: #ff0000; }
-    .icon-tk { background: #010101; border: 1px solid #333; }
-    .icon-fb { background: #1877f2; }
-    .icon-wa { background: #25d366; }
-    .icon-x  { background: #000; border: 1px solid #333; }
+    .icon-yt { background: linear-gradient(135deg,#FF0000,#cc0000); }
+    .icon-tk { background: linear-gradient(135deg,#000000,#333333); }
+    .icon-fb { background: linear-gradient(135deg,#1877F2,#145dbf); }
+    .icon-wa { background: linear-gradient(135deg,#25D366,#1da851); }
+    .icon-x  { background: linear-gradient(135deg,#000000,#1a1a1a); }
     .icon-default { background: #333; }
 
-    .task-text { flex: 1; }
-    .task-name { font-size: 0.95rem; font-weight: 700; color: #eee; }
-    .task-desc { font-size: 0.78rem; color: #666; margin-top: 1px; }
-    .task-arrow { color: #555; font-size: 0.9rem; }
-    .tasks-empty { color: #555; font-size: 0.9rem; padding: 20px 0; }
+    .task-text { flex-grow: 1; }
+    .task-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 2px; }
+    .task-desc { font-size: 0.8rem; color: #777; }
 
-    /* task reward badge */
-    .task-reward {
-      display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0;
-    }
+    .task-reward { text-align: left; }
     .reward-badge {
-      background: rgba(245,197,24,0.15); color: #f5c518;
-      border: 1px solid rgba(245,197,24,0.3);
-      border-radius: 20px; padding: 3px 10px;
-      font-size: 0.78rem; font-weight: 800; white-space: nowrap;
+      display: block; font-size: 0.82rem; font-weight: 700; color: #00ff88;
     }
     .done-badge {
-      background: rgba(0,200,83,0.15); color: #00c853;
-      border: 1px solid rgba(0,200,83,0.3);
-      border-radius: 20px; padding: 3px 10px;
-      font-size: 0.78rem; font-weight: 800; display: none;
+      display: none; font-size: 0.8rem; font-weight: 700; color: #00c853;
     }
-
-    /* completed task state */
-    .task-item.completed {
-      border-color: rgba(0,200,83,0.3);
-      background: rgba(0,200,83,0.05);
-      pointer-events: none;
-    }
-    .task-item.completed .task-name { color: #aaa; }
-    .task-item.completed .done-badge { display: block; }
     .task-item.completed .reward-badge { display: none; }
+    .task-item.completed .done-badge { display: block; }
     .task-item.completed .task-arrow { display: none; }
 
-    /* task click ripple */
-    .task-item { cursor: pointer; }
+    .task-arrow { color: #444; font-size: 1.1rem; }
 
     .withdraw-info { text-align: center; padding: 10px 0; }
-    .withdraw-info .big-num { font-size: 2rem; font-weight: 900; color: #f5c518; margin: 10px 0; }
-    .withdraw-info p { color: #888; font-size: 0.95rem; margin-bottom: 16px; }
-    .owner-btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: linear-gradient(135deg,#229ED9,#1a7ab8);
-      color: #fff; text-decoration: none;
-      padding: 12px 28px; border-radius: 40px;
-      font-size: 1rem; font-weight: 800;
+    .big-num {
+      font-size: 2.2rem; font-weight: 900; color: #f5c518;
+      margin: 12px 0 24px; text-shadow: 0 0 20px rgba(245,197,24,0.3);
     }
+    .withdraw-info p { color: #888; font-size: 0.92rem; margin-bottom: 24px; line-height: 1.6; }
+    .owner-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg,#229ED9,#1a7ab8);
+      color: #fff; text-decoration: none; padding: 14px 30px;
+      border-radius: 50px; font-weight: 700; transition: transform .2s;
+    }
+    .owner-btn:hover { transform: scale(1.04); }
 
-    /* Coins */
     .coin {
-      position: fixed; font-size: 1.1rem; pointer-events: none; opacity: 0;
-      animation: fall linear infinite;
+      position: fixed; top: -50px; font-size: 24px; z-index: -1;
+      pointer-events: none; animation: fall linear forwards;
     }
     @keyframes fall {
-      0%   { opacity: 0; transform: translateY(-30px) rotate(0deg); }
-      10%  { opacity: 0.5; }
-      90%  { opacity: 0.2; }
-      100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+      to { transform: translateY(110vh) rotate(360deg); }
+    }
+
+    @media (max-width: 400px) {
+      .title { font-size: 2rem; }
+      .wheel-wrap { width: 240px; height: 240px; }
+      .channel-card { width: 100%; }
     }
   </style>
 </head>
 <body>
 
-<!-- ── LOADING ── -->
-<div class="page" id="loading">
-  <div class="loader"></div>
-  <p>جاري التحميل...</p>
+<div class="page">
+  <!-- Loading -->
+  <div id="loading">
+    <div class="loader"></div>
+    <p>جاري تحميل البيانات...</p>
+  </div>
+
+  <!-- GATE -->
+  <div id="gate">
+    <div class="gate-title">اشترك لتفعيل العجلة</div>
+    <p class="gate-sub">يجب الاشتراك في القنوات التالية للمتابعة</p>
+    <div class="channels-wrap" id="channelsWrap"></div>
+    <p class="gate-hint" id="gateHint">👆 اشترك في القنوات أعلاه للمتابعة</p>
+    <button class="gate-check-btn" id="enterBtn" onclick="unlockMain()" disabled>ادخل البوت 🚀</button>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+    <div class="logos">
+      <img src="https://placehold.co/100x100/f5c518/000?text=أبو+جنة" class="logo-img" alt="Logo" />
+    </div>
+    <h1 class="title">عجلة الحظ</h1>
+    <p class="tagline">اربح جوائز نقدية يومياً مع <span>أبو جنة</span></p>
+
+    <div class="balance-box">
+      <span class="balance-label">رصيدك الحالي:</span>
+      <span class="balance-amount" id="balanceDisplay">0</span>
+    </div>
+
+    <div class="spins-left">
+      متبقي لك <span id="spinsDisplay">5</span> محاولات<br/>
+      <span id="countdownLine" style="display:none;">تجديد المحاولات خلال: <span class="countdown" id="countdownDisplay">00:00:00</span></span>
+    </div>
+
+    <div class="wheel-wrap" onclick="doSpin()">
+      <div class="pointer">▼</div>
+      <div class="wheel-ring"></div>
+      <canvas id="wheelCanvas" width="270" height="270"></canvas>
+      <div class="center-dot">🎡</div>
+    </div>
+
+    <button class="spin-btn" id="spinBtn" onclick="doSpin()">🎡 ادر العجلة!</button>
+    <button class="tasks-btn" onclick="openModal('modalTasks')">🎁 مهام إضافية</button>
+    <button class="withdraw-btn" id="withdrawBtn" onclick="openModal('modalWithdraw')">💸 سحب الأرباح</button>
+  </div>
 </div>
 
-<!-- ── GATE ── -->
-<div class="page" id="gate">
-  <div class="gate-title">🔐 قبل البدء...</div>
-  <p class="gate-sub">اشترك في القناتين للوصول للبوت</p>
-  <div class="channels-wrap" id="channelsWrap"></div>
-  <p class="gate-hint" id="gateHint">⬆️ اضغط على الاشتراك في القناتين أولاً</p>
-  <button class="gate-check-btn" id="enterBtn" onclick="unlockMain()" disabled>✅ ادخل البوت</button>
-</div>
-
-<!-- ── MAIN ── -->
-<div class="page" id="main">
-  <div class="logos">
-    <img class="logo-img" alt="أبو جنة"
-      src="ABU_JANNA_IMAGE_URL"
-      onerror="this.src='https://placehold.co/88x88/f5c518/000?text=أبو+جنة'" />
-    <img class="logo-img" alt="4U Energy"
-      src="ENERGY_DRINK_IMAGE_URL"
-      onerror="this.src='https://placehold.co/88x88/00b4ff/fff?text=4U'" />
-  </div>
-
-  <h1 class="title">🎰 أبو جنة</h1>
-  <p class="tagline">صاحب جبس أبو مشروب طاقة <span>4U</span></p>
-
-  <div class="balance-box">
-    <span>💰</span>
-    <span class="balance-label">رصيدك:</span>
-    <span class="balance-amount" id="balanceDisplay">0</span>
-    <span style="color:#888;font-size:.85rem">دينار</span>
-  </div>
-
-  <div class="spins-left">
-    المحاولات المتبقية: <span id="spinsDisplay">5</span> / 5<br>
-    <span id="countdownLine" style="display:none">⏳ تجديد بعد: <span class="countdown" id="countdownDisplay">--:--:--</span></span>
-  </div>
-
-  <div class="wheel-wrap" onclick="doSpin()">
-    <div class="pointer">▼</div>
-    <div class="wheel-ring"></div>
-    <canvas id="wheelCanvas" width="270" height="270"></canvas>
-    <div class="center-dot">🌟</div>
-  </div>
-
-  <button class="spin-btn" id="spinBtn" onclick="doSpin()">🎡 ادر العجلة!</button>
-  <button class="tasks-btn" onclick="openModal('modalTasks')">🎁 مهام إضافية — ربح أكثر!</button>
-  <button class="withdraw-btn" id="withdrawBtn" onclick="openModal('modalWithdraw')">💸 سحب الأرباح</button>
-</div>
-
-<!-- ── TOAST ── -->
-  <div class="toast" id="toast"></div>
+<div class="toast" id="toast"></div>
 
 <!-- ── SHARE MODAL ── -->
 <div class="modal-overlay" id="modalShare">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title">📢 شارك البوت للاستمرار</div>
+      <div class="modal-title">📢 شارك واستمر!</div>
     </div>
-    <div class="withdraw-info">
-      <p>لقد استنفدت 5 محاولات! شارك البوت مع أصدقائك في فيسبوك وتلغرام وواتساب لفتح المزيد من المحاولات.</p>
+    <div style="text-align:center;">
+      <p style="color:#aaa; font-size:0.9rem; margin-bottom:20px; line-height:1.6;">
+        انتهت محاولاتك! شارك الرابط مع 3 من أصدقائك أو مجموعاتك للحصول على 5 محاولات إضافية فوراً!
+      </p>
       <div class="tasks-list">
-        <a class="task-item" href="#" onclick="doShare('fb')">
+        <button class="task-item" onclick="doShare('fb')" style="width:100%; cursor:pointer;">
           <div class="task-icon icon-fb">👍</div>
           <div class="task-text"><div class="task-name">مشاركة على فيسبوك</div></div>
           <div class="task-arrow">←</div>
-        </a>
-        <a class="task-item" href="#" onclick="doShare('tg')">
+        </button>
+        <button class="task-item" onclick="doShare('tg')" style="width:100%; cursor:pointer;">
           <div class="task-icon icon-tg">📢</div>
-          <div class="task-text"><div class="task-name">مشاركة على تلغرام</div></div>
+          <div class="task-text"><div class="task-name">مشاركة على تيليغرام</div></div>
           <div class="task-arrow">←</div>
-        </a>
-        <a class="task-item" href="#" onclick="doShare('wa')">
+        </button>
+        <button class="task-item" onclick="doShare('wa')" style="width:100%; cursor:pointer;">
           <div class="task-icon icon-wa">💬</div>
           <div class="task-text"><div class="task-name">مشاركة على واتساب</div></div>
           <div class="task-arrow">←</div>
-        </a>
+        </button>
       </div>
       <div id="shareStatus" style="margin-top:15px; font-size:0.85rem; color:#888;">يجب الضغط على جميع الروابط للمتابعة</div>
       <button class="gate-check-btn" id="continueBtn" onclick="closeShareModal()" style="margin-top:20px; width:100%;" disabled>✅ استمرار</button>
@@ -440,9 +420,6 @@
 import { initializeApp }         from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
 
-// ════════════════════════════════
-//  Firebase config
-// ════════════════════════════════
 const firebaseConfig = {
   apiKey:            "AIzaSyDiCrZhKVpkYE3HUeeDkAo7xA9I88uZ1i0",
   authDomain:        "abojana-3f0c2.firebaseapp.com",
@@ -455,9 +432,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
 
-// ════════════════════════════════
-//  Fetch channels + tasks
-// ════════════════════════════════
 async function loadFromFirebase() {
   try {
     const [chSnap, taskSnap] = await Promise.all([
@@ -467,7 +441,6 @@ async function loadFromFirebase() {
 
     const channels = chSnap.exists()  ? Object.values(chSnap.val())  : [];
     const rawTasks = taskSnap.exists() ? taskSnap.val() : {};
-    // حفظ الـ key كـ id داخل كل مهمة
     const tasks = Object.entries(rawTasks).map(([k,v]) => ({ id: k, ...v }));
 
     window._fbChannels = channels;
@@ -479,9 +452,6 @@ async function loadFromFirebase() {
   }
 }
 
-// ════════════════════════════════
-//  Boot
-// ════════════════════════════════
 await loadFromFirebase();
 
 document.getElementById('loading').style.display = 'none';
@@ -500,27 +470,46 @@ if (localStorage.getItem('gate_passed') === '1') {
 //  CONFIG
 // ════════════════════════════════
 const PRIZES       = [10, 20, 30, 50, 100];
-const WEIGHTS      = [40, 25, 20, 10,   5];
+const WEIGHTS      = [40, 30, 15, 10, 5];
 const COLORS       = ['#b8860b','#1a6b3c','#8b0000','#1a237e','#6a0dad'];
 const MAX_SPINS    = 5;
 const COOLDOWN_MS  = 5 * 60 * 60 * 1000;
 const WITHDRAW_MIN = 200000;
 
 // ════════════════════════════════
-//  STATE
+//  STATE - FIXED TO BE USER-SPECIFIC
 // ════════════════════════════════
+
+// وظيفة للحصول على مفتاح التخزين الفريد للمستخدم
+function getStorageKey() {
+  // محاولة الحصول على معرف المستخدم من Telegram Web App
+  let userId = "guest";
+  if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+    userId = window.Telegram.WebApp.initDataUnsafe.user.id;
+  }
+  return 'abuJanna_' + userId;
+}
+
 function getState() {
-  let s = JSON.parse(localStorage.getItem('abuJanna') || '{}');
+  const key = getStorageKey();
+  let s = JSON.parse(localStorage.getItem(key) || '{}');
   if (!s.balance)          s.balance          = 0;
   if (!s.spins)            s.spins            = 0;
   if (!s.resetTime)        s.resetTime        = 0;
   if (!s.completedTasks)   s.completedTasks   = {};
+  
+  // التحقق من انتهاء وقت الانتظار
   if (Date.now() >= s.resetTime + COOLDOWN_MS) {
-    s.spins = 0; s.resetTime = Date.now();
+    s.spins = 0; 
+    s.resetTime = Date.now();
   }
   return s;
 }
-function saveState(s) { localStorage.setItem('abuJanna', JSON.stringify(s)); }
+
+function saveState(s) { 
+  const key = getStorageKey();
+  localStorage.setItem(key, JSON.stringify(s)); 
+}
 
 // ════════════════════════════════
 //  GATE — build from Firebase
@@ -533,7 +522,6 @@ window._buildGate = function() {
   wrap.innerHTML = '';
 
   if (channels.length === 0) {
-    // لا توجد قنوات → ادخل مباشرة
     unlockMain();
     return;
   }
@@ -592,18 +580,6 @@ window.unlockMain = function() {
 };
 
 // ════════════════════════════════
-//  ADSGRAM ADS
-// ════════════════════════════════
-const ADSGRAM_BLOCK_ID = 'int-26345';
-let spinCountForAds = 0;
-
-window.showAdsgramAd = function() {
-  if (typeof Adsgram !== 'undefined' && Adsgram.show) {
-    Adsgram.show({ blockId: ADSGRAM_BLOCK_ID });
-  }
-};
-
-// ════════════════════════════════
 //  APP START
 // ════════════════════════════════
 window._startApp = function() {
@@ -612,12 +588,10 @@ window._startApp = function() {
   buildTasks();
   startCoins();
   setInterval(tickCountdown, 1000);
-  // عرض إعلان عند دخول البوت
-  setTimeout(() => showAdsgramAd(), 1000);
 };
 
 // ════════════════════════════════
-//  TASKS — build from Firebase
+//  TASKS
 // ════════════════════════════════
 const ICON_MAP = {
   ig: 'icon-ig', tg: 'icon-tg', yt: 'icon-yt',
@@ -668,14 +642,12 @@ function buildTasks() {
 }
 
 function completeTask(t, el) {
-  // فتح الرابط
   if (t.link) window.open(t.link, '_blank');
 
-  // تأخير قصير ثم احتساب المكافأة
   setTimeout(() => {
     const s      = getState();
     const done   = s.completedTasks || {};
-    if (done[t.id]) return; // تم مسبقاً
+    if (done[t.id]) return;
     done[t.id]   = true;
     const reward = t.reward !== undefined ? t.reward : 10;
     s.completedTasks = done;
@@ -730,7 +702,10 @@ function pickPrize() {
 window.doSpin = function() {
   if (spinning) return;
   const s = getState();
-  if (s.spins >= MAX_SPINS) { showToast('⛔ انتهت محاولاتك! انتظر تجديد العداد'); return; }
+  if (s.spins >= MAX_SPINS) { 
+    showToast('⛔ انتهت محاولاتك! انتظر تجديد العداد'); 
+    return; 
+  }
 
   spinning = true;
   document.getElementById('spinBtn').disabled = true;
@@ -753,16 +728,21 @@ window.doSpin = function() {
     if (t < 1) { requestAnimationFrame(anim); return; }
     curAngle = finalAng % (2*Math.PI);
     spinning = false;
-    s.spins++; s.balance += PRIZES[prizeIdx]; saveState(s);
-    spinCountForAds++;
+    s.spins++; 
+    s.balance += PRIZES[prizeIdx]; 
+    
+    // إذا وصل للحد الأقصى، نبدأ وقت التبريد
+    if (s.spins >= MAX_SPINS) {
+        s.resetTime = Date.now();
+    }
+    
+    saveState(s);
     updateUI();
     showToast(`🎉 ربحت ${PRIZES[prizeIdx]} دينار!`);
     document.getElementById('spinBtn').disabled = false;
-    // عرض إعلان بعد كل دورتين
-    if (spinCountForAds % 2 === 0) {
-      setTimeout(() => showAdsgramAd(), 800);
-    }
-    if (s.spins >= 5 && !localStorage.getItem('shared_passed')) {
+    
+    const sharedKey = 'shared_passed_' + (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'guest');
+    if (s.spins >= 5 && !localStorage.getItem(sharedKey)) {
       setTimeout(() => openModal('modalShare'), 1500);
     }
   })(performance.now());
@@ -773,25 +753,48 @@ window.doSpin = function() {
 // ════════════════════════════════
 function updateUI() {
   const s = getState();
-  if (s.spins >= 5 && !localStorage.getItem('shared_passed')) {
+  const sharedKey = 'shared_passed_' + (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'guest');
+  
+  if (s.spins >= 5 && !localStorage.getItem(sharedKey)) {
     openModal('modalShare');
   }
+  
   const rem = Math.max(0, MAX_SPINS - s.spins);
   document.getElementById('balanceDisplay').textContent = s.balance.toLocaleString('ar-IQ');
   document.getElementById('spinsDisplay').textContent   = rem;
   document.getElementById('withdrawAmount').textContent = s.balance.toLocaleString('ar-IQ') + ' دينار';
   document.getElementById('withdrawBtn').style.display  = s.balance >= WITHDRAW_MIN ? 'block' : 'none';
+  
   const btn = document.getElementById('spinBtn');
   const cdl = document.getElementById('countdownLine');
-  if (rem === 0) { btn.disabled = true; btn.textContent = '⏳ انتظر تجديد العداد'; cdl.style.display = 'inline'; }
-  else           { btn.disabled = false; btn.textContent = '🎡 ادر العجلة!';        cdl.style.display = 'none';   }
+  
+  if (rem === 0) { 
+    btn.disabled = true; 
+    btn.textContent = '⏳ انتظر تجديد العداد'; 
+    cdl.style.display = 'inline'; 
+  } else { 
+    btn.disabled = false; 
+    btn.textContent = '🎡 ادر العجلة!';        
+    cdl.style.display = 'none';   
+  }
 }
 
 function tickCountdown() {
   const s = getState();
-  if (MAX_SPINS - s.spins > 0) { document.getElementById('countdownLine').style.display = 'none'; return; }
+  if (MAX_SPINS - s.spins > 0) { 
+    document.getElementById('countdownLine').style.display = 'none'; 
+    return; 
+  }
+  
   const ms = Math.max(0, s.resetTime + COOLDOWN_MS - Date.now());
-  if (ms === 0) { updateUI(); return; }
+  if (ms === 0) { 
+    // إعادة تعيين اللفات تلقائياً عند انتهاء الوقت
+    s.spins = 0;
+    saveState(s);
+    updateUI(); 
+    return; 
+  }
+  
   const h=Math.floor(ms/3600000), m=Math.floor((ms%3600000)/60000), sec=Math.floor((ms%60000)/1000);
   document.getElementById('countdownDisplay').textContent =
     String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
@@ -827,12 +830,8 @@ function startCoins() {
 }
 
 const sharedPlatforms = { fb: false, tg: false, wa: false };
-
-// ════════════════════════════════
-//  إعدادات المشاركة (يمكنك تعديلها هنا)
-// ════════════════════════════════
-const MY_SHARE_URL  = "https://t.me/Kzkkkk19bot"; // رابط البوت الخاص بك
-const MY_SHARE_TEXT = "جرب حظك مع أبو جنة! 🎰"; // ضع نص الرسالة هنا
+const MY_SHARE_URL  = "https://t.me/Kzkkkk19bot"; 
+const MY_SHARE_TEXT = "جرب حظك مع أبو جنة! 🎰"; 
 
 window.doShare = function(platform) {
   const url = MY_SHARE_URL;
@@ -861,7 +860,8 @@ window.doShare = function(platform) {
 };
 
 window.closeShareModal = function() {
-  localStorage.setItem('shared_passed', '1');
+  const sharedKey = 'shared_passed_' + (window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 'guest');
+  localStorage.setItem(sharedKey, '1');
   document.getElementById('modalShare').classList.remove('open');
   showToast("✅ شكراً لك! يمكنك الاستمرار الآن");
 };
