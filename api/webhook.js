@@ -7,36 +7,47 @@ const PRIVATE_KEY  = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
 
 // ── Firebase Token ──
 async function getFirebaseToken() {
-  const header  = btoa(JSON.stringify({ alg: "RS256", typ: "JWT" }));
-  const now     = Math.floor(Date.now() / 1000);
-  const payload = btoa(JSON.stringify({
-    iss: CLIENT_EMAIL, sub: CLIENT_EMAIL,
-    aud: "https://oauth2.googleapis.com/token",
-    iat: now, exp: now + 3600,
-    scope: "https://www.googleapis.com/auth/firebase.database https://www.googleapis.com/auth/userinfo.email"
-  }));
+  try {
+    const header  = btoa(JSON.stringify({ alg: "RS256", typ: "JWT" }));
+    const now     = Math.floor(Date.now() / 1000);
+    const payload = btoa(JSON.stringify({
+      iss: CLIENT_EMAIL,
+      sub: CLIENT_EMAIL,
+      aud: "https://oauth2.googleapis.com/token",
+      iat: now,
+      exp: now + 3600,
+      scope: "https://www.googleapis.com/auth/firebase.database https://www.googleapis.com/auth/userinfo.email"
+    }));
 
-  const key = await crypto.subtle.importKey(
-    "pkcs8",
-    pemToBuffer(PRIVATE_KEY),
-    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
-    false, ["sign"]
-  );
+    const key = await crypto.subtle.importKey(
+      "pkcs8",
+      pemToBuffer(PRIVATE_KEY),
+      { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
 
-  const sig = await crypto.subtle.sign(
-    "RSASSA-PKCS1-v1_5", key,
-    new TextEncoder().encode(`${header}.${payload}`)
-  );
+    const sig = await crypto.subtle.sign(
+      "RSASSA-PKCS1-v1_5",
+      key,
+      new TextEncoder().encode(`${header}.${payload}`)
+    );
 
-  const jwt = `${header}.${payload}.${bufferToBase64(sig)}`;
+    const jwt = `${header}.${payload}.${bufferToBase64(sig)}`;
 
-  const res = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`
-  });
-  const data = await res.json();
-  return data.access_token;
+    const res = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`
+    });
+
+    const data = await res.json();
+    return data.access_token;
+
+  } catch (e) {
+    console.error("Token error:", e);
+    return null;
+  }
 }
 
 function pemToBuffer(pem) {
@@ -49,13 +60,17 @@ function pemToBuffer(pem) {
 
 function bufferToBase64(buffer) {
   return btoa(String.fromCharCode(...new Uint8Array(buffer)))
-    .replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
 }
 
 // ── حفظ المستخدم في Firebase ──
 async function saveUser(user, chatId) {
   try {
     const token = await getFirebaseToken();
+    if (!token) return;
+
     await fetch(`${DB_URL}/users/${user.id}.json?auth=${token}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -68,11 +83,13 @@ async function saveUser(user, chatId) {
         lastSeen:  Date.now(),
       })
     });
+
     await fetch(`${DB_URL}/chat_ids/${user.id}.json?auth=${token}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(chatId)
     });
+
   } catch (e) {
     console.error("Firebase error:", e);
   }
@@ -80,32 +97,43 @@ async function saveUser(user, chatId) {
 
 // ── إرسال لتيليغرام ──
 async function callTelegram(method, body) {
-  const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  return res.json();
+  try {
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch (e) {
+    console.error("Telegram error:", e);
+  }
 }
 
+// ── Webhook ──
 export default async function handler(req, res) {
-  res.status(200).json({ ok: true });
-  if (req.method !== "POST") return;
+  try {
+    // 🔥 رد سريع جداً (مهم)
+    res.status(200).end();
 
-  const update = req.body;
-  if (!update?.message) return;
+    if (req.method !== "POST") return;
 
-  const msg    = update.message;
-  const chatId = msg.chat.id;
-  const text   = msg.text || "";
-  const user   = msg.from;
-  const name   = user?.first_name || "صديقي";
+    const update = typeof req.body === "string"
+      ? JSON.parse(req.body)
+      : req.body;
 
-  if (text.startsWith("/start")) {
-    await saveUser(user, chatId);
-    await callTelegram("sendMessage", {
-      chat_id: chatId,
-      text:
+    if (!update?.message) return;
+
+    const msg    = update.message;
+    const chatId = msg.chat.id;
+    const text   = msg.text || "";
+    const user   = msg.from;
+    const name   = user?.first_name || "صديقي";
+
+    if (text.startsWith("/start")) {
+
+      // ⚡ إرسال فوري بدون انتظار
+      callTelegram("sendMessage", {
+        chat_id: chatId,
+        text:
 `🎰 أهلاً وسهلاً ${name}! 🎉
 
 مرحباً بك في بوت *أبو جنة* 🎡
@@ -115,12 +143,19 @@ export default async function handler(req, res) {
 🎁 أكمل المهام واحصل على مكافآت
 
 👇 اضغط على الزر أدناه للبدء:`,
-      parse_mode: "Markdown",
-      reply_markup: {
-        inline_keyboard: [[
-          { text: "🎡 افتح عجلة الحظ", web_app: { url: WEBAPP_URL } }
-        ]]
-      }
-    });
+        parse_mode: "Markdown",
+        reply_markup: {
+          inline_keyboard: [[
+            { text: "🎡 افتح عجلة الحظ", web_app: { url: WEBAPP_URL } }
+          ]]
+        }
+      });
+
+      // 🔄 حفظ بالخلفية (بدون تأخير)
+      saveUser(user, chatId).catch(console.error);
+    }
+
+  } catch (err) {
+    console.error("Webhook error:", err);
   }
 }
